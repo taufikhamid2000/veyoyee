@@ -31,11 +31,12 @@ export default function SignInForm() {
     setIsLoading(true);
     setError(null);
     try {
+      // Use the browser client to set cookies properly
       const supabase = createClient();
 
       console.log("Attempting sign in with:", data.email);
 
-      // Simple authentication without extra checks
+      // Auth with password sets cookies automatically with createBrowserClient
       const response = await supabase.auth.signInWithPassword({
         email: data.email,
         password: data.password,

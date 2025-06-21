@@ -12,18 +12,19 @@ export function useSupabaseAuth() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check the current auth status
+    // Check the current auth status using getUser() instead of getSession()
     const checkUser = async () => {
       setLoading(true);
       try {
-        const { data } = await supabase.auth.getSession();
-        if (data?.session?.user) {
-          setUser(data.session.user);
+        // Use getUser() directly which reads from cookies properly
+        const { data, error } = await supabase.auth.getUser();
+        if (data?.user && !error) {
+          setUser(data.user);
         } else {
           setUser(null);
         }
       } catch (err) {
-        console.error("Error getting session:", err);
+        console.error("Error getting user:", err);
         setUser(null);
       }
       setLoading(false);
@@ -35,17 +36,19 @@ export function useSupabaseAuth() {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
+      // Refresh the user state and UI when auth state changes
       if (session?.user) {
         setUser(session.user);
+        router.refresh(); // Update any server components
 
-        // For sign-in, navigate to dashboard without using router.refresh()
+        // Only handle navigation on initial sign-in to avoid loops
         if (event === "SIGNED_IN") {
           router.replace("/dashboard");
         }
       } else {
         setUser(null);
+        router.refresh(); // Update any server components
 
-        // If signed out, go back to login
         if (event === "SIGNED_OUT") {
           router.replace("/auth/signin");
         }

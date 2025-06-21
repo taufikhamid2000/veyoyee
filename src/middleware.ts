@@ -15,10 +15,14 @@ export async function middleware(req: NextRequest) {
           return req.cookies.get(name)?.value;
         },
         set(name, value, options) {
-          res.cookies.set({ name, value, ...options });
+          res.cookies.set({
+            name,
+            value,
+            ...options,
+          });
         },
         remove(name, options) {
-          res.cookies.set({ name, value: "", ...options });
+          res.cookies.delete(name);
         },
       },
     }
@@ -46,7 +50,7 @@ export async function middleware(req: NextRequest) {
   return res;
 }
 
-// only run on routes that ever touch Supabase
+// only run on routes that ever touch Supabase but skip static assets
 export const config = {
-  matcher: ["/((?!_next|favicon.ico).*)"],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
 };

@@ -7,6 +7,7 @@ import { User, Session } from "@supabase/supabase-js";
 import SignOutButton from "@/components/auth/sign-out-button";
 import { Menu, X } from "lucide-react";
 import UserNavDropdown from "@/components/layout/user-nav-dropdown";
+import { ThemeToggle } from "@/components/theme/theme-toggle";
 
 export default function Navigation() {
   const [user, setUser] = useState<User | null>(null);
@@ -63,7 +64,7 @@ export default function Navigation() {
 
   return (
     <nav className="relative">
-      {/* Desktop Navigation */}
+      {/* Desktop Navigation */}{" "}
       <div className="hidden md:flex items-center gap-4">
         <Link
           href="/"
@@ -83,11 +84,13 @@ export default function Navigation() {
             >
               Dashboard
             </Link>
+            <ThemeToggle />
             {user && <UserNavDropdown user={user} />}
           </div>
         ) : (
           // Unauthenticated menu items
           <div className="flex items-center gap-4">
+            <ThemeToggle />
             <Link
               href="/auth/signin"
               className="hover:text-blue-600 dark:hover:text-blue-400"
@@ -103,7 +106,6 @@ export default function Navigation() {
           </div>
         )}
       </div>
-
       {/* Mobile Burger Menu */}
       <div className="md:hidden flex justify-end">
         <button
@@ -150,12 +152,15 @@ export default function Navigation() {
                   <div className="px-4 py-2 text-sm text-blue-800 dark:text-blue-300 bg-gray-50 dark:bg-gray-700">
                     {user.email?.split("@")[0]}
                   </div>
-                )}
+                )}{" "}
                 <div className="px-3 py-1">
                   <SignOutButton
                     variant="link"
                     className="w-full text-left text-sm text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
                   />
+                </div>
+                <div className="px-4 py-2 flex justify-center">
+                  <ThemeToggle />
                 </div>
               </>
             ) : (
@@ -167,7 +172,7 @@ export default function Navigation() {
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Sign In
-                </Link>
+                </Link>{" "}
                 <Link
                   href="/auth/signup"
                   className="block px-4 py-2 text-sm text-blue-600 dark:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-700"
@@ -175,6 +180,9 @@ export default function Navigation() {
                 >
                   Sign Up
                 </Link>
+                <div className="px-4 py-2 flex justify-center">
+                  <ThemeToggle />
+                </div>
               </>
             )}
           </div>
