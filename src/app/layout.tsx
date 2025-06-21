@@ -38,7 +38,9 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased dark:bg-gray-900 dark:text-white`}
       >
         <ThemeProvider>
-          <SupabaseListener>            <header className="border-b border-gray-200 dark:border-gray-800">
+          <SupabaseListener>
+            {" "}
+            <header className="border-b border-gray-200 dark:border-gray-800">
               <div className="container mx-auto flex items-center justify-between p-4">
                 <Link href="/" className="text-xl font-bold">
                   Veyoyee
