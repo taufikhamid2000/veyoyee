@@ -17,7 +17,7 @@ export const createServerClient = cache(async () => {
         set(name, value, options) {
           cookieStore.set(name, value, options);
         },
-        remove(name, options) {
+        remove(name) {
           cookieStore.delete(name);
         },
       },

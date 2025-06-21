@@ -1,4 +1,6 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
 // verify-env.js
+require("dotenv").config({ path: ".env.local" });
 console.log("Verifying environment variables...");
 
 const requiredEnvVars = [
