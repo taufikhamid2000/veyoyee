@@ -27,19 +27,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <meta
           name="viewport"
           content="width=device-width, initial-scale=1.0, maximum-scale=1.0"
         />
-      </head>{" "}
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white text-gray-900 dark:bg-gray-900 dark:text-white min-h-screen`}
       >
         <ThemeProvider>
           <SupabaseListener>
-            {" "}
             <header className="w-full bg-blue-950/95 backdrop-blur-md fixed top-0 z-50 shadow-md">
               <div className="container mx-auto flex items-center justify-between py-4 px-6">
                 <Link

@@ -64,7 +64,7 @@ export default function Navigation() {
 
   return (
     <nav className="relative">
-      {/* Desktop Navigation */}{" "}
+      {/* Desktop Navigation */}
       <div className="hidden md:flex items-center gap-6">
         <Link
           href="/"
@@ -102,10 +102,10 @@ export default function Navigation() {
               className="px-5 py-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-full hover:shadow-lg hover:from-blue-600 hover:to-indigo-700 transition-all duration-300"
             >
               Sign Up
-            </Link>
+            </Link>{" "}
           </div>
         )}
-      </div>{" "}
+      </div>
       {/* Mobile Burger Menu */}
       <div className="md:hidden flex justify-end">
         <button
@@ -126,7 +126,6 @@ export default function Navigation() {
             ref={menuRef}
             className="absolute right-0 top-14 mt-2 w-56 rounded-xl bg-blue-900/95 backdrop-blur-lg shadow-lg py-2 z-10 border border-blue-700/50"
           >
-            {" "}
             <Link
               href="/"
               className="block px-6 py-3 text-sm text-gray-200 hover:text-white hover:bg-blue-800/50 transition-colors"
@@ -150,9 +149,9 @@ export default function Navigation() {
                 </Link>
                 {user && (
                   <div className="px-6 py-3 text-sm text-blue-300 bg-blue-950/70">
-                    {user.email?.split("@")[0]}
+                    {user.email?.split("@")[0]}{" "}
                   </div>
-                )}{" "}
+                )}
                 <div className="px-6 py-3">
                   <SignOutButton
                     variant="link"

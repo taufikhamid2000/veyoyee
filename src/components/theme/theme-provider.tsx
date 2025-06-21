@@ -12,7 +12,6 @@ export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
       disableTransitionOnChange
       {...props}
     >
-      {/* No need for visibility hacks with suppressHydrationWarning on html element */}
       {children}
     </NextThemesProvider>
   );

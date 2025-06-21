@@ -116,7 +116,6 @@ export default function Home() {
   );
   return (
     <div className="flex flex-col items-center justify-center w-full">
-      {" "}
       {/* Hero Section */}
       <div className="w-full bg-gradient-to-br from-blue-950 to-indigo-950 py-20">
         <div className="max-w-6xl mx-auto text-center px-6 relative">
@@ -143,7 +142,7 @@ export default function Home() {
                 transform="translate(100 100)"
               />
             </svg>
-          </div>{" "}
+          </div>
           <div className="inline-block bg-blue-900/30 px-5 py-2 rounded-full text-sm font-semibold mb-8 shadow-md backdrop-blur-sm">
             <span className="text-blue-200">
               For Academic & Nonprofit Researchers
@@ -153,12 +152,12 @@ export default function Home() {
             <span className="text-blue-300">
               Research That Rewards Everyone
             </span>
-          </h1>
+          </h1>{" "}
           <p className="text-xl text-white mb-12 max-w-3xl mx-auto font-medium leading-relaxed">
             Veyoyee connects researchers with quality respondents through fair
             incentives. Create surveys, reward participants, and get better
             data—all in one place.
-          </p>{" "}
+          </p>
           <div className="flex flex-col sm:flex-row gap-6 justify-center mb-10">
             <Link
               href="/auth/signup"
@@ -186,14 +185,13 @@ export default function Home() {
             </Link>
           </div>
           <div className="text-sm font-medium text-gray-300 bg-transparent rounded-full px-4 py-2 inline-block backdrop-blur-sm">
-            No credit card required to start
+            No credit card required to start{" "}
           </div>
         </div>
-      </div>{" "}
-      {/* How It Works Section */}
+      </div>
+      {/* How It Works Section */}{" "}
       <div className="w-full bg-gray-900 py-24 px-6 relative">
         <div className="max-w-6xl mx-auto">
-          {" "}
           <div className="mb-16 text-center">
             <span className="inline-block px-4 py-1 rounded-full bg-blue-900 text-blue-300 font-medium text-sm mb-4">
               Simple Process
@@ -209,7 +207,6 @@ export default function Home() {
           <div className="relative">
             {/* Connection lines between steps */}
             <div className="hidden md:block absolute top-1/2 left-0 w-full h-0.5 bg-gradient-to-r from-blue-500 to-indigo-600 transform -translate-y-1/2 z-0"></div>
-
             <div className="grid md:grid-cols-3 gap-8 md:gap-12 relative z-10">
               <StepCard
                 number={1}
@@ -228,14 +225,13 @@ export default function Home() {
                 title="Analyze Results"
                 description="Access high-quality data and insights while participants cash out their earned rewards."
               />
-            </div>
+            </div>{" "}
           </div>
         </div>
-      </div>{" "}
-      {/* Features Section */}
+      </div>
+      {/* Features Section */}{" "}
       <div className="w-full bg-gradient-to-br from-gray-950 to-blue-950 py-24 px-6">
         <div className="max-w-6xl mx-auto">
-          {" "}
           <div className="mb-16 text-center">
             <span className="inline-block px-4 py-1 rounded-full bg-blue-900 text-blue-300 font-medium text-sm mb-4">
               Key Benefits

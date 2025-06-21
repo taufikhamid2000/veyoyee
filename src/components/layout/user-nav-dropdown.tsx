@@ -63,7 +63,7 @@ export default function UserNavDropdown({ user }: { user: User }) {
             isOpen ? "rotate-180" : "rotate-0"
           }`}
         />
-      </button>
+      </button>{" "}
       <div
         className={`
           absolute right-0 mt-2 w-56 rounded-xl shadow-lg bg-blue-900/95 backdrop-blur-lg 
