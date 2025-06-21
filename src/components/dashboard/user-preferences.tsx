@@ -32,7 +32,6 @@ export default function UserPreferences({
     setSettings({ ...settings, emailNotifications: e.target.checked });
     setSaveStatus("idle");
   };
-
   const savePreferences = async () => {
     setIsSaving(true);
     setSaveStatus("idle");
@@ -40,14 +39,39 @@ export default function UserPreferences({
     try {
       const supabase = createClient();
 
-      // Update user preferences in a profile or user_preferences table
-      const { error } = await supabase
+      // Check if profile exists first
+      const { data: existingProfile } = await supabase
         .from("profiles")
-        .update({
+        .select("*")
+        .eq("id", userId)
+        .single();
+
+      let error;
+
+      if (existingProfile) {
+        // Update existing profile
+        const { error: updateError } = await supabase
+          .from("profiles")
+          .update({
+            theme_preference: settings.theme,
+            email_notifications: settings.emailNotifications,
+            updated_at: new Date().toISOString(),
+          })
+          .eq("id", userId);
+
+        error = updateError;
+      } else {
+        // Create new profile if it doesn't exist
+        const { error: insertError } = await supabase.from("profiles").insert({
+          id: userId,
           theme_preference: settings.theme,
           email_notifications: settings.emailNotifications,
-        })
-        .eq("id", userId);
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        });
+
+        error = insertError;
+      }
 
       if (error) throw error;
       setSaveStatus("success");
