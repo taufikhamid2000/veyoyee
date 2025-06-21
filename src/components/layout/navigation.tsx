@@ -32,13 +32,8 @@ export default function Navigation() {
     const { data: authListener } = supabase.auth.onAuthStateChange(
       async (event: string, session: Session | null) => {
         const sessionUser = session?.user || null;
-        setUser(sessionUser);
-
-        // If user just signed in, redirect to dashboard
+        setUser(sessionUser);        // If user just signed in, redirect to dashboard
         if (event === "SIGNED_IN" && sessionUser) {
-          console.log(
-            "Auth state change: signed in, redirecting to dashboard..."
-          );
           window.location.href = "/dashboard";
         }
       }
@@ -61,7 +56,6 @@ export default function Navigation() {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [menuRef]);
-
   return (
     <nav className="relative">
       {/* Desktop Navigation */}
@@ -102,10 +96,11 @@ export default function Navigation() {
               className="px-5 py-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-full hover:shadow-lg hover:from-blue-600 hover:to-indigo-700 transition-all duration-300"
             >
               Sign Up
-            </Link>{" "}
+            </Link>
           </div>
         )}
       </div>
+
       {/* Mobile Burger Menu */}
       <div className="md:hidden flex justify-end">
         <button
@@ -133,6 +128,7 @@ export default function Navigation() {
             >
               Home
             </Link>
+
             {loading ? (
               <span className="block px-6 py-3 text-sm text-gray-400">
                 Loading...
@@ -149,7 +145,7 @@ export default function Navigation() {
                 </Link>
                 {user && (
                   <div className="px-6 py-3 text-sm text-blue-300 bg-blue-950/70">
-                    {user.email?.split("@")[0]}{" "}
+                    {user.email?.split("@")[0]}
                   </div>
                 )}
                 <div className="px-6 py-3">
