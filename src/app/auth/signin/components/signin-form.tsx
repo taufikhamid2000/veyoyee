@@ -32,22 +32,36 @@ export default function SignInForm() {
     setError(null);
     try {
       const supabase = createClient();
+
+      console.log("Attempting sign in with:", data.email);
+
       // Simple authentication without extra checks
       const response = await supabase.auth.signInWithPassword({
         email: data.email,
         password: data.password,
       });
+
       if (response.error) {
+        console.error("Sign-in error:", response.error.message);
+
         // Provide more specific error messages for common auth issues
         if (response.error.message.includes("Invalid login credentials")) {
           setError("Invalid email or password. Please try again.");
         } else if (response.error.message.includes("Email not confirmed")) {
           setError("Please verify your email before signing in.");
+        } else if (response.error.message.includes("Invalid API key")) {
+          setError(
+            "Authentication service error. Please try again later or contact support."
+          );
         } else {
-          throw response.error;
+          setError(`Error: ${response.error.message}`);
         }
+        setIsLoading(false);
         return;
       }
+
+      console.log("Sign-in successful, session established");
+      // The auth listener will handle navigation
 
       // Simple redirect - no extra session check
       window.location.href = "/dashboard";

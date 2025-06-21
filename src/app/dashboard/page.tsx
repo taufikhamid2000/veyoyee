@@ -7,29 +7,33 @@ export const metadata: Metadata = {
   description: "Your Veyoyee Dashboard",
 };
 
+// Ensure page is always rendered fresh on request
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default async function DashboardPage() {
-  const supabase = await createServerClient(); // Get session if available
+  // Server-side auth check
+  const supabase = await createServerClient();
   const { data, error } = await supabase.auth.getUser();
 
   // Redirect to login if no user is found
   if (!data?.user || error) {
+    console.log("Dashboard auth check failed:", error?.message);
     redirect("/auth/signin");
   }
 
   // Get user profile if user exists
   let userProfile = null;
-  let userMetadata = null;
+  const userMetadata = data.user.user_metadata;
 
-  if (data?.user) {
-    // Get user metadata directly from user
-    userMetadata = data.user.user_metadata;
-
+  try {
     // Try to get profile from the profiles table
     const profileResponse = await supabase
       .from("profiles")
       .select("*")
       .eq("id", data.user.id)
-      .single(); // Use profile data if available, otherwise fall back to user metadata
+      .single();
+
     if (profileResponse.data) {
       userProfile = profileResponse.data;
     } else {
@@ -42,13 +46,23 @@ export default async function DashboardPage() {
         email: data.user.email,
       };
     }
+  } catch (err) {
+    console.error("Error fetching profile:", err);
+    // Fallback profile if fetch fails
+    userProfile = {
+      id: data.user.id,
+      first_name: userMetadata?.first_name || "User",
+      last_name: userMetadata?.last_name || "",
+      role: userMetadata?.role || "user",
+      email: data.user.email,
+    };
   }
 
   return (
     <div className="container mx-auto py-8">
       <h1 className="mb-6 text-3xl font-bold">
         Welcome, {userProfile?.first_name || "Guest"}!
-      </h1>{" "}
+      </h1>
       <div className="grid gap-6 md:grid-cols-2">
         <div className="bg-white dark:bg-gray-800 p-6 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
           <h2 className="text-xl font-semibold mb-4">Your Profile</h2>
@@ -79,7 +93,7 @@ export default async function DashboardPage() {
               components you need.
             </p>
           </div>
-        </div>{" "}
+        </div>
         {/* Debug information panel - only visible in development */}
         {process.env.NODE_ENV === "development" && (
           <div className="bg-white dark:bg-gray-800 p-6 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
@@ -95,12 +109,6 @@ export default async function DashboardPage() {
                   </div>
                   <div>
                     <strong>Email:</strong> {data.user.email}
-                  </div>
-                  <div>
-                    <strong>User metadata:</strong>{" "}
-                    <pre>
-                      {JSON.stringify(data.user.user_metadata, null, 2)}
-                    </pre>
                   </div>
                 </>
               )}
