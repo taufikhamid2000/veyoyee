@@ -16,14 +16,15 @@ export function ThemeToggle() {
   if (!mounted) {
     return <div className="w-9 h-9" />;
   }
-
   return (
-    <div className="flex items-center space-x-2">
+    <div className="flex items-center space-x-1">
       <Button
         variant="ghost"
         size="icon"
         onClick={() => setTheme("light")}
-        className={theme === "light" ? "bg-slate-100 dark:bg-slate-800" : ""}
+        className={`text-gray-200 hover:text-white hover:bg-blue-800/50 ${
+          theme === "light" ? "bg-blue-800/60 text-white" : ""
+        }`}
         title="Light mode"
       >
         <Sun className="h-5 w-5" />
@@ -34,7 +35,9 @@ export function ThemeToggle() {
         variant="ghost"
         size="icon"
         onClick={() => setTheme("dark")}
-        className={theme === "dark" ? "bg-slate-100 dark:bg-slate-800" : ""}
+        className={`text-gray-200 hover:text-white hover:bg-blue-800/50 ${
+          theme === "dark" ? "bg-blue-800/60 text-white" : ""
+        }`}
         title="Dark mode"
       >
         <Moon className="h-5 w-5" />
@@ -45,7 +48,9 @@ export function ThemeToggle() {
         variant="ghost"
         size="icon"
         onClick={() => setTheme("system")}
-        className={theme === "system" ? "bg-slate-100 dark:bg-slate-800" : ""}
+        className={`text-gray-200 hover:text-white hover:bg-blue-800/50 ${
+          theme === "system" ? "bg-blue-800/60 text-white" : ""
+        }`}
         title="System preference"
       >
         <Laptop className="h-5 w-5" />

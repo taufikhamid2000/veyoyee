@@ -65,10 +65,10 @@ export default function Navigation() {
   return (
     <nav className="relative">
       {/* Desktop Navigation */}{" "}
-      <div className="hidden md:flex items-center gap-4">
+      <div className="hidden md:flex items-center gap-6">
         <Link
           href="/"
-          className="hover:text-blue-600 mr-4 dark:hover:text-blue-400"
+          className="text-gray-200 hover:text-white transition-colors"
         >
           Home
         </Link>
@@ -77,10 +77,10 @@ export default function Navigation() {
           <span className="text-gray-400">Loading...</span>
         ) : user ? (
           // Authenticated menu items
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-6">
             <Link
               href="/dashboard"
-              className="hover:text-blue-600 dark:hover:text-blue-400"
+              className="text-gray-200 hover:text-white transition-colors"
             >
               Dashboard
             </Link>
@@ -89,28 +89,28 @@ export default function Navigation() {
           </div>
         ) : (
           // Unauthenticated menu items
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-6">
             <ThemeToggle />
             <Link
               href="/auth/signin"
-              className="hover:text-blue-600 dark:hover:text-blue-400"
+              className="text-gray-200 hover:text-white transition-colors"
             >
               Sign In
             </Link>
             <Link
               href="/auth/signup"
-              className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
+              className="px-5 py-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-full hover:shadow-lg hover:from-blue-600 hover:to-indigo-700 transition-all duration-300"
             >
               Sign Up
             </Link>
           </div>
         )}
-      </div>
+      </div>{" "}
       {/* Mobile Burger Menu */}
       <div className="md:hidden flex justify-end">
         <button
           onClick={() => setIsMenuOpen(!isMenuOpen)}
-          className="p-2 focus:outline-none"
+          className="p-2 focus:outline-none text-gray-200 hover:text-white"
           aria-label="Toggle menu"
         >
           {isMenuOpen ? (
@@ -124,18 +124,18 @@ export default function Navigation() {
         {isMenuOpen && (
           <div
             ref={menuRef}
-            className="absolute right-0 top-10 mt-2 w-48 rounded-md bg-white dark:bg-gray-800 shadow-lg py-1 z-10 border border-gray-200 dark:border-gray-700"
+            className="absolute right-0 top-14 mt-2 w-56 rounded-xl bg-blue-900/95 backdrop-blur-lg shadow-lg py-2 z-10 border border-blue-700/50"
           >
+            {" "}
             <Link
               href="/"
-              className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+              className="block px-6 py-3 text-sm text-gray-200 hover:text-white hover:bg-blue-800/50 transition-colors"
               onClick={() => setIsMenuOpen(false)}
             >
               Home
             </Link>
-
             {loading ? (
-              <span className="block px-4 py-2 text-sm text-gray-400">
+              <span className="block px-6 py-3 text-sm text-gray-400">
                 Loading...
               </span>
             ) : user ? (
@@ -143,23 +143,23 @@ export default function Navigation() {
               <>
                 <Link
                   href="/dashboard"
-                  className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  className="block px-6 py-3 text-sm text-gray-200 hover:text-white hover:bg-blue-800/50 transition-colors"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Dashboard
                 </Link>
                 {user && (
-                  <div className="px-4 py-2 text-sm text-blue-800 dark:text-blue-300 bg-gray-50 dark:bg-gray-700">
+                  <div className="px-6 py-3 text-sm text-blue-300 bg-blue-950/70">
                     {user.email?.split("@")[0]}
                   </div>
                 )}{" "}
-                <div className="px-3 py-1">
+                <div className="px-6 py-3">
                   <SignOutButton
                     variant="link"
-                    className="w-full text-left text-sm text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
+                    className="w-full text-left text-sm text-red-400 hover:text-red-300"
                   />
                 </div>
-                <div className="px-4 py-2 flex justify-center">
+                <div className="px-6 py-3 flex justify-center border-t border-blue-800/50 mt-1">
                   <ThemeToggle />
                 </div>
               </>
@@ -168,19 +168,21 @@ export default function Navigation() {
               <>
                 <Link
                   href="/auth/signin"
-                  className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  className="block px-6 py-3 text-sm text-gray-200 hover:text-white hover:bg-blue-800/50 transition-colors"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Sign In
-                </Link>{" "}
-                <Link
-                  href="/auth/signup"
-                  className="block px-4 py-2 text-sm text-blue-600 dark:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-700"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  Sign Up
                 </Link>
-                <div className="px-4 py-2 flex justify-center">
+                <div className="px-6 py-3">
+                  <Link
+                    href="/auth/signup"
+                    className="block w-full text-center py-2 text-sm bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-full hover:from-blue-600 hover:to-indigo-700"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Sign Up
+                  </Link>
+                </div>
+                <div className="px-6 py-3 flex justify-center border-t border-blue-800/50 mt-1">
                   <ThemeToggle />
                 </div>
               </>

@@ -40,14 +40,21 @@ export default function RootLayout({
         <ThemeProvider>
           <SupabaseListener>
             {" "}
-            <header className="border-b border-gray-200 dark:border-gray-800 w-full">
-              <div className="container mx-auto flex items-center justify-between p-4">
-                <Link href="/" className="text-xl font-bold">
-                  Veyoyee
+            <header className="w-full bg-blue-950/95 backdrop-blur-md fixed top-0 z-50 shadow-md">
+              <div className="container mx-auto flex items-center justify-between py-4 px-6">
+                <Link
+                  href="/"
+                  className="text-2xl font-bold text-white flex items-center"
+                >
+                  <span className="bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">
+                    Veyoyee
+                  </span>
                 </Link>
                 <Navigation />
-              </div>{" "}
+              </div>
             </header>
+            {/* Spacer for fixed header */}
+            <div className="h-16"></div>
             <main className="w-full">{children}</main>
           </SupabaseListener>
         </ThemeProvider>
