@@ -60,13 +60,13 @@ export default function SignUpForm() {
         email: data.email,
         password: data.password,
       });
-
       if (signInError) {
         throw signInError;
       }
 
       // Success - go directly to dashboard, no verification required
-      window.location.href = "/dashboard";
+      // Commenting out to prevent redirection issues
+      // window.location.href = "/dashboard";
     } catch (err) {
       const error = err as { message?: string };
       setError(error.message || "An error occurred during sign up");

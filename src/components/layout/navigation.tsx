@@ -32,10 +32,12 @@ export default function Navigation() {
     const { data: authListener } = supabase.auth.onAuthStateChange(
       async (event: string, session: Session | null) => {
         const sessionUser = session?.user || null;
-        setUser(sessionUser);        // If user just signed in, redirect to dashboard
-        if (event === "SIGNED_IN" && sessionUser) {
-          window.location.href = "/dashboard";
-        }
+        setUser(sessionUser);
+        // If user just signed in, redirect to dashboard
+        // Commenting out to prevent redirection issues
+        // if (event === "SIGNED_IN" && sessionUser) {
+        //   window.location.href = "/dashboard";
+        // }
       }
     );
     return () => {

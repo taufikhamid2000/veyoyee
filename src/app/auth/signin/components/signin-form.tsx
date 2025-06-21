@@ -60,12 +60,12 @@ export default function SignInForm() {
         setIsLoading(false);
         return;
       }
-
       console.log("Sign-in successful, session established");
       // The auth listener will handle navigation
 
       // Simple redirect - no extra session check
-      window.location.href = "/dashboard";
+      // Commenting out to prevent redirection issues
+      // window.location.href = "/dashboard";
     } catch (err) {
       const error = err as { message?: string };
       setError(error.message || "An error occurred during sign in");
