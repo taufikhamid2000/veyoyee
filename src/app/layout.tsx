@@ -27,7 +27,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en">
       <head>
         <meta
           name="viewport"
@@ -35,20 +35,20 @@ export default function RootLayout({
         />
       </head>{" "}
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white text-gray-900 dark:bg-gray-900 dark:text-white`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white text-gray-900 dark:bg-gray-900 dark:text-white min-h-screen`}
       >
         <ThemeProvider>
           <SupabaseListener>
             {" "}
-            <header className="border-b border-gray-200 dark:border-gray-800">
+            <header className="border-b border-gray-200 dark:border-gray-800 w-full">
               <div className="container mx-auto flex items-center justify-between p-4">
                 <Link href="/" className="text-xl font-bold">
                   Veyoyee
                 </Link>
                 <Navigation />
-              </div>
+              </div>{" "}
             </header>
-            <main className="container mx-auto p-4">{children}</main>
+            <main className="w-full">{children}</main>
           </SupabaseListener>
         </ThemeProvider>
       </body>
