@@ -1,7 +1,8 @@
 import { createServerClient } from "@/utils/supabase/server";
 import { mockSurveys } from "@/app/dashboard/data";
-import SurveyCard from "@/components/dashboard/SurveyCard";
+import ExploreClient from "./ExploreClient";
 import { Metadata } from "next";
+import InfoTooltip from "@/components/ui/InfoTooltip";
 
 export const metadata: Metadata = {
   title: "Explore Surveys - Veyoyee",
@@ -28,13 +29,41 @@ export default async function ExploreSurveysPage() {
         Browse public surveys and participate to share your insights. Use the
         filters to find surveys that interest you.
       </p>
-      {/* Survey Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {publicSurveys.map((survey) => (
-          <SurveyCard key={survey.id} {...survey} />
-        ))}
+      {/* User survey stats */}
+      <div className="mb-8 flex flex-col md:flex-row gap-4 md:gap-8">
+        <div className="bg-blue-50 dark:bg-blue-900/30 rounded-lg px-5 py-3 flex-1 flex items-center gap-3">
+          <span className="font-semibold text-blue-700 dark:text-blue-300">
+            Academia Surveys Answered:
+          </span>
+          <span className="text-lg font-bold text-blue-900 dark:text-white">
+            72
+          </span>
+          <span className="text-xs text-gray-500 flex items-center gap-1">
+            / 100 for SCP
+            <InfoTooltip
+              tooltip={
+                <>
+                  <strong>Survey Creation Pass (SCP):</strong> <br />
+                  Answer 100 Academia surveys to unlock the ability to create
+                  your own surveys on Veyoyee!
+                </>
+              }
+            >
+              <span className="inline-block w-4 h-4 align-middle"></span>
+            </InfoTooltip>
+          </span>
+        </div>
+        <div className="bg-green-50 dark:bg-green-900/30 rounded-lg px-5 py-3 flex-1 flex items-center gap-3">
+          <span className="font-semibold text-green-700 dark:text-green-300">
+            Commerce Surveys Answered:
+          </span>
+          <span className="text-lg font-bold text-green-900 dark:text-white">
+            RM 8.20
+          </span>
+          <span className="text-xs text-gray-500">(RM 0.10 per survey)</span>
+        </div>
       </div>
-      {/* TODO: Add search/filter controls and pagination if needed */}
+      <ExploreClient surveys={publicSurveys} />
     </div>
   );
 }

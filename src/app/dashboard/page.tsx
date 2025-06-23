@@ -60,14 +60,19 @@ export default async function DashboardPage() {
     };
   }
 
-  // Get dashboard statistics
-  const stats = getDashboardStats();
+  // Only show surveys owned by the current user
+  const userSurveys = mockSurveys.filter(
+    (survey) => survey.createdBy === data.user.id
+  );
+
+  // Get dashboard statistics (optionally, you may want to compute stats only for userSurveys)
+  const stats = getDashboardStats(userSurveys);
 
   return (
     <DashboardClient
       userProfile={userProfile}
       stats={stats}
-      surveys={mockSurveys}
+      surveys={userSurveys}
       activities={mockActivities}
       debugSession={process.env.NODE_ENV === "development" ? data : undefined}
     />

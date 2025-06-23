@@ -1,6 +1,7 @@
 export interface Survey {
   id: string;
   title: string;
+  type: "commerce" | "academia" | string; 
   responses: number;
   completionRate: number;
   status: "active" | "draft" | "closed";
@@ -21,43 +22,113 @@ export interface ActivityItem {
 export const mockSurveys: Survey[] = [
   {
     id: "survey1",
-    title: "Customer Satisfaction Survey",
-    responses: 124,
-    completionRate: 68,
+    title: "Graduation Readiness Survey",
+    type: "academia",
+    responses: 102,
+    completionRate: 78,
     status: "active",
-    lastUpdated: "2025-06-10",
-    questions: 12,
-    createdBy: "user-1-id", // Example owner
+    lastUpdated: "2025-06-20",
+    questions: 14,
+    createdBy: "c5185e34-0ae1-439b-9701-704055cc8013",
   },
   {
     id: "survey2",
-    title: "Employee Feedback Form",
-    responses: 45,
-    completionRate: 92,
-    status: "active",
-    lastUpdated: "2025-06-15",
-    questions: 8,
-    createdBy: "user-2-id",
+    title: "Capstone Project Peer Review",
+    type: "academia",
+    responses: 56,
+    completionRate: 65,
+    status: "draft",
+    lastUpdated: "2025-06-17",
+    questions: 10,
+    createdBy: "c5185e34-0ae1-439b-9701-704055cc8013",
   },
   {
     id: "survey3",
-    title: "Product Feedback Survey",
-    responses: 0,
-    completionRate: 0,
-    status: "draft",
-    lastUpdated: "2025-06-18",
-    questions: 10,
-    createdBy: "c5185e34-0ae1-439b-9701-704055cc8013", // Current user
+    title: "Job-Hunt Confidence Check",
+    type: "commerce",
+    responses: 88,
+    completionRate: 72,
+    status: "closed",
+    lastUpdated: "2025-06-22",
+    questions: 8,
+    createdBy: "c5185e34-0ae1-439b-9701-704055cc8013",
   },
   {
     id: "survey4",
-    title: "Service Feedback",
-    responses: 89,
-    completionRate: 74,
+    title: "Thesis Writing Stress Tracker",
+    type: "academia",
+    responses: 134,
+    completionRate: 60,
+    status: "active",
+    lastUpdated: "2025-06-19",
+    questions: 12,
+    createdBy: "user-13-id",
+  },
+  {
+    id: "survey5",
+    title: "Internship Experience Feedback",
+    type: "commerce",
+    responses: 45,
+    completionRate: 80,
     status: "closed",
     lastUpdated: "2025-05-30",
-    questions: 10,
-    createdBy: "user-3-id",
+    questions: 9,
+    createdBy: "user-14-id",
+  },
+  {
+    id: "survey6",
+    title: "Graduate School Interest Poll",
+    type: "academia",
+    responses: 97,
+    completionRate: 69,
+    status: "active",
+    lastUpdated: "2025-06-21",
+    questions: 11,
+    createdBy: "user-15-id",
+  },
+  {
+    id: "survey7",
+    title: "End-of-Semester Teaching Evaluation",
+    type: "academia",
+    responses: 210,
+    completionRate: 83,
+    status: "closed",
+    lastUpdated: "2025-06-05",
+    questions: 20,
+    createdBy: "user-16-id",
+  },
+  {
+    id: "survey8",
+    title: "Startup Career Interest Snapshot",
+    type: "commerce",
+    responses: 64,
+    completionRate: 58,
+    status: "draft",
+    lastUpdated: "2025-06-15",
+    questions: 7,
+    createdBy: "user-17-id",
+  },
+  {
+    id: "survey9",
+    title: "Financial Literacy Self-Assessment",
+    type: "commerce",
+    responses: 112,
+    completionRate: 74,
+    status: "active",
+    lastUpdated: "2025-06-23",
+    questions: 13,
+    createdBy: "user-18-id",
+  },
+  {
+    id: "survey10",
+    title: "Post-Graduation Plans & Fears",
+    type: "academia",
+    responses: 150,
+    completionRate: 77,
+    status: "active",
+    lastUpdated: "2025-06-23",
+    questions: 15,
+    createdBy: "user-19-id",
   },
 ];
 
@@ -86,16 +157,16 @@ export const mockActivities: ActivityItem[] = [
   },
 ];
 
-export const getDashboardStats = () => {
-  const activeSurveys = mockSurveys.filter((s) => s.status === "active").length;
-  const draftSurveys = mockSurveys.filter((s) => s.status === "draft").length;
-  const totalResponses = mockSurveys.reduce(
+export const getDashboardStats = (surveys: Survey[] = mockSurveys) => {
+  const activeSurveys = surveys.filter((s) => s.status === "active").length;
+  const draftSurveys = surveys.filter((s) => s.status === "draft").length;
+  const totalResponses = surveys.reduce(
     (sum, survey) => sum + survey.responses,
     0
   );
 
   // Calculate average completion rate only for surveys with responses
-  const surveysWithResponses = mockSurveys.filter((s) => s.responses > 0);
+  const surveysWithResponses = surveys.filter((s) => s.responses > 0);
   const avgCompletionRate =
     surveysWithResponses.length > 0
       ? Math.round(
