@@ -23,7 +23,7 @@ export default async function ExploreSurveysPage() {
   return (
     <div className="min-w-0 w-screen max-w-none bg-inherit">
       <div className="container mx-auto py-8 px-4 md:px-6">
-        <h1 className="text-3xl font-bold mb-6 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+        <h1 className="text-3xl font-bold mb-6 bg-gradient-to-r from-blue-100 to-indigo-500 bg-clip-text text-transparent">
           Explore Surveys
         </h1>
         <p className="mb-8 text-gray-500 dark:text-gray-400 max-w-2xl">

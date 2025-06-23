@@ -6,6 +6,7 @@ import SurveyTabs from "@/components/dashboard/SurveyTabs";
 import RecentActivityTable from "@/components/dashboard/RecentActivityTable";
 import CreateSurveyCard from "@/components/dashboard/CreateSurveyCard";
 import { Survey, ActivityItem } from "@/app/dashboard/data";
+import Link from "next/link";
 
 interface DashboardStats {
   activeSurveys: number;
@@ -50,7 +51,7 @@ export default function DashboardClient({
       {/* Dashboard Header with Welcome and Quick Stats */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
         <div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-100 to-indigo-500 bg-clip-text text-transparent">
             Welcome, {userProfile?.first_name || "Researcher"}!
           </h1>
           <p className="text-gray-500 dark:text-gray-400 mt-1">
@@ -58,23 +59,25 @@ export default function DashboardClient({
           </p>
         </div>
         <div className="mt-4 md:mt-0">
-          <button className="px-5 py-2.5 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg hover:from-blue-600 hover:to-indigo-700 transition-all shadow-md hover:shadow-lg flex items-center gap-2">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={2}
-              stroke="currentColor"
-              className="w-5 h-5"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M12 4.5v15m7.5-7.5h-15"
-              />
-            </svg>
-            Create New Survey
-          </button>
+          <Link href="/surveyor">
+            <button className="px-5 py-2.5 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg hover:from-blue-600 hover:to-indigo-700 transition-all shadow-md hover:shadow-lg flex items-center gap-2">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={2}
+                stroke="currentColor"
+                className="w-5 h-5"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M12 4.5v15m7.5-7.5h-15"
+                />
+              </svg>
+              Create New Survey
+            </button>
+          </Link>
         </div>
       </div>
 
