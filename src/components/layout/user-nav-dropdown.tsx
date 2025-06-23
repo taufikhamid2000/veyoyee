@@ -112,7 +112,7 @@ export default function UserNavDropdown({ user }: { user: User }) {
             </span>
           </Link>
           <Link
-            href="/dashboard/profile"
+            href="/profile"
             className="block px-4 py-3 text-sm text-gray-200 hover:bg-blue-800/50 hover:text-white transition-colors relative overflow-hidden group animate-slide-down"
             style={{ animationDelay: "150ms" }}
             onClick={(e) => {

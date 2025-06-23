@@ -150,17 +150,6 @@ export default function Navigation() {
             >
               Home
             </Link>
-            <Link
-              href="/explore"
-              className={`block px-6 py-3 text-sm text-gray-200 hover:text-white hover:bg-blue-800/50 transition-colors${
-                pathname.startsWith("/explore")
-                  ? " font-bold border-b-2 border-blue-400"
-                  : ""
-              }`}
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Explore
-            </Link>
 
             {loading ? (
               <span className="block px-6 py-3 text-sm text-gray-400">
@@ -180,10 +169,25 @@ export default function Navigation() {
                 >
                   Dashboard
                 </Link>
+                <Link
+                  href="/explore"
+                  className={`block px-6 py-3 text-sm text-gray-200 hover:text-white hover:bg-blue-800/50 transition-colors${
+                    pathname.startsWith("/explore")
+                      ? " font-bold border-b-2 border-blue-400"
+                      : ""
+                  }`}
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Explore
+                </Link>
                 {user && (
-                  <div className="px-6 py-3 text-sm text-blue-300 bg-blue-950/70">
+                  <Link
+                    href="/profile"
+                    className="block px-6 py-3 text-sm text-blue-300 bg-blue-950/70 hover:text-blue-100 hover:bg-blue-900/80 transition-colors"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
                     {user.email?.split("@")[0]}
-                  </div>
+                  </Link>
                 )}
                 <div className="px-6 py-3">
                   <SignOutButton

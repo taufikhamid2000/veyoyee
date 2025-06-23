@@ -5,6 +5,7 @@ import "./globals.css";
 import Navigation from "@/components/layout/navigation";
 import { SupabaseListener } from "@/components/supabase-listener";
 import { ThemeProvider } from "@/components/theme/theme-provider";
+import Footer from "@/components/layout/footer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -55,6 +56,7 @@ export default function RootLayout({
             {/* Spacer for fixed header */}
             <div className="h-16"></div>
             <main className="w-full">{children}</main>
+            <Footer />
           </SupabaseListener>
         </ThemeProvider>
       </body>
