@@ -8,8 +8,10 @@ import SignOutButton from "@/components/auth/sign-out-button";
 import { Menu, X } from "lucide-react";
 import UserNavDropdown from "@/components/layout/user-nav-dropdown";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
+import { usePathname } from "next/navigation";
 
 export default function Navigation() {
+  const pathname = usePathname();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -64,7 +66,9 @@ export default function Navigation() {
       <div className="hidden md:flex items-center gap-6">
         <Link
           href="/"
-          className="text-gray-200 hover:text-white transition-colors"
+          className={`text-gray-200 hover:text-white transition-colors${
+            pathname === "/" ? " font-bold border-b-2 border-blue-400" : ""
+          }`}
         >
           Home
         </Link>
@@ -76,9 +80,23 @@ export default function Navigation() {
           <div className="flex items-center gap-6">
             <Link
               href="/dashboard"
-              className="text-gray-200 hover:text-white transition-colors"
+              className={`text-gray-200 hover:text-white transition-colors${
+                pathname.startsWith("/dashboard")
+                  ? " font-bold border-b-2 border-blue-400"
+                  : ""
+              }`}
             >
               Dashboard
+            </Link>
+            <Link
+              href="/explore"
+              className={`text-gray-200 hover:text-white transition-colors${
+                pathname.startsWith("/explore")
+                  ? " font-bold border-b-2 border-blue-400"
+                  : ""
+              }`}
+            >
+              Explore
             </Link>
             <ThemeToggle />
             {user && <UserNavDropdown user={user} />}
@@ -125,10 +143,23 @@ export default function Navigation() {
           >
             <Link
               href="/"
-              className="block px-6 py-3 text-sm text-gray-200 hover:text-white hover:bg-blue-800/50 transition-colors"
+              className={`block px-6 py-3 text-sm text-gray-200 hover:text-white hover:bg-blue-800/50 transition-colors${
+                pathname === "/" ? " font-bold border-b-2 border-blue-400" : ""
+              }`}
               onClick={() => setIsMenuOpen(false)}
             >
               Home
+            </Link>
+            <Link
+              href="/explore"
+              className={`block px-6 py-3 text-sm text-gray-200 hover:text-white hover:bg-blue-800/50 transition-colors${
+                pathname.startsWith("/explore")
+                  ? " font-bold border-b-2 border-blue-400"
+                  : ""
+              }`}
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Explore
             </Link>
 
             {loading ? (
@@ -140,7 +171,11 @@ export default function Navigation() {
               <>
                 <Link
                   href="/dashboard"
-                  className="block px-6 py-3 text-sm text-gray-200 hover:text-white hover:bg-blue-800/50 transition-colors"
+                  className={`block px-6 py-3 text-sm text-gray-200 hover:text-white hover:bg-blue-800/50 transition-colors${
+                    pathname.startsWith("/dashboard")
+                      ? " font-bold border-b-2 border-blue-400"
+                      : ""
+                  }`}
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Dashboard

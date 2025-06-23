@@ -6,6 +6,7 @@ export interface Survey {
   status: "active" | "draft" | "closed";
   lastUpdated: string;
   questions: number;
+  createdBy: string; // Add owner field
 }
 
 export interface ActivityItem {
@@ -26,6 +27,7 @@ export const mockSurveys: Survey[] = [
     status: "active",
     lastUpdated: "2025-06-10",
     questions: 12,
+    createdBy: "user-1-id", // Example owner
   },
   {
     id: "survey2",
@@ -35,24 +37,27 @@ export const mockSurveys: Survey[] = [
     status: "active",
     lastUpdated: "2025-06-15",
     questions: 8,
+    createdBy: "user-2-id",
   },
   {
     id: "survey3",
-    title: "Event Registration",
+    title: "Product Feedback Survey",
     responses: 0,
     completionRate: 0,
     status: "draft",
-    lastUpdated: "2025-06-20",
-    questions: 5,
+    lastUpdated: "2025-06-18",
+    questions: 10,
+    createdBy: "c5185e34-0ae1-439b-9701-704055cc8013", // Current user
   },
   {
     id: "survey4",
-    title: "Product Feedback",
+    title: "Service Feedback",
     responses: 89,
     completionRate: 74,
     status: "closed",
     lastUpdated: "2025-05-30",
     questions: 10,
+    createdBy: "user-3-id",
   },
 ];
 
