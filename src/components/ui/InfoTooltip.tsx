@@ -21,7 +21,17 @@ export default function InfoTooltip({
       >
         i
       </button>
-      <span className="absolute left-1/2 z-10 mt-2 w-56 -translate-x-1/2 rounded bg-white dark:bg-gray-900 p-3 text-xs text-gray-700 dark:text-gray-200 shadow-lg opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity pointer-events-none group-hover:pointer-events-auto group-focus-within:pointer-events-auto">
+      <span
+        className="absolute left-1/2 z-10 mt-2 w-56 max-w-xs -translate-x-1/2 rounded bg-white dark:bg-gray-900 p-3 text-xs text-gray-700 dark:text-gray-200 shadow-lg opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity pointer-events-none group-hover:pointer-events-auto group-focus-within:pointer-events-auto"
+        style={{
+          minWidth: "10rem",
+          right: "auto",
+          left: "50%",
+          transform: "translateX(-50%)",
+          // Responsive fix: clamp to viewport
+          maxWidth: "calc(100vw - 2rem)",
+        }}
+      >
         {tooltip}
       </span>
       {children}

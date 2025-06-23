@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useState, useRef } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { User, Session } from "@supabase/supabase-js";
-import SignOutButton from "@/components/auth/sign-out-button";
+// import SignOutButton from "@/components/auth/sign-out-button";
 import { Menu, X } from "lucide-react";
 import UserNavDropdown from "@/components/layout/user-nav-dropdown";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
@@ -98,6 +98,16 @@ export default function Navigation() {
             >
               Explore
             </Link>
+            <Link
+              href="/claim"
+              className={`text-gray-200 hover:text-white transition-colors$${
+                pathname.startsWith("/claim")
+                  ? " font-bold border-b-2 border-blue-400"
+                  : ""
+              }`}
+            >
+              Claim
+            </Link>
             <ThemeToggle />
             {user && <UserNavDropdown user={user} />}
           </div>
@@ -180,20 +190,19 @@ export default function Navigation() {
                 >
                   Explore
                 </Link>
-                {user && (
-                  <Link
-                    href="/profile"
-                    className="block px-6 py-3 text-sm text-blue-300 bg-blue-950/70 hover:text-blue-100 hover:bg-blue-900/80 transition-colors"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    {user.email?.split("@")[0]}
-                  </Link>
-                )}
+                <Link
+                  href="/claim"
+                  className={`block px-6 py-3 text-sm text-gray-200 hover:text-white hover:bg-blue-800/50 transition-colors${
+                    pathname.startsWith("/claim")
+                      ? " font-bold border-b-2 border-blue-400"
+                      : ""
+                  }`}
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Claim
+                </Link>
                 <div className="px-6 py-3">
-                  <SignOutButton
-                    variant="link"
-                    className="w-full text-left text-sm text-red-400 hover:text-red-300"
-                  />
+                  <UserNavDropdown user={user} />
                 </div>
                 <div className="px-6 py-3 flex justify-center border-t border-blue-800/50 mt-1">
                   <ThemeToggle />

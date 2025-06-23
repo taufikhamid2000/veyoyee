@@ -66,14 +66,14 @@ export default function UserNavDropdown({ user }: { user: User }) {
       </button>{" "}
       <div
         className={`
-          absolute right-0 mt-2 w-56 rounded-xl shadow-lg bg-blue-900/95 backdrop-blur-lg 
-          ring-1 ring-blue-700/50 z-10 overflow-hidden transition-all duration-300 ease-in-out origin-top
+          fixed left-0 right-0 top-0 mt-16 z-50 w-full rounded-none md:absolute md:mt-2 md:rounded-xl md:w-56 md:right-0 md:left-auto md:mx-0 shadow-lg bg-blue-900/95 backdrop-blur-lg ring-1 ring-blue-700/50 overflow-hidden transition-all duration-300 ease-in-out origin-top
           ${
             isOpen
               ? "opacity-100 scale-100 translate-y-0 animate-dropdown"
               : "opacity-0 scale-95 -translate-y-2 pointer-events-none"
           }
         `}
+        style={{ minWidth: "0" }}
         role="menu"
         aria-orientation="vertical"
         aria-labelledby="user-menu-button"
