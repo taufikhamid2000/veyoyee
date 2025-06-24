@@ -249,7 +249,11 @@ export default function DashboardClient({
       {/* Survey Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
         {filteredSurveys.map((survey) => (
-          <SurveyCard key={survey.id} {...survey} />
+          <SurveyCard
+            key={survey.id}
+            {...survey}
+            isOwner={userProfile?.id === survey.createdBy}
+          />
         ))}
         <CreateSurveyCard />
       </div>

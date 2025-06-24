@@ -1,5 +1,6 @@
 // This file contains mock survey data for editing/creation flows.
 // Consider unifying with dashboard-data.ts for a single source of truth if possible.
+// This file is now just a template. All real mock survey data is in dashboard-data.ts
 
 export const mockSurveyEdit = {
   id: "survey1",

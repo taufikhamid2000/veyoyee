@@ -7,7 +7,13 @@ export interface Survey {
   status: "active" | "draft" | "closed";
   lastUpdated: string;
   questions: number;
-  createdBy: string; // Add owner field
+  createdBy: string;
+  minRespondents?: number;
+  maxRespondents?: number;
+  startDate?: string;
+  endDate?: string;
+  rewardAmount?: string;
+  questionsData?: import("./surveyor-data").QuestionEdit[];
 }
 
 export interface ActivityItem {
@@ -30,6 +36,26 @@ export const mockSurveys: Survey[] = [
     lastUpdated: "2025-06-20",
     questions: 14,
     createdBy: "c5185e34-0ae1-439b-9701-704055cc8013",
+    minRespondents: 50,
+    maxRespondents: 100,
+    startDate: "2025-07-01",
+    endDate: "2025-07-31",
+    rewardAmount: "100.00",
+    questionsData: [
+      {
+        id: "q1",
+        type: "multipleChoice",
+        questionText: "How prepared do you feel for graduation?",
+        options: ["Very prepared", "Somewhat prepared", "Not prepared"],
+        required: true,
+      },
+      {
+        id: "q2",
+        type: "shortAnswer",
+        questionText: "What is your biggest concern about graduating?",
+        required: false,
+      },
+    ],
   },
   {
     id: "survey2",
@@ -41,6 +67,48 @@ export const mockSurveys: Survey[] = [
     lastUpdated: "2025-06-17",
     questions: 10,
     createdBy: "c5185e34-0ae1-439b-9701-704055cc8013",
+    minRespondents: 5,
+    maxRespondents: 10,
+    startDate: "2025-07-10",
+    endDate: "2025-07-20",
+    rewardAmount: "",
+    questionsData: [
+      {
+        id: "q1",
+        type: "shortAnswer",
+        questionText:
+          "What is the main contribution of the capstone project you reviewed?",
+        required: true,
+      },
+      {
+        id: "q2",
+        type: "paragraph",
+        questionText:
+          "Provide constructive feedback on the project's methodology.",
+        required: true,
+      },
+      {
+        id: "q3",
+        type: "multipleChoice",
+        questionText:
+          "How would you rate the clarity of the project's presentation?",
+        options: ["Excellent", "Good", "Fair", "Poor"],
+        required: true,
+      },
+      {
+        id: "q4",
+        type: "shortAnswer",
+        questionText: "Suggest one improvement for the project.",
+        required: false,
+      },
+      {
+        id: "q5",
+        type: "multipleChoice",
+        questionText: "Did the project meet its stated objectives?",
+        options: ["Yes", "Partially", "No"],
+        required: true,
+      },
+    ],
   },
   {
     id: "survey3",
