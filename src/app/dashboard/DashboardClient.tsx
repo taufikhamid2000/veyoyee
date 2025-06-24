@@ -5,7 +5,7 @@ import SurveyCard from "@/components/dashboard/SurveyCard";
 import SurveyTabs from "@/components/dashboard/SurveyTabs";
 import RecentActivityTable from "@/components/dashboard/RecentActivityTable";
 import CreateSurveyCard from "@/components/dashboard/CreateSurveyCard";
-import { Survey, ActivityItem } from "@/app/dashboard/data";
+import { Survey, ActivityItem } from "@/data/dashboard-data";
 import Link from "next/link";
 
 interface DashboardStats {

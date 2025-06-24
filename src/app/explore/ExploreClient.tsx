@@ -1,7 +1,7 @@
 "use client";
 import { useState, useMemo } from "react";
 import SurveyCard from "@/components/dashboard/SurveyCard";
-import { mockSurveys } from "@/app/dashboard/data";
+import { mockSurveys } from "@/data/dashboard-data";
 
 interface ExploreClientProps {
   surveys: typeof mockSurveys;
@@ -19,24 +19,31 @@ export default function ExploreClient({ surveys }: ExploreClientProps) {
   const filtered = useMemo(() => {
     let result = surveys;
     if (status !== "all") {
-      result = result.filter((s) => s.status === status);
+      result = result.filter((s: (typeof surveys)[0]) => s.status === status);
     }
     if (type !== "all") {
-      result = result.filter((s) => s.type === type);
+      result = result.filter((s: (typeof surveys)[0]) => s.type === type);
     }
     if (search.trim()) {
-      result = result.filter((s) =>
+      result = result.filter((s: (typeof surveys)[0]) =>
         s.title.toLowerCase().includes(search.toLowerCase())
       );
     }
     if (sort === "recent") {
-      result = [...result].sort((a, b) =>
-        b.lastUpdated.localeCompare(a.lastUpdated)
+      result = [...result].sort(
+        (a: (typeof surveys)[0], b: (typeof surveys)[0]) =>
+          b.lastUpdated.localeCompare(a.lastUpdated)
       );
     } else if (sort === "responses") {
-      result = [...result].sort((a, b) => b.responses - a.responses);
+      result = [...result].sort(
+        (a: (typeof surveys)[0], b: (typeof surveys)[0]) =>
+          b.responses - a.responses
+      );
     } else if (sort === "alpha") {
-      result = [...result].sort((a, b) => a.title.localeCompare(b.title));
+      result = [...result].sort(
+        (a: (typeof surveys)[0], b: (typeof surveys)[0]) =>
+          a.title.localeCompare(b.title)
+      );
     }
     return result;
   }, [surveys, search, status, type, sort]);
@@ -96,7 +103,9 @@ export default function ExploreClient({ surveys }: ExploreClientProps) {
       {/* Survey Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {paginated.length > 0 ? (
-          paginated.map((survey) => <SurveyCard key={survey.id} {...survey} />)
+          paginated.map((survey: (typeof surveys)[0]) => (
+            <SurveyCard key={survey.id} {...survey} />
+          ))
         ) : (
           <div className="col-span-full text-center text-gray-500 dark:text-gray-400 py-12">
             No surveys found.

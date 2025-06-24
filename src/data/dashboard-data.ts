@@ -1,7 +1,7 @@
 export interface Survey {
   id: string;
   title: string;
-  type: "commerce" | "academia" | string; 
+  type: "commerce" | "academia" | string;
   responses: number;
   completionRate: number;
   status: "active" | "draft" | "closed";

@@ -1,31 +1,34 @@
 "use client";
 
 import { useState } from "react";
+import type { SurveyEdit, QuestionEdit } from "../../data/surveyor-data";
 
-// Minimal types for this workspace
-interface QuestionData {
-  id: string;
-  type: "shortAnswer" | "paragraph" | "multipleChoice";
-  questionText: string;
-  options?: string[];
+interface SurveyFormProps {
+  initialSurvey?: SurveyEdit;
 }
 
-export default function SurveyForm() {
-  const [surveyTitle, setSurveyTitle] = useState("");
-  const [questions, setQuestions] = useState<QuestionData[]>([]);
+export default function SurveyForm({ initialSurvey }: SurveyFormProps = {}) {
+  const [surveyTitle, setSurveyTitle] = useState(initialSurvey?.title || "");
+  const [questions, setQuestions] = useState<QuestionEdit[]>(
+    initialSurvey?.questions || []
+  );
   const [minRespondents, setMinRespondents] = useState<number | undefined>(
-    undefined
+    initialSurvey?.minRespondents
   );
   const [maxRespondents, setMaxRespondents] = useState<number | undefined>(
-    undefined
+    initialSurvey?.maxRespondents
   );
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
+  const [startDate, setStartDate] = useState(initialSurvey?.startDate || "");
+  const [endDate, setEndDate] = useState(initialSurvey?.endDate || "");
   const [surveyType, setSurveyType] = useState<"academia" | "commerce">(
-    "academia"
+    (initialSurvey?.type as "academia" | "commerce") || "academia"
   );
-  const [rewardAmount, setRewardAmount] = useState<string>("");
-  const [showReward, setShowReward] = useState(false);
+  const [rewardAmount, setRewardAmount] = useState<string>(
+    initialSurvey?.rewardAmount || ""
+  );
+  const [showReward, setShowReward] = useState(
+    Boolean(initialSurvey?.rewardAmount)
+  );
 
   const MIN_QUESTIONS = 3;
   const MAX_QUESTIONS = 10;
@@ -38,7 +41,7 @@ export default function SurveyForm() {
           id: (questions.length + 1).toString(),
           type: "shortAnswer",
           questionText: "",
-          options: undefined,
+          required: false,
         },
       ]);
     } else {
@@ -47,7 +50,7 @@ export default function SurveyForm() {
   };
 
   const deleteQuestion = (id: string) => {
-    setQuestions(questions.filter((q) => q.id !== id));
+    setQuestions(questions.filter((q: QuestionEdit) => q.id !== id));
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -62,7 +65,7 @@ export default function SurveyForm() {
 
   const handleQuestionChange = (
     index: number,
-    updatedQuestion: QuestionData
+    updatedQuestion: QuestionEdit
   ) => {
     const updatedQuestions = [...questions];
     updatedQuestions[index] = updatedQuestion;
@@ -161,7 +164,7 @@ export default function SurveyForm() {
         )}
       </div>
       <div className="mb-6">
-        <label htmlFor="surveyTitle" className="block text-lg font-medium mb-2">
+        <label className="block text-lg font-medium mb-2">
           Survey Title <span className="text-red-500">*</span>
         </label>
         <input
@@ -246,7 +249,7 @@ export default function SurveyForm() {
       </div>
       <div className="mb-6">
         <h2 className="text-xl font-semibold mb-4">Survey Questions</h2>
-        {questions.map((q, index) => (
+        {questions.map((q: QuestionEdit, index: number) => (
           <QuestionInput
             key={q.id}
             question={q}
@@ -281,13 +284,13 @@ function QuestionInput({
   onQuestionChange,
   onDelete,
 }: {
-  question: QuestionData;
+  question: QuestionEdit;
   index: number;
-  onQuestionChange: (updatedQuestion: QuestionData) => void;
+  onQuestionChange: (updatedQuestion: QuestionEdit) => void;
   onDelete: () => void;
 }) {
   const [questionText, setQuestionText] = useState(question.questionText);
-  const [type, setType] = useState<QuestionData["type"]>(question.type);
+  const [type, setType] = useState<QuestionEdit["type"]>(question.type);
   const [options, setOptions] = useState<string[]>(question.options || []);
 
   const handleQuestionTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -296,9 +299,9 @@ function QuestionInput({
   };
 
   const handleTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newType = e.target.value as QuestionData["type"];
+    const newType = e.target.value as QuestionEdit["type"];
     setType(newType);
-    const updatedQuestion: QuestionData = {
+    const updatedQuestion: QuestionEdit = {
       ...question,
       type: newType,
       options: newType === "multipleChoice" ? [""] : undefined,

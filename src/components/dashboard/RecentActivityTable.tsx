@@ -1,5 +1,5 @@
 import React from "react";
-import { ActivityItem } from "@/app/dashboard/data";
+import { ActivityItem } from "@/data/dashboard-data";
 
 interface RecentActivityTableProps {
   activities: ActivityItem[];

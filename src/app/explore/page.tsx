@@ -1,5 +1,5 @@
 import { createServerClient } from "@/utils/supabase/server";
-import { mockSurveys } from "@/app/dashboard/data";
+import { mockSurveys } from "@/data/dashboard-data";
 import ExploreClient from "./ExploreClient";
 import { Metadata } from "next";
 import InfoTooltip from "@/components/ui/InfoTooltip";
@@ -17,7 +17,8 @@ export default async function ExploreSurveysPage() {
 
   // Only show surveys not created by the current user
   const publicSurveys = mockSurveys.filter(
-    (survey) => survey.createdBy && survey.createdBy !== userId
+    (survey: (typeof mockSurveys)[0]) =>
+      survey.createdBy && survey.createdBy !== userId
   );
 
   return (
