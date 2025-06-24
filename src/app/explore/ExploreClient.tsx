@@ -9,7 +9,6 @@ interface ExploreClientProps {
 
 export default function ExploreClient({ surveys }: ExploreClientProps) {
   const [search, setSearch] = useState("");
-  const [status, setStatus] = useState<string>("all");
   const [type, setType] = useState<string>("all");
   const [sort, setSort] = useState<string>("recent");
   const [page, setPage] = useState(1);
@@ -17,36 +16,25 @@ export default function ExploreClient({ surveys }: ExploreClientProps) {
 
   // Filter, search, sort, and paginate
   const filtered = useMemo(() => {
-    let result = surveys;
-    if (status !== "all") {
-      result = result.filter((s: (typeof surveys)[0]) => s.status === status);
-    }
-    if (type !== "all") {
-      result = result.filter((s: (typeof surveys)[0]) => s.type === type);
-    }
-    if (search.trim()) {
-      result = result.filter((s: (typeof surveys)[0]) =>
-        s.title.toLowerCase().includes(search.toLowerCase())
-      );
-    }
-    if (sort === "recent") {
-      result = [...result].sort(
-        (a: (typeof surveys)[0], b: (typeof surveys)[0]) =>
-          b.lastUpdated.localeCompare(a.lastUpdated)
-      );
-    } else if (sort === "responses") {
-      result = [...result].sort(
-        (a: (typeof surveys)[0], b: (typeof surveys)[0]) =>
-          b.responses - a.responses
-      );
-    } else if (sort === "alpha") {
-      result = [...result].sort(
-        (a: (typeof surveys)[0], b: (typeof surveys)[0]) =>
-          a.title.localeCompare(b.title)
-      );
-    }
-    return result;
-  }, [surveys, search, status, type, sort]);
+    return surveys
+      .filter(
+        (s) =>
+          s.status === "active" &&
+          (type === "all" || s.type === type) &&
+          (!search.trim() ||
+            s.title.toLowerCase().includes(search.toLowerCase()))
+      )
+      .sort((a, b) => {
+        if (sort === "recent") {
+          return b.lastUpdated.localeCompare(a.lastUpdated);
+        } else if (sort === "responses") {
+          return b.responses - a.responses;
+        } else if (sort === "alpha") {
+          return a.title.localeCompare(b.title);
+        }
+        return 0;
+      });
+  }, [surveys, search, type, sort]);
 
   const totalPages = Math.ceil(filtered.length / pageSize);
   const paginated = filtered.slice((page - 1) * pageSize, page * pageSize);
@@ -65,19 +53,6 @@ export default function ExploreClient({ surveys }: ExploreClientProps) {
           }}
           className="border border-gray-300 dark:border-gray-700 rounded px-3 py-2 w-full md:w-64 bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
         />
-        <select
-          value={status}
-          onChange={(e) => {
-            setStatus(e.target.value);
-            setPage(1);
-          }}
-          className="border border-gray-300 dark:border-gray-700 rounded px-3 py-2 bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
-        >
-          <option value="all">All Statuses</option>
-          <option value="active">Active</option>
-          <option value="draft">Draft</option>
-          <option value="closed">Closed</option>
-        </select>
         <select
           value={type}
           onChange={(e) => {

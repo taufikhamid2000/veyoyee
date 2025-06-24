@@ -195,7 +195,7 @@ export default function Home() {
             ) : (
               <>
                 <Link
-                  href="/auth/signup"
+                  href="/auth/signin"
                   className="transform transition-transform duration-300 hover:scale-105"
                 >
                   <Button
@@ -203,11 +203,13 @@ export default function Home() {
                     size="lg"
                     className="w-full sm:w-auto px-8 py-3 text-lg font-medium shadow-lg bg-blue-600 hover:bg-blue-700 text-white"
                   >
-                    Get Started for Free
+                    Sign In
                   </Button>
                 </Link>
-                <Link
-                  href="/auth/signin"
+                <a
+                  href="/docs/Survey%20%26%20Incentivized%20Research%20Platforms_%20Landscape,%20Opportunities,%20and%20Feasibility.pdf"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="transform transition-transform duration-300 hover:scale-105"
                 >
                   <Button
@@ -215,9 +217,9 @@ export default function Home() {
                     size="lg"
                     className="w-full sm:w-auto px-8 py-3 text-lg font-medium bg-transparent border-white text-white hover:bg-white/10"
                   >
-                    Sign In
+                    Read More
                   </Button>
-                </Link>
+                </a>
               </>
             )}
           </div>
