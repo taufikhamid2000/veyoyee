@@ -56,7 +56,7 @@ export default function ExploreClient({ surveys }: ExploreClientProps) {
             setSearch(e.target.value);
             setPage(1);
           }}
-          className="border border-gray-300 dark:border-gray-700 rounded px-3 py-2 w-full md:w-64 bg-white dark:bg-gray-900"
+          className="border border-gray-300 dark:border-gray-700 rounded px-3 py-2 w-full md:w-64 bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
         />
         <select
           value={status}
@@ -64,7 +64,7 @@ export default function ExploreClient({ surveys }: ExploreClientProps) {
             setStatus(e.target.value);
             setPage(1);
           }}
-          className="border border-gray-300 dark:border-gray-700 rounded px-3 py-2 bg-white dark:bg-gray-900"
+          className="border border-gray-300 dark:border-gray-700 rounded px-3 py-2 bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
         >
           <option value="all">All Statuses</option>
           <option value="active">Active</option>
@@ -77,7 +77,7 @@ export default function ExploreClient({ surveys }: ExploreClientProps) {
             setType(e.target.value);
             setPage(1);
           }}
-          className="border border-gray-300 dark:border-gray-700 rounded px-3 py-2 bg-white dark:bg-gray-900"
+          className="border border-gray-300 dark:border-gray-700 rounded px-3 py-2 bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
         >
           <option value="all">All Types</option>
           <option value="commerce">Commerce</option>
@@ -86,7 +86,7 @@ export default function ExploreClient({ surveys }: ExploreClientProps) {
         <select
           value={sort}
           onChange={(e) => setSort(e.target.value)}
-          className="border border-gray-300 dark:border-gray-700 rounded px-3 py-2 bg-white dark:bg-gray-900"
+          className="border border-gray-300 dark:border-gray-700 rounded px-3 py-2 bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
         >
           <option value="recent">Most Recent</option>
           <option value="responses">Most Responses</option>
@@ -98,7 +98,7 @@ export default function ExploreClient({ surveys }: ExploreClientProps) {
         {paginated.length > 0 ? (
           paginated.map((survey) => <SurveyCard key={survey.id} {...survey} />)
         ) : (
-          <div className="col-span-full text-center text-gray-400 py-12">
+          <div className="col-span-full text-center text-gray-500 dark:text-gray-400 py-12">
             No surveys found.
           </div>
         )}
@@ -109,7 +109,7 @@ export default function ExploreClient({ surveys }: ExploreClientProps) {
           <button
             onClick={() => setPage((p) => Math.max(1, p - 1))}
             disabled={page === 1}
-            className="px-3 py-1 rounded bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-200 disabled:opacity-50"
+            className="px-3 py-1 rounded bg-gray-200 dark:bg-gray-800 text-gray-900 dark:text-white disabled:opacity-50"
           >
             Prev
           </button>
@@ -120,7 +120,7 @@ export default function ExploreClient({ surveys }: ExploreClientProps) {
               className={`px-3 py-1 rounded ${
                 page === i + 1
                   ? "bg-blue-600 text-white"
-                  : "bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-200"
+                  : "bg-gray-200 dark:bg-gray-800 text-gray-900 dark:text-white"
               }`}
             >
               {i + 1}
@@ -129,7 +129,7 @@ export default function ExploreClient({ surveys }: ExploreClientProps) {
           <button
             onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
             disabled={page === totalPages}
-            className="px-3 py-1 rounded bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-200 disabled:opacity-50"
+            className="px-3 py-1 rounded bg-gray-200 dark:bg-gray-800 text-gray-900 dark:text-white disabled:opacity-50"
           >
             Next
           </button>

@@ -51,7 +51,7 @@ export default function DashboardClient({
       {/* Dashboard Header with Welcome and Quick Stats */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
         <div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-100 to-indigo-500 bg-clip-text text-transparent">
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-500 to-indigo-500 bg-clip-text text-transparent">
             Welcome, {userProfile?.first_name || "Researcher"}!
           </h1>
           <p className="text-gray-500 dark:text-gray-400 mt-1">
@@ -260,7 +260,7 @@ export default function DashboardClient({
 
       {/* Debug Session (dev only) */}
       {debugSession && (
-        <pre className="mt-8 p-4 bg-gray-100 dark:bg-gray-900 rounded text-xs overflow-x-auto">
+        <pre className="mt-8 p-4 bg-gray-100 dark:bg-gray-900 rounded text-xs overflow-x-auto text-gray-900 dark:text-white">
           {JSON.stringify(debugSession, null, 2)}
         </pre>
       )}

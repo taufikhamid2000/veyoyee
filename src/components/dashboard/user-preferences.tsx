@@ -85,11 +85,15 @@ export default function UserPreferences({
 
   return (
     <div className="space-y-6">
-      <h3 className="text-lg font-medium">User Preferences</h3>
+      <h3 className="text-lg font-medium text-gray-900 dark:text-white">
+        User Preferences
+      </h3>
 
       <div className="space-y-4">
         <div>
-          <label className="block text-sm font-medium mb-2">Theme</label>
+          <label className="block text-sm font-medium mb-2 text-gray-900 dark:text-white">
+            Theme
+          </label>
           <div className="flex space-x-4">
             {(["light", "dark", "system"] as const).map((theme) => (
               <button
@@ -98,7 +102,7 @@ export default function UserPreferences({
                 className={`px-3 py-1 rounded-md text-sm ${
                   settings.theme === theme
                     ? "bg-blue-500 text-white"
-                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                    : "bg-gray-200 text-gray-900 dark:bg-gray-800 dark:text-white hover:bg-gray-300 dark:hover:bg-gray-700"
                 }`}
               >
                 {theme.charAt(0).toUpperCase() + theme.slice(1)}
@@ -108,7 +112,7 @@ export default function UserPreferences({
         </div>
 
         <div>
-          <label className="flex items-center space-x-2">
+          <label className="flex items-center space-x-2 text-gray-900 dark:text-white">
             <input
               type="checkbox"
               checked={settings.emailNotifications}
@@ -129,13 +133,13 @@ export default function UserPreferences({
           </button>
 
           {saveStatus === "success" && (
-            <span className="ml-2 text-sm text-green-600">
+            <span className="ml-2 text-sm text-green-600 dark:text-green-400">
               Saved successfully!
             </span>
           )}
 
           {saveStatus === "error" && (
-            <span className="ml-2 text-sm text-red-600">
+            <span className="ml-2 text-sm text-red-600 dark:text-red-400">
               Failed to save. Please try again.
             </span>
           )}

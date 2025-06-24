@@ -22,12 +22,14 @@ export default function SurveyStatsCard({
       className={`bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow ${className}`}
     >
       <div className="flex items-center justify-between">
-        <h3 className="text-gray-500 dark:text-gray-400 text-sm font-medium">
+        <h3 className="text-gray-500 dark:text-gray-100 text-sm font-medium">
           {title}
         </h3>
         <span className="p-2 rounded-lg">{icon}</span>
       </div>
-      <p className="mt-2 text-3xl font-bold">{value}</p>
+      <p className="mt-2 text-3xl font-bold text-gray-900 dark:text-white">
+        {value}
+      </p>
       {trend && (
         <div className={`mt-2 flex items-center text-xs ${trendColor}`}>
           {trend}

@@ -23,7 +23,7 @@ export default async function ExploreSurveysPage() {
   return (
     <div className="min-w-0 w-screen max-w-none bg-inherit">
       <div className="container mx-auto py-8 px-4 md:px-6">
-        <h1 className="text-3xl font-bold mb-6 bg-gradient-to-r from-blue-100 to-indigo-500 bg-clip-text text-transparent">
+        <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-500 to-indigo-500 bg-clip-text text-transparent">
           Explore Surveys
         </h1>
         <p className="mb-8 text-gray-500 dark:text-gray-400 max-w-2xl">
@@ -33,7 +33,7 @@ export default async function ExploreSurveysPage() {
         {/* User survey stats */}
         <div className="mb-8 flex flex-col md:flex-row gap-4 md:gap-8">
           <div className="bg-blue-50 dark:bg-blue-900/30 rounded-lg px-5 py-3 flex-1 flex items-center gap-3">
-            <span className="font-semibold text-blue-700 dark:text-blue-300">
+            <span className="font-semibold text-blue-900 dark:text-white">
               Academia Surveys Answered:
             </span>
             <span className="text-lg font-bold text-blue-900 dark:text-white">
@@ -55,7 +55,7 @@ export default async function ExploreSurveysPage() {
             </span>
           </div>
           <div className="bg-green-50 dark:bg-green-900/30 rounded-lg px-5 py-3 flex-1 flex items-center gap-3">
-            <span className="font-semibold text-green-700 dark:text-green-300">
+            <span className="font-semibold text-green-900 dark:text-white">
               Commerce Surveys Answered:
             </span>
             <span className="text-lg font-bold text-green-900 dark:text-white">

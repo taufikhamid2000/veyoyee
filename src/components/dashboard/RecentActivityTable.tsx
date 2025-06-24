@@ -93,7 +93,7 @@ export default function RecentActivityTable({
                       )}
                     </div>
                     <div className="ml-4">
-                      <div className="text-sm font-medium">
+                      <div className="text-sm font-medium text-gray-900 dark:text-white">
                         {activity.type === "response" && "New Response"}
                         {activity.type === "edit" && "Survey Edited"}
                         {activity.type === "export" && "Survey Exported"}
@@ -102,7 +102,9 @@ export default function RecentActivityTable({
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm">{activity.surveyTitle}</div>
+                  <div className="text-sm text-gray-900 dark:text-white">
+                    {activity.surveyTitle}
+                  </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                   {activity.date}

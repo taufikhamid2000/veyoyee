@@ -22,9 +22,9 @@ export default function ClaimRewardsPage() {
       </h1>
       <div className="mb-8 flex flex-col gap-6">
         {/* SCP Claim */}
-        <div className="bg-blue-50 dark:bg-blue-900/30 rounded-lg px-6 py-5 flex flex-col gap-2">
+        <div className="bg-blue-100 dark:bg-blue-900 rounded-lg px-6 py-5 flex flex-col gap-2">
           <div className="flex items-center gap-2">
-            <span className="font-semibold text-blue-700 dark:text-blue-300">
+            <span className="font-semibold text-blue-900 dark:text-white">
               Survey Creation Pass (SCP)
             </span>
             <InfoTooltip
@@ -55,24 +55,26 @@ export default function ClaimRewardsPage() {
           </button>
         </div>
         {/* Commerce Reward Claim */}
-        <div className="bg-green-50 dark:bg-green-900/30 rounded-lg px-6 py-5 flex flex-col gap-2">
+        <div className="bg-green-100 dark:bg-green-950 rounded-lg px-6 py-5 flex flex-col gap-2">
           <div className="flex items-center gap-2">
-            <span className="font-semibold text-green-700 dark:text-green-300">
+            <span className="font-semibold text-green-900 dark:text-white">
               Commerce Rewards
             </span>
             <InfoTooltip
-              tooltip={<>
-                <strong>Commerce Rewards:</strong> <br />
-                Different Survey may offer different amount of money!
-              </>} children={undefined}            >
-              
-            </InfoTooltip>
+              tooltip={
+                <>
+                  <strong>Commerce Rewards:</strong> <br />
+                  Different Survey may offer different amount of money!
+                </>
+              }
+              children={undefined}
+            ></InfoTooltip>
           </div>
           <div className="flex items-center gap-2">
             <span className="text-lg font-bold text-green-900 dark:text-white">
               RM {commerceReward}
             </span>
-            <span className="text-xs text-gray-500">
+            <span className="text-xs text-gray-900 dark:text-white">
               ({commerceAnswered} answered)
             </span>
           </div>

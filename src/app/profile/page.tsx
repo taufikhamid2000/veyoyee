@@ -85,14 +85,18 @@ export default function ProfilePage() {
     <div className="max-w-4xl mx-auto p-6">
       <h1 className="text-2xl font-bold mb-6">Your Profile</h1>
 
-      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm mb-6">
-        <h2 className="text-xl font-semibold mb-4">Account Information</h2>
+      <div className="bg-white dark:bg-gray-900 p-6 rounded-lg shadow-sm mb-6">
+        <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
+          Account Information
+        </h2>
         <div className="space-y-3">
           <div>
             <label className="block text-sm font-medium text-gray-500 dark:text-gray-400">
               Email
             </label>
-            <div className="mt-1 text-lg">{user.email}</div>
+            <div className="mt-1 text-lg text-gray-900 dark:text-white">
+              {user.email}
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -100,7 +104,7 @@ export default function ProfilePage() {
               <label className="block text-sm font-medium text-gray-500 dark:text-gray-400">
                 First Name
               </label>
-              <div className="mt-1 text-lg">
+              <div className="mt-1 text-lg text-gray-900 dark:text-white">
                 {profile?.first_name || "Not set"}
               </div>
             </div>
@@ -109,7 +113,7 @@ export default function ProfilePage() {
               <label className="block text-sm font-medium text-gray-500 dark:text-gray-400">
                 Last Name
               </label>
-              <div className="mt-1 text-lg">
+              <div className="mt-1 text-lg text-gray-900 dark:text-white">
                 {profile?.last_name || "Not set"}
               </div>
             </div>
@@ -117,7 +121,7 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
+      <div className="bg-white dark:bg-gray-900 p-6 rounded-lg shadow-sm">
         {user && (
           <UserPreferences
             userId={user.id}

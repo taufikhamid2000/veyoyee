@@ -25,10 +25,10 @@ export default function CreateSurveyCard() {
               />
             </svg>
           </div>
-          <h3 className="font-medium text-gray-700 dark:text-gray-300">
+          <h3 className="font-medium text-gray-900 dark:text-white">
             Create New Survey
           </h3>
-          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+          <p className="mt-1 text-sm text-gray-900 dark:text-white">
             Start from scratch or use a template
           </p>
         </div>

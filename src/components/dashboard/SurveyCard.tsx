@@ -30,7 +30,9 @@ export default function SurveyCard({
     >
       <div className="p-5">
         <div className="flex justify-between items-start mb-4">
-          <h3 className="font-semibold text-lg">{title}</h3>
+          <h3 className="font-semibold text-lg text-gray-900 dark:text-white">
+            {title}
+          </h3>
           <span
             className={`text-xs px-2 py-1 rounded-full font-medium ${
               status === "active"
@@ -48,19 +50,25 @@ export default function SurveyCard({
             <span className="block text-gray-500 dark:text-gray-400">
               Responses
             </span>
-            <span className="font-medium">{responses}</span>
+            <span className="font-medium text-gray-900 dark:text-white">
+              {responses}
+            </span>
           </div>
           <div>
             <span className="block text-gray-500 dark:text-gray-400">
               Questions
             </span>
-            <span className="font-medium">{questions}</span>
+            <span className="font-medium text-gray-900 dark:text-white">
+              {questions}
+            </span>
           </div>
           <div>
             <span className="block text-gray-500 dark:text-gray-400">
               Completion
             </span>
-            <span className="font-medium">{completionRate}%</span>
+            <span className="font-medium text-gray-900 dark:text-white">
+              {completionRate}%
+            </span>
           </div>
         </div>
         {responses > 0 && (
