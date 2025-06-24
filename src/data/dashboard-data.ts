@@ -153,6 +153,54 @@ export const mockSurveys: Survey[] = [
     lastUpdated: "2025-06-21",
     questions: 11,
     createdBy: "user-15-id",
+    questionsData: [
+      {
+        id: "q1",
+        type: "multipleChoice",
+        questionText: "Are you considering applying to graduate school?",
+        options: ["Yes", "No", "Maybe"],
+        required: true,
+      },
+      {
+        id: "q2",
+        type: "multipleChoice",
+        questionText:
+          "What field are you most interested in for graduate study?",
+        options: [
+          "STEM (Science, Tech, Engineering, Math)",
+          "Social Sciences",
+          "Humanities",
+          "Business",
+          "Other",
+        ],
+        required: true,
+      },
+      {
+        id: "q3",
+        type: "shortAnswer",
+        questionText:
+          "What is your main motivation for pursuing (or not pursuing) graduate school?",
+        required: false,
+      },
+      {
+        id: "q4",
+        type: "multipleChoice",
+        questionText: "How soon do you plan to apply?",
+        options: [
+          "Within 1 year",
+          "1-2 years",
+          "3+ years",
+          "Not planning to apply",
+        ],
+        required: true,
+      },
+      {
+        id: "q5",
+        type: "shortAnswer",
+        questionText: "What is your biggest concern about graduate school?",
+        required: false,
+      },
+    ],
   },
   {
     id: "survey7",
@@ -186,6 +234,43 @@ export const mockSurveys: Survey[] = [
     lastUpdated: "2025-06-23",
     questions: 13,
     createdBy: "user-18-id",
+    questionsData: [
+      {
+        id: "q1",
+        type: "multipleChoice",
+        questionText:
+          "How confident are you in managing your personal finances?",
+        options: ["Very confident", "Somewhat confident", "Not confident"],
+        required: true,
+      },
+      {
+        id: "q2",
+        type: "multipleChoice",
+        questionText: "Do you keep a monthly budget?",
+        options: ["Yes, always", "Sometimes", "No"],
+        required: true,
+      },
+      {
+        id: "q3",
+        type: "shortAnswer",
+        questionText:
+          "What is one area of personal finance you want to improve?",
+        required: false,
+      },
+      {
+        id: "q4",
+        type: "multipleChoice",
+        questionText: "How would you rate your understanding of investing?",
+        options: ["Excellent", "Good", "Fair", "Poor"],
+        required: true,
+      },
+      {
+        id: "q5",
+        type: "shortAnswer",
+        questionText: "What financial goal are you currently working towards?",
+        required: false,
+      },
+    ],
   },
   {
     id: "survey10",
@@ -197,6 +282,49 @@ export const mockSurveys: Survey[] = [
     lastUpdated: "2025-06-23",
     questions: 15,
     createdBy: "user-19-id",
+    questionsData: [
+      {
+        id: "q1",
+        type: "multipleChoice",
+        questionText: "What are your primary plans after graduation?",
+        options: [
+          "Full-time employment",
+          "Graduate school",
+          "Entrepreneurship",
+          "Travel",
+          "Undecided",
+        ],
+        required: true,
+      },
+      {
+        id: "q2",
+        type: "multipleChoice",
+        questionText:
+          "How confident do you feel about your post-graduation plans?",
+        options: ["Very confident", "Somewhat confident", "Not confident"],
+        required: true,
+      },
+      {
+        id: "q3",
+        type: "shortAnswer",
+        questionText: "What is your biggest fear about life after graduation?",
+        required: false,
+      },
+      {
+        id: "q4",
+        type: "multipleChoice",
+        questionText:
+          "Do you feel you have enough support/resources for your next steps?",
+        options: ["Yes", "Somewhat", "No"],
+        required: true,
+      },
+      {
+        id: "q5",
+        type: "shortAnswer",
+        questionText: "What resource or advice would help you most right now?",
+        required: false,
+      },
+    ],
   },
 ];
 

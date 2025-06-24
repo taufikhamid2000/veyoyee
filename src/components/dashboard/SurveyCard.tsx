@@ -65,9 +65,18 @@ export default function SurveyCard({
     >
       <div className="p-5">
         <div className="flex justify-between items-start mb-4">
-          <h3 className="font-semibold text-lg text-gray-900 dark:text-white">
-            {title}
-          </h3>
+          {isOwner ? (
+            <h3 className="font-semibold text-lg text-gray-900 dark:text-white">
+              {title}
+            </h3>
+          ) : (
+            <a
+              href={`/surveyee/${id}`}
+              className="font-semibold text-lg text-blue-700 dark:text-blue-400 hover:underline focus:outline-none focus:ring-2 focus:ring-blue-400 rounded"
+            >
+              {title}
+            </a>
+          )}
           <div className="flex items-center gap-2">
             <span
               className={`text-xs px-2 py-1 rounded-full font-medium ${
