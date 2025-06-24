@@ -121,6 +121,7 @@ export default function SurveyCard({
               </button>
               <button
                 className="px-3 py-1.5 bg-white dark:bg-gray-700 text-purple-600 dark:text-purple-400 border border-purple-200 dark:border-purple-800 rounded-lg hover:bg-purple-50 dark:hover:bg-purple-900/30 flex items-center justify-center flex-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                onClick={() => router.push(`/surveyor/results/${id}`)}
                 disabled={status === "draft"}
                 title={
                   status === "draft" ? "No results for draft survey" : "Results"
