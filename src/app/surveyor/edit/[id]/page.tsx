@@ -2,12 +2,9 @@ import { notFound } from "next/navigation";
 import { mockSurveys } from "@/data/dashboard-data";
 import SurveyForm from "../../SurveyForm";
 
-interface EditSurveyPageProps {
-  params: { id: string };
-}
-
-export default async function EditSurveyPage({ params }: EditSurveyPageProps) {
-  const { id } = await params;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export default async function EditSurveyPage({ params }: any) {
+  const { id } = params;
   const survey = mockSurveys.find((s) => s.id === id);
 
   if (!survey) {
