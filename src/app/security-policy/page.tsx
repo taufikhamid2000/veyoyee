@@ -12,7 +12,7 @@ export default function SecurityPolicyPage() {
         Security Policy
       </h1>
       <p className="mb-4 text-gray-600 dark:text-gray-300">
-        Veyoyee is committed to protecting your data and ensuring the security
+        Veyoyeee is committed to protecting your data and ensuring the security
         of our platform. This Security Policy outlines our approach to
         safeguarding your information.
       </p>
