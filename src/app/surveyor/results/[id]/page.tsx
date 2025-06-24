@@ -2,11 +2,8 @@ import { notFound } from "next/navigation";
 import { mockSurveys } from "@/data/dashboard-data";
 import { mockSurveyResults } from "@/data/results-data";
 
-interface ResultsPageProps {
-  params: { id: string };
-}
-
-export default async function SurveyResultsPage({ params }: ResultsPageProps) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export default async function SurveyResultsPage({ params }: any) {
   const { id } = await params;
   const survey = mockSurveys.find((s) => s.id === id);
   if (!survey) notFound();
