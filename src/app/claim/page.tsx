@@ -1,3 +1,4 @@
+/* eslint-disable react/no-children-prop */
 import type { Metadata } from "next";
 import InfoTooltip from "@/components/ui/InfoTooltip";
 
@@ -60,15 +61,11 @@ export default function ClaimRewardsPage() {
               Commerce Rewards
             </span>
             <InfoTooltip
-              tooltip={
-                <>
-                  <strong>Commerce Rewards:</strong> <br />
-                  Earn RM 0.10 for every Commerce survey you answer. Claim your
-                  rewards here!
-                </>
-              }
-            >
-              <span className="inline-block w-4 h-4 align-middle"></span>
+              tooltip={<>
+                <strong>Commerce Rewards:</strong> <br />
+                Different Survey may offer different amount of money!
+              </>} children={undefined}            >
+              
             </InfoTooltip>
           </div>
           <div className="flex items-center gap-2">

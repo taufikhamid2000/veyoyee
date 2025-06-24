@@ -1,6 +1,9 @@
+"use client";
+
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import React from "react";
+import { useSupabaseAuth } from "@/hooks/useSupabaseAuth";
 // import Image from "next/image";
 
 // Feature Item component for reusability
@@ -114,6 +117,7 @@ export default function Home() {
       <line x1="12" y1="22.08" x2="12" y2="12"></line>
     </svg>
   );
+  const { user } = useSupabaseAuth();
   return (
     <div className="flex flex-col items-center justify-center w-full">
       {/* Hero Section */}
@@ -158,34 +162,64 @@ export default function Home() {
             incentives. Create surveys, reward participants, and get better
             data—all in one place.
           </p>
-          <div className="flex flex-col sm:flex-row gap-6 justify-center mb-10">
-            <Link
-              href="/auth/signup"
-              className="transform transition-transform duration-300 hover:scale-105"
-            >
-              <Button
-                variant="primary"
-                size="lg"
-                className="w-full sm:w-auto px-8 py-3 text-lg font-medium shadow-lg bg-blue-600 hover:bg-blue-700 text-white"
-              >
-                Get Started for Free
-              </Button>
-            </Link>
-            <Link
-              href="/auth/signin"
-              className="transform transition-transform duration-300 hover:scale-105"
-            >
-              <Button
-                variant="outline"
-                size="lg"
-                className="w-full sm:w-auto px-8 py-3 text-lg font-medium bg-transparent border-white text-white hover:bg-white/10"
-              >
-                Sign In
-              </Button>
-            </Link>
-          </div>
-          <div className="text-sm font-medium text-gray-300 bg-transparent rounded-full px-4 py-2 inline-block backdrop-blur-sm">
-            No credit card required to start{" "}
+          <div className="flex flex-col sm:flex-row gap-6 justify-center mb-10 relative z-10">
+            {user ? (
+              <>
+                <Link
+                  href="/dashboard"
+                  className="transform transition-transform duration-300 hover:scale-105"
+                >
+                  <Button
+                    variant="primary"
+                    size="lg"
+                    className="w-full sm:w-auto px-8 py-3 text-lg font-medium shadow-lg bg-blue-600 hover:bg-blue-700 text-white"
+                  >
+                    Dashboard
+                  </Button>
+                </Link>
+                <a
+                  href="/docs/Survey%20%26%20Incentivized%20Research%20Platforms_%20Landscape,%20Opportunities,%20and%20Feasibility.pdf"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="transform transition-transform duration-300 hover:scale-105"
+                >
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    className="w-full sm:w-auto px-8 py-3 text-lg font-medium bg-transparent border-white text-white hover:bg-white/10"
+                  >
+                    Read More
+                  </Button>
+                </a>
+              </>
+            ) : (
+              <>
+                <Link
+                  href="/auth/signup"
+                  className="transform transition-transform duration-300 hover:scale-105"
+                >
+                  <Button
+                    variant="primary"
+                    size="lg"
+                    className="w-full sm:w-auto px-8 py-3 text-lg font-medium shadow-lg bg-blue-600 hover:bg-blue-700 text-white"
+                  >
+                    Get Started for Free
+                  </Button>
+                </Link>
+                <Link
+                  href="/auth/signin"
+                  className="transform transition-transform duration-300 hover:scale-105"
+                >
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    className="w-full sm:w-auto px-8 py-3 text-lg font-medium bg-transparent border-white text-white hover:bg-white/10"
+                  >
+                    Sign In
+                  </Button>
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </div>

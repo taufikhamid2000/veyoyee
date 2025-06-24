@@ -61,7 +61,6 @@ export default async function ExploreSurveysPage() {
             <span className="text-lg font-bold text-green-900 dark:text-white">
               RM 8.20
             </span>
-            <span className="text-xs text-gray-500">(RM 0.10 per survey)</span>
           </div>
         </div>
         <div className="w-full px-0 md:px-0">
