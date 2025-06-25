@@ -41,10 +41,18 @@ export default function DashboardClient({
   const [activeTab, setActiveTab] = useState("All Surveys");
   const { activeSurveys, draftSurveys, totalResponses, avgCompletionRate } =
     stats;
+  const tabToStatus = {
+    "All Surveys": null,
+    Active: "active",
+    Drafts: "draft",
+    Closed: "closed",
+  };
   const filteredSurveys =
-    activeTab === "All Surveys"
+    tabToStatus[activeTab as keyof typeof tabToStatus] == null
       ? surveys
-      : surveys.filter((s) => s.status === activeTab.toLowerCase());
+      : surveys.filter(
+          (s) => s.status === tabToStatus[activeTab as keyof typeof tabToStatus]
+        );
 
   return (
     <div className="container mx-auto py-8 px-4 md:px-6">
