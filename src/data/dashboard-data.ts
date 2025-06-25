@@ -120,6 +120,20 @@ export const mockSurveys: Survey[] = [
     lastUpdated: "2025-06-22",
     questions: 8,
     createdBy: "c5185e34-0ae1-439b-9701-704055cc8013",
+    questionsData: [
+      {
+        id: "q1",
+        type: "shortAnswer",
+        questionText: "How confident do you feel in your job search?",
+        required: true,
+      },
+      {
+        id: "q2",
+        type: "shortAnswer",
+        questionText: "What is your biggest challenge in job hunting?",
+        required: false,
+      },
+    ],
   },
   {
     id: "survey4",
