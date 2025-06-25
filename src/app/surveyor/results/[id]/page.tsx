@@ -63,13 +63,17 @@ export default function SurveyResultsPage({ params }: any) {
 
   // CSV export helper
   function exportToCSV() {
-    if (results.length === 0) return;
+    // Only export accepted responses
+    const acceptedResults = results.filter(
+      (resp) => resp.status === "accepted"
+    );
+    if (acceptedResults.length === 0) return;
     const headers = [
       "Respondent",
       "Submitted At",
       ...questions.map((q) => q.questionText),
     ];
-    const rows = results.map((resp) => [
+    const rows = acceptedResults.map((resp) => [
       resp.respondent,
       new Date(resp.submittedAt).toLocaleString(),
       ...questions.map((q) => {
@@ -88,7 +92,9 @@ export default function SurveyResultsPage({ params }: any) {
     link.href = url;
     link.setAttribute(
       "download",
-      `${survey?.title?.replace(/[^a-z0-9]/gi, "_") || "survey"}_results.csv`
+      `${
+        survey?.title?.replace(/[^a-z0-9]/gi, "_") || "survey"
+      }_accepted_results.csv`
     );
     document.body.appendChild(link);
     link.click();
@@ -244,6 +250,9 @@ export default function SurveyResultsPage({ params }: any) {
                     Submitted At
                   </th>
                   <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500 dark:text-gray-400">
+                    Status
+                  </th>
+                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500 dark:text-gray-400">
                     View
                   </th>
                 </tr>
@@ -257,6 +266,16 @@ export default function SurveyResultsPage({ params }: any) {
                         checked={selectedRows.includes(resp.id)}
                         onChange={() => handleRowCheckbox(resp.id)}
                         aria-label={`Select response ${resp.id}`}
+                        disabled={
+                          resp.status === "accepted" ||
+                          resp.status === "rejected"
+                        }
+                        className={
+                          resp.status === "accepted" ||
+                          resp.status === "rejected"
+                            ? "opacity-50 cursor-not-allowed"
+                            : ""
+                        }
                       />
                     </td>
                     <td className="px-4 py-2 text-sm text-gray-900 dark:text-white">
@@ -264,6 +283,20 @@ export default function SurveyResultsPage({ params }: any) {
                     </td>
                     <td className="px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
                       {new Date(resp.submittedAt).toLocaleString()}
+                    </td>
+                    <td className="px-4 py-2 text-sm">
+                      <span
+                        className={
+                          resp.status === "accepted"
+                            ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 px-2 py-1 rounded text-xs font-semibold"
+                            : resp.status === "rejected"
+                            ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200 px-2 py-1 rounded text-xs font-semibold"
+                            : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200 px-2 py-1 rounded text-xs font-semibold"
+                        }
+                      >
+                        {resp.status.charAt(0).toUpperCase() +
+                          resp.status.slice(1)}
+                      </span>
                     </td>
                     <td className="px-4 py-2 text-sm">
                       <button
