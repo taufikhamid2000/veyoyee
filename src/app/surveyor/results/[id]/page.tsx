@@ -4,7 +4,7 @@
 import { notFound } from "next/navigation";
 import { mockSurveys } from "@/data/dashboard-data";
 import { mockSurveyResults } from "@/data/results-data";
-import { useState, use as usePromise } from "react";
+import { useState, use as usePromise, useMemo } from "react";
 
 export default function SurveyResultsPage({ params }: any) {
   // Always call usePromise, pass params if it's a Promise, else pass Promise.resolve(params)
@@ -24,11 +24,23 @@ export default function SurveyResultsPage({ params }: any) {
 
   const id = resolvedParams.id;
   const survey = mockSurveys.find((s) => s.id === id);
+  const results = mockSurveyResults.filter((r) => r.surveyId === id);
+  const questions = survey?.questionsData || [];
+
+  // Precompute formatted dates for all results to avoid hydration mismatch
+  const formattedDates = useMemo(
+    () =>
+      results.reduce((acc, r) => {
+        acc[r.id] = new Date(r.submittedAt).toLocaleString("en-GB", {
+          timeZone: "UTC",
+        });
+        return acc;
+      }, {} as Record<string, string>),
+    [results]
+  );
+
   if (!survey) return notFound();
   if (survey.status === "draft") return notFound();
-
-  const results = mockSurveyResults.filter((r) => r.surveyId === id);
-  const questions = survey.questionsData || [];
 
   // If there are no questions, show answers as JSON for debugging
   const showRawAnswers = questions.length === 0 && results.length > 0;
@@ -75,7 +87,7 @@ export default function SurveyResultsPage({ params }: any) {
     ];
     const rows = acceptedResults.map((resp) => [
       resp.respondent,
-      new Date(resp.submittedAt).toLocaleString(),
+      formattedDates[resp.id],
       ...questions.map((q) => {
         const ans = resp.answers[q.id];
         return Array.isArray(ans) ? ans.join(", ") : ans || "";
@@ -150,7 +162,7 @@ export default function SurveyResultsPage({ params }: any) {
                 setCurrentPage(1);
               }}
             />
-            <div className="flex gap-2">
+            <div className="flex gap-2 items-center">
               <button
                 className={`text-xs px-2 py-1 rounded border transition-colors ${
                   sortBy === "respondent"
@@ -162,7 +174,7 @@ export default function SurveyResultsPage({ params }: any) {
                   setSortOrder(sortOrder === "asc" ? "desc" : "asc");
                 }}
               >
-                Sort by Respondent{" "}
+                Sort by Respondent
                 {sortBy === "respondent"
                   ? sortOrder === "asc"
                     ? "▲"
@@ -180,7 +192,7 @@ export default function SurveyResultsPage({ params }: any) {
                   setSortOrder(sortOrder === "asc" ? "desc" : "asc");
                 }}
               >
-                Sort by Date{" "}
+                Sort by Date
                 {sortBy === "submittedAt"
                   ? sortOrder === "asc"
                     ? "▲"
@@ -194,6 +206,14 @@ export default function SurveyResultsPage({ params }: any) {
               >
                 Export as CSV
               </button>
+              {/* Analysis page button */}
+              <a
+                href={`/surveyor/analysis/${id}`}
+                className="ml-2 text-xs px-2 py-1 rounded border border-purple-400 bg-purple-100 dark:bg-purple-900 dark:border-purple-500 text-purple-800 dark:text-purple-200 hover:bg-purple-200 dark:hover:bg-purple-800 transition-colors font-semibold"
+                title="View analysis of accepted responses"
+              >
+                View Analysis
+              </a>
             </div>
           </div>
           <div className="overflow-x-auto mb-4">
@@ -282,7 +302,7 @@ export default function SurveyResultsPage({ params }: any) {
                       {resp.respondent}
                     </td>
                     <td className="px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
-                      {new Date(resp.submittedAt).toLocaleString()}
+                      {formattedDates[resp.id]}
                     </td>
                     <td className="px-4 py-2 text-sm">
                       <span
@@ -347,12 +367,12 @@ export default function SurveyResultsPage({ params }: any) {
                 </button>
                 <h2 className="text-xl font-bold mb-4">Response Details</h2>
                 <div className="mb-2 text-sm text-gray-500">
-                  <span className="font-semibold">Respondent:</span>{" "}
+                  <span className="font-semibold">Respondent:</span>
                   {selectedResponse.respondent}
                 </div>
                 <div className="mb-4 text-sm text-gray-500">
-                  <span className="font-semibold">Submitted At:</span>{" "}
-                  {new Date(selectedResponse.submittedAt).toLocaleString()}
+                  <span className="font-semibold">Submitted At:</span>
+                  {selectedResponse ? formattedDates[selectedResponse.id] : ""}
                 </div>
                 <div className="space-y-3 mb-6">
                   {questions.map((q) => (

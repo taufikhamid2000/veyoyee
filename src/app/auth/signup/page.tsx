@@ -38,7 +38,7 @@ export default async function SignUpPage() {
         </CardContent>
         <CardFooter className="flex flex-col space-y-4">
           <div className="text-center text-sm">
-            Already have an account?{" "}
+            Already have an account?
             <Link href="/auth/signin" className="text-blue-600 hover:underline">
               Sign in
             </Link>

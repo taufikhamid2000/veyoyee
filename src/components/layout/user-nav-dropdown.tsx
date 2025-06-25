@@ -63,7 +63,7 @@ export default function UserNavDropdown({ user }: { user: User }) {
             isOpen ? "rotate-180" : "rotate-0"
           }`}
         />
-      </button>{" "}
+      </button>
       <div
         className={`
           fixed left-0 right-0 top-0 mt-16 z-50 w-full rounded-none md:absolute md:mt-2 md:rounded-xl md:w-56 md:right-0 md:left-auto md:mx-0 shadow-lg bg-blue-900/95 backdrop-blur-lg ring-1 ring-blue-700/50 overflow-hidden transition-all duration-300 ease-in-out origin-top
@@ -78,7 +78,6 @@ export default function UserNavDropdown({ user }: { user: User }) {
         aria-orientation="vertical"
         aria-labelledby="user-menu-button"
       >
-        {" "}
         <div className="py-1" role="menu" aria-orientation="vertical">
           <div className="px-4 py-3 text-sm text-gray-200 border-b border-blue-800/70 animate-fade-in">
             <p className="font-medium">{user.email}</p>

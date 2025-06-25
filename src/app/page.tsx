@@ -156,7 +156,7 @@ export default function Home() {
             <span className="text-blue-300">
               Research That Rewards Everyone
             </span>
-          </h1>{" "}
+          </h1>
           <p className="text-xl text-white mb-12 max-w-3xl mx-auto font-medium leading-relaxed">
             Veyoyee connects researchers with quality respondents through fair
             incentives. Create surveys, reward participants, and get better
@@ -225,7 +225,7 @@ export default function Home() {
           </div>
         </div>
       </div>
-      {/* How It Works Section */}{" "}
+      {/* How It Works Section */}
       <div className="w-full bg-gray-900 py-24 px-6 relative">
         <div className="max-w-6xl mx-auto">
           <div className="mb-16 text-center">
@@ -261,11 +261,11 @@ export default function Home() {
                 title="Analyze Results"
                 description="Access high-quality data and insights while participants cash out their earned rewards."
               />
-            </div>{" "}
+            </div>
           </div>
         </div>
       </div>
-      {/* Features Section */}{" "}
+      {/* Features Section */}
       <div className="w-full bg-gradient-to-br from-gray-950 to-blue-950 py-24 px-6">
         <div className="max-w-6xl mx-auto">
           <div className="mb-16 text-center">

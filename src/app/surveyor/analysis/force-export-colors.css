@@ -1,0 +1,10 @@
+/*
+  This class is used to override all text and background colors for PDF export,
+  ensuring html2canvas does not encounter unsupported oklch() colors from Tailwind.
+*/
+.force-export-colors,
+.force-export-colors * {
+  color: #111 !important;
+  background-color: #fff !important;
+  box-shadow: none !important;
+}

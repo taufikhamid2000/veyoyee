@@ -47,7 +47,7 @@ export default function SecurityPolicyPage() {
       <h2 className="text-xl font-semibold mt-8 mb-2">4. Contact</h2>
       <p className="mb-4 text-gray-600 dark:text-gray-300">
         If you have any questions or concerns about security, please contact us
-        at{" "}
+        at
         <a
           href="mailto:support@veyoyee.com"
           className="underline hover:text-blue-500"

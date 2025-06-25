@@ -112,7 +112,7 @@ export default function SurveyForm({
             className="mb-6 p-4 bg-white dark:bg-gray-700 rounded-lg"
           >
             <label className="block text-lg font-medium mb-2">
-              {idx + 1}. {q.questionText}{" "}
+              {idx + 1}. {q.questionText}
               {q.required && <span className="text-red-500">*</span>}
             </label>
             {q.type === "shortAnswer" || q.type === "paragraph" ? (
@@ -225,7 +225,7 @@ export default function SurveyForm({
             )}
             {surveyType === "commerce" && rewardRange && (
               <div className="mt-2 text-sm text-green-700 dark:text-green-300 font-semibold">
-                Respondents may be rewarded from RM {rewardRange.low} to RM{" "}
+                Respondents may be rewarded from RM {rewardRange.low} to RM
                 {rewardRange.high} each
               </div>
             )}
