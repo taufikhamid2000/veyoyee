@@ -62,7 +62,7 @@ export default function DashboardClient({
           <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-500 to-indigo-500 bg-clip-text text-transparent">
             Welcome, {userProfile?.first_name || "Researcher"}!
           </h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-1">
+          <p className="text-gray-900 dark:text-gray-400 mt-1">
             Manage your surveys and analyze responses all in one place.
           </p>
         </div>

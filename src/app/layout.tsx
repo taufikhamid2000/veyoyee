@@ -36,7 +36,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white text-gray-900 dark:bg-gray-900 dark:text-white min-h-screen`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white text-gray-900 dark:bg-gray-900 dark:text-white min-h-screen flex flex-col`}
       >
         <ThemeProvider>
           <SupabaseListener>
@@ -55,7 +55,7 @@ export default function RootLayout({
             </header>
             {/* Spacer for fixed header */}
             <div className="h-16"></div>
-            <main className="w-full">{children}</main>
+            <main className="flex-1 w-full">{children}</main>
             <Footer />
           </SupabaseListener>
         </ThemeProvider>

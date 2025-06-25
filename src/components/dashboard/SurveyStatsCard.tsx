@@ -27,7 +27,7 @@ export default function SurveyStatsCard({
         </h3>
         <span className="p-2 rounded-lg">{icon}</span>
       </div>
-      <p className="mt-2 text-3xl font-bold text-gray-900 dark:text-white">
+      <p className="mt-2 text-3xl font-bold text-gray-100 dark:text-white">
         {value}
       </p>
       {trend && (

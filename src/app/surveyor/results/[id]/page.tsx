@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { mockSurveys } from "@/data/dashboard-data";
 import { mockSurveyResults } from "@/data/results-data";
 import { useState, use as usePromise, useMemo } from "react";
+import InfoTooltip from "@/components/ui/InfoTooltip";
 
 export default function SurveyResultsPage({ params }: any) {
   // Always call usePromise, pass params if it's a Promise, else pass Promise.resolve(params)
@@ -267,6 +268,16 @@ export default function SurveyResultsPage({ params }: any) {
                     Respondent
                   </th>
                   <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500 dark:text-gray-400">
+                    Reputation Score
+                    <InfoTooltip
+                      tooltip={
+                        "A score reflecting the respondent's trustworthiness and participation quality."
+                      }
+                    >
+                      <span className="ml-1 align-middle inline-block"></span>
+                    </InfoTooltip>
+                  </th>
+                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500 dark:text-gray-400">
                     Submitted At
                   </th>
                   <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500 dark:text-gray-400">
@@ -300,6 +311,9 @@ export default function SurveyResultsPage({ params }: any) {
                     </td>
                     <td className="px-4 py-2 text-sm text-gray-900 dark:text-white">
                       {resp.respondent}
+                    </td>
+                    <td className="px-4 py-2 text-sm text-gray-900 dark:text-white flex items-center gap-1">
+                      {resp.reputationScore ?? "-"}
                     </td>
                     <td className="px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
                       {formattedDates[resp.id]}

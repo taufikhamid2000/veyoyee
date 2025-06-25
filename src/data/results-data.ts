@@ -7,6 +7,7 @@ export interface SurveyResponse {
   submittedAt: string;
   answers: Record<string, string | string[]>; // questionId -> answer
   status: "pending" | "accepted" | "rejected";
+  reputationScore?: number; // Added for reputation score
 }
 
 export const mockSurveyResults: SurveyResponse[] = [
@@ -21,6 +22,7 @@ export const mockSurveyResults: SurveyResponse[] = [
       q2: "Balancing job search and thesis work.",
     },
     status: "pending",
+    reputationScore: 80,
   },
   {
     id: "resp2",
@@ -32,6 +34,7 @@ export const mockSurveyResults: SurveyResponse[] = [
       q2: "Uncertainty about future plans.",
     },
     status: "accepted",
+    reputationScore: 92,
   },
   // Results for survey3 (Closed)
   {
@@ -44,6 +47,7 @@ export const mockSurveyResults: SurveyResponse[] = [
       q2: "I need more interview practice.",
     },
     status: "rejected",
+    reputationScore: 60,
   },
   {
     id: "resp4",
@@ -55,6 +59,7 @@ export const mockSurveyResults: SurveyResponse[] = [
       q2: "Resume writing is my biggest challenge.",
     },
     status: "pending",
+    reputationScore: 75,
   },
   // Additional responses for all statuses
   {
@@ -67,6 +72,7 @@ export const mockSurveyResults: SurveyResponse[] = [
       q2: "Worried about job market.",
     },
     status: "rejected",
+    reputationScore: 55,
   },
   {
     id: "resp6",
@@ -78,6 +84,7 @@ export const mockSurveyResults: SurveyResponse[] = [
       q2: "Finding the right fit is hard.",
     },
     status: "accepted",
+    reputationScore: 88,
   },
   {
     id: "resp7",
@@ -89,5 +96,6 @@ export const mockSurveyResults: SurveyResponse[] = [
       q2: "No major concerns.",
     },
     status: "pending",
+    reputationScore: 85,
   },
 ];

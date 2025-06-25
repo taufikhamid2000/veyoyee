@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./fix-p-color.css";
 
 :root {
   --background: #f3f4f6; /* Light gray background for light mode */

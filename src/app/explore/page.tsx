@@ -27,13 +27,13 @@ export default async function ExploreSurveysPage() {
         <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-500 to-indigo-500 bg-clip-text text-transparent">
           Explore Surveys
         </h1>
-        <p className="mb-8 text-gray-500 dark:text-gray-400 max-w-2xl">
+        <p className="mb-8 text-gray-900 dark:text-gray-400 max-w-2xl">
           Browse public surveys and participate to share your insights. Use the
           filters to find surveys that interest you.
         </p>
         {/* User survey stats */}
         <div className="mb-8 flex flex-col md:flex-row gap-4 md:gap-8">
-          <div className="bg-blue-50 dark:bg-blue-900/30 rounded-lg px-5 py-3 flex-1 flex items-center gap-3">
+          <div className="bg-blue-900 dark:bg-blue-900/30 rounded-lg px-5 py-3 flex-1 flex items-center gap-3">
             <span className="font-semibold text-blue-900 dark:text-white">
               Academia Surveys Answered:
             </span>
