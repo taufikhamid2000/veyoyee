@@ -7,13 +7,22 @@ import { mockSurveyResults } from "@/data/results-data";
 import { use as usePromise, useMemo } from "react";
 import { mockRespondentData, MockRespondent } from "@/data/mock-respondents";
 import { useState, useRef, useEffect } from "react";
-import DescriptivesTab from "@/components/analysis/DescriptivesTab";
-import { mockCorrelations } from "@/data/mock-respondents";
-import AnovaGlmTab from "@/components/analysis/AnovaGlmTab";
-import RegressionTab from "@/components/analysis/RegressionTab";
-import MultivariateTab from "@/components/analysis/MultivariateTab";
-import jsPDF from "jspdf";
-import html2canvas from "html2canvas";
+import DescriptivesTab, {
+  getDescriptivesExportSummary,
+} from "@/components/analysis/DescriptivesTab";
+import CorrelationTab, {
+  getCorrelationExportSummary,
+} from "@/components/analysis/CorrelationTab";
+import AnovaGlmTab, {
+  getAnovaGlmExportSummary,
+} from "@/components/analysis/AnovaGlmTab";
+import RegressionTab, {
+  getRegressionExportSummary,
+} from "@/components/analysis/RegressionTab";
+import MultivariateTab, {
+  getMultivariateExportSummary,
+} from "@/components/analysis/MultivariateTab";
+import { jsPDF } from "jspdf/dist/jspdf.umd.min.js";
 import "./force-export-colors.css";
 
 export default function SurveyAnalysisPage({ params }: any) {
@@ -170,47 +179,7 @@ export default function SurveyAnalysisPage({ params }: any) {
         style={{ display: activeTab === "correlation" ? "block" : "none" }}
         ref={tabRefs.correlation}
       >
-        {activeTab === "correlation" && (
-          <div className="space-y-4">
-            <div className="mb-4 text-gray-900 bg-white border border-gray-200 rounded p-3">
-              <strong>Pearson Correlation:</strong>
-              <span className="ml-2">
-                r = {mockCorrelations.pearson.r}, p =
-                {mockCorrelations.pearson.p}, n = {mockCorrelations.pearson.n}
-              </span>
-            </div>
-            <div className="mb-4 text-gray-900 bg-white border border-gray-200 rounded p-3">
-              <strong>Spearman&apos;s ρ:</strong>
-              <span className="ml-2">
-                ρ = {mockCorrelations.spearman.rho}, p =
-                {mockCorrelations.spearman.p}, n = {mockCorrelations.spearman.n}
-              </span>
-            </div>
-            <div className="mb-4 text-gray-900 bg-white border border-gray-200 rounded p-3">
-              <strong>Kendall&apos;s τ-b/τ-c:</strong>
-              <span className="ml-2">
-                τ-b = {mockCorrelations.kendall.tau_b}, τ-c =
-                {mockCorrelations.kendall.tau_c}, p =
-                {mockCorrelations.kendall.p}, n = {mockCorrelations.kendall.n}
-              </span>
-            </div>
-            <div className="mb-4 text-gray-900 bg-white border border-gray-200 rounded p-3">
-              <strong>Partial Correlation (controlling for weight):</strong>
-              <span className="ml-2">
-                r = {mockCorrelations.partial.r}, p =
-                {mockCorrelations.partial.p}, n = {mockCorrelations.partial.n}
-              </span>
-            </div>
-            <div className="mb-4 text-gray-900 bg-white border border-gray-200 rounded p-3">
-              <strong>Point-Biserial:</strong>
-              <span className="ml-2">
-                r<sub>pb</sub> = {mockCorrelations.pointBiserial.r_pb}, p =
-                {mockCorrelations.pointBiserial.p}, n =
-                {mockCorrelations.pointBiserial.n}
-              </span>
-            </div>
-          </div>
-        )}
+        {activeTab === "correlation" && <CorrelationTab />}
       </div>
       <div
         style={{ display: activeTab === "anova" ? "block" : "none" }}
@@ -246,90 +215,156 @@ export default function SurveyAnalysisPage({ params }: any) {
               return;
             }
             const pdf = new jsPDF({ unit: "pt", format: "a4" });
-            let y = 40;
-            for (const tab of selectedTabs) {
-              const ref = tabRefs[tab as keyof typeof tabRefs];
-              if (ref && ref.current) {
-                // Temporarily show the tab if not visible
-                const prevDisplay = ref.current.style.display;
-                ref.current.style.display = "block";
-                // Preprocess all elements to replace oklch() in style attributes
-                const elements: Array<{ el: HTMLElement; prevStyle: string }> =
-                  [];
-                function replaceOklchStyles(el: HTMLElement) {
-                  const prevStyle = el.getAttribute("style") || "";
-                  let newStyle = prevStyle;
-                  // Replace oklch() in style attribute
-                  newStyle = newStyle.replace(/oklch\([^)]*\)/g, "#111");
-                  if (newStyle !== prevStyle) {
-                    el.setAttribute("style", newStyle);
-                    elements.push({ el, prevStyle });
-                  }
-                  // Also patch computed style if needed
-                  const computed = window.getComputedStyle(el);
-                  if (computed.color.includes("oklch")) {
-                    el.style.color = "#111";
-                  }
-                  if (computed.backgroundColor.includes("oklch")) {
-                    el.style.backgroundColor = "#fff";
-                  }
-                  Array.from(el.children).forEach((child) =>
-                    replaceOklchStyles(child as HTMLElement)
-                  );
-                }
-                replaceOklchStyles(ref.current);
-                await new Promise((resolve) => setTimeout(resolve, 100));
-                const canvas = await html2canvas(ref.current, { scale: 2 });
-                const imgData = canvas.toDataURL("image/png");
-                const imgProps = pdf.getImageProperties(imgData);
-                const pdfWidth = pdf.internal.pageSize.getWidth() - 40;
-                const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-                if (y + pdfHeight > pdf.internal.pageSize.getHeight() - 40) {
-                  pdf.addPage();
-                  y = 40;
-                }
-                pdf.addImage(imgData, "PNG", 20, y, pdfWidth, pdfHeight);
-                y += pdfHeight + 20;
-                // Restore original style attributes and hide the tab again if it was hidden
-                for (const { el, prevStyle } of elements) {
-                  el.setAttribute("style", prevStyle);
-                }
-                ref.current.style.display = prevDisplay;
+            let y = 60;
+            pdf.text(`Survey Analysis: ${survey.title}`, 40, y);
+            y += 30;
+            pdf.text(`Number of respondents: ${numRespondents}`, 40, y);
+            y += 30;
+            pdf.text(`Average age: ${avgAge}`, 40, y);
+            y += 30;
+            pdf.text(`Gender counts: ${JSON.stringify(genderCounts)}`, 40, y);
+            y += 40;
+            // Export text content of each selected tab
+            selectedTabs.forEach((tab, idx) => {
+              let text = "";
+              if (tab === "descriptives") {
+                text = getDescriptivesExportSummary({
+                  numRespondents,
+                  avgAge,
+                  genderCounts,
+                  mockTTest: () => tTestValue,
+                  barChartData,
+                  questions,
+                });
+              } else if (tab === "correlation") {
+                text = getCorrelationExportSummary();
+              } else if (tab === "anova") {
+                text = getAnovaGlmExportSummary();
+              } else if (tab === "regression") {
+                text = getRegressionExportSummary();
+              } else if (tab === "multivariate") {
+                text = getMultivariateExportSummary();
               }
-            }
+              if (text.trim()) {
+                if (idx === 0) {
+                  pdf.text(
+                    `${tab.charAt(0).toUpperCase() + tab.slice(1)} Tab:`,
+                    40,
+                    y
+                  );
+                  y += 30;
+                  const lines = pdf.splitTextToSize(
+                    text,
+                    pdf.internal.pageSize.getWidth() - 80
+                  );
+                  pdf.text(lines, 40, y);
+                } else {
+                  pdf.addPage();
+                  let pageY = 60;
+                  pdf.text(
+                    `${tab.charAt(0).toUpperCase() + tab.slice(1)} Tab:`,
+                    40,
+                    pageY
+                  );
+                  pageY += 30;
+                  const lines = pdf.splitTextToSize(
+                    text,
+                    pdf.internal.pageSize.getWidth() - 80
+                  );
+                  pdf.text(lines, 40, pageY);
+                }
+              }
+            });
             pdf.save(`survey-analysis-${id}.pdf`);
           }}
         >
-          <div className="flex flex-col gap-2 mb-4">
-            {/*
-             * Checkbox options for each tab
-             */}
-            {(
-              [
-                { key: "descriptives", label: "Descriptives & Exploration" },
-                { key: "correlation", label: "Correlation & Association" },
-                { key: "anova", label: "ANOVA/GLM Family" },
-                { key: "regression", label: "Regression & Predictive Models" },
-                { key: "multivariate", label: "Multivariate & Data Reduction" },
-              ] as const
-            ).map((tab) => (
-              <label key={tab.key} className="inline-flex items-center">
-                <input
-                  type="checkbox"
-                  name="tabs"
-                  value={tab.key}
-                  defaultChecked
-                  className="form-checkbox h-4 w-4 text-blue-600"
-                />
-                <span className="ml-2 text-gray-900">{tab.label}</span>
+          <div className="flex gap-4 flex-wrap">
+            <div className="flex items-center">
+              <input
+                type="checkbox"
+                name="tabs"
+                value="descriptives"
+                id="export-descriptives"
+                className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                defaultChecked
+              />
+              <label
+                htmlFor="export-descriptives"
+                className="ml-2 text-sm text-gray-700"
+              >
+                Descriptives & Exploration
               </label>
-            ))}
+            </div>
+            <div className="flex items-center">
+              <input
+                type="checkbox"
+                name="tabs"
+                value="correlation"
+                id="export-correlation"
+                className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                defaultChecked
+              />
+              <label
+                htmlFor="export-correlation"
+                className="ml-2 text-sm text-gray-700"
+              >
+                Correlation & Association
+              </label>
+            </div>
+            <div className="flex items-center">
+              <input
+                type="checkbox"
+                name="tabs"
+                value="anova"
+                id="export-anova"
+                className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                defaultChecked
+              />
+              <label
+                htmlFor="export-anova"
+                className="ml-2 text-sm text-gray-700"
+              >
+                ANOVA/GLM Family
+              </label>
+            </div>
+            <div className="flex items-center">
+              <input
+                type="checkbox"
+                name="tabs"
+                value="regression"
+                id="export-regression"
+                className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                defaultChecked
+              />
+              <label
+                htmlFor="export-regression"
+                className="ml-2 text-sm text-gray-700"
+              >
+                Regression & Predictive Models
+              </label>
+            </div>
+            <div className="flex items-center">
+              <input
+                type="checkbox"
+                name="tabs"
+                value="multivariate"
+                id="export-multivariate"
+                className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                defaultChecked
+              />
+              <label
+                htmlFor="export-multivariate"
+                className="ml-2 text-sm text-gray-700"
+              >
+                Multivariate & Data Reduction
+              </label>
+            </div>
           </div>
           <button
             type="submit"
-            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 font-semibold"
+            className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md font-semibold transition-all hover:bg-blue-700"
           >
-            Export Selected Tabs as PDF
+            Export PDF
           </button>
         </form>
       </div>

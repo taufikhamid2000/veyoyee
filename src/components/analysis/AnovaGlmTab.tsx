@@ -110,4 +110,79 @@ const AnovaGlmTab: React.FC = () => (
   </div>
 );
 
+// Export summary function for PDF/text export
+export function getAnovaGlmExportSummary() {
+  const {
+    oneWayAnova,
+    factorialAnova,
+    repeatedMeasuresAnova,
+    manova,
+    mancova,
+    ancova,
+    glm,
+    levene,
+    postHoc,
+  } = mockAnovaGlm;
+  return [
+    `One-Way ANOVA:`,
+    `  Groups: ${oneWayAnova.groups.join(", ")}`,
+    `  Means: ${oneWayAnova.means.join(", ")}`,
+    `  F = ${oneWayAnova.F}, df = ${oneWayAnova.dfBetween},${oneWayAnova.dfWithin}, p = ${oneWayAnova.p}, η² = ${oneWayAnova.etaSquared}`,
+    `\nFactorial ANOVA:`,
+    `  Factors: ${factorialAnova.factors.join(", ")}`,
+    `  Means: ${Object.entries(factorialAnova.means)
+      .map(
+        ([gender, means]) =>
+          `${gender}: ${Object.entries(means as Record<string, number>)
+            .map(([g, m]) => `${g}=${m}`)
+            .join(", ")}`
+      )
+      .join("; ")}`,
+    `  F = ${factorialAnova.F}, df = ${factorialAnova.df.join(", ")}, p = ${
+      factorialAnova.p
+    }, Interaction F = ${factorialAnova.interactionF}, Interaction p = ${
+      factorialAnova.interactionP
+    }`,
+    `\nRepeated-Measures ANOVA:`,
+    `  Levels: ${repeatedMeasuresAnova.levels.join(", ")}`,
+    `  Means: ${repeatedMeasuresAnova.means.join(", ")}`,
+    `  F = ${repeatedMeasuresAnova.F}, df = ${repeatedMeasuresAnova.df.join(
+      ", "
+    )}, p = ${repeatedMeasuresAnova.p}`,
+    `\nMANOVA:`,
+    `  DVs: ${manova.DVs.join(", ")}`,
+    `  Wilks' Lambda = ${manova.WilksLambda}, F = ${
+      manova.F
+    }, df = ${manova.df.join(", ")}, p = ${manova.p}`,
+    `\nMANCOVA:`,
+    `  DVs: ${mancova.DVs.join(", ")}`,
+    `  Covariates: ${mancova.covariates.join(", ")}`,
+    `  Wilks' Lambda = ${mancova.WilksLambda}, F = ${
+      mancova.F
+    }, df = ${mancova.df.join(", ")}, p = ${mancova.p}`,
+    `\nANCOVA:`,
+    `  DV: ${ancova.DV}, Covariate: ${ancova.covariate}`,
+    `  F = ${ancova.F}, df = ${ancova.df.join(", ")}, p = ${ancova.p}, η² = ${
+      ancova.etaSquared
+    }`,
+    `\nGeneral Linear Model (GLM):`,
+    `  Predictors: ${glm.predictors.join(", ")}`,
+    `  R² = ${glm.R2}, F = ${glm.F}, df = ${glm.df.join(", ")}, p = ${glm.p}`,
+    `\nLevene's Test:`,
+    `  Statistic = ${levene.statistic}, df = ${levene.df.join(", ")}, p = ${
+      levene.p
+    }`,
+    `\nPost Hoc Tests:`,
+    `  Tukey: ${postHoc.tukey
+      .map((t) => `${t.comparison}: p = ${t.p}`)
+      .join(", ")}`,
+    `  Bonferroni: ${postHoc.bonferroni
+      .map((t) => `${t.comparison}: p = ${t.p}`)
+      .join(", ")}`,
+    `  Scheffé: ${postHoc.scheffe
+      .map((t) => `${t.comparison}: p = ${t.p}`)
+      .join(", ")}`,
+  ].join("\n");
+}
+
 export default AnovaGlmTab;

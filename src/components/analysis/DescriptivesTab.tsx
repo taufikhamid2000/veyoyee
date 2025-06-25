@@ -167,4 +167,65 @@ const DescriptivesTab: React.FC<Props> = ({
   </>
 );
 
+// Export summary function for PDF/text export
+export function getDescriptivesExportSummary({
+  numRespondents,
+  avgAge,
+  genderCounts,
+  mockTTest,
+  barChartData,
+  questions,
+}: {
+  numRespondents: number;
+  avgAge: string | number;
+  genderCounts: Record<string, number>;
+  mockTTest: () => string;
+  barChartData: [string, number][];
+  questions: any[];
+}) {
+  const lines = [
+    `Total Accepted Responses: ${numRespondents}`,
+    `Average Age: ${avgAge}`,
+    `Gender Breakdown: ${Object.entries(genderCounts)
+      .map(([g, c]) => `${g}: ${c}`)
+      .join(", ")}`,
+    `Mock t-test (Q1): p = ${mockTTest()}`,
+  ];
+  if (barChartData.length > 0) {
+    lines.push(
+      `Bar Chart: ${questions[0]?.questionText || ""}`,
+      ...barChartData.map(([option, count]) => `  ${option}: ${count}`)
+    );
+  }
+  lines.push(
+    `Descriptives (Age): Mean: ${mockDescriptives.age.mean}, SD: ${mockDescriptives.age.sd}, Min: ${mockDescriptives.age.min}, Max: ${mockDescriptives.age.max}`,
+    `Frequencies (Gender): ${Object.entries(mockFrequencies.gender)
+      .map(
+        ([gender, val]) =>
+          `${gender}: ${(val as { count: number; percent: number }).count} (${
+            (val as { count: number; percent: number }).percent
+          }%)`
+      )
+      .join(", ")}`,
+    `Box-Plot (Age): Min: ${mockBoxPlot.age.min}, Q1: ${mockBoxPlot.age.q1}, Median: ${mockBoxPlot.age.median}, Q3: ${mockBoxPlot.age.q3}, Max: ${mockBoxPlot.age.max}`,
+    `Stem-and-Leaf (Age):\n${mockStemAndLeaf.age}`,
+    `Normality (Shapiro-Wilk, Age): W = ${mockNormality.age.statistic}, p = ${
+      mockNormality.age.p
+    }, Normal: ${mockNormality.age.normal ? "Yes" : "No"}`,
+    `Crosstabs (Gender × Group):`,
+    ...Object.entries(mockCrosstabs.genderByGroup.table).map(
+      ([group, row]) =>
+        `  ${group}: ${Object.entries(row as Record<string, number>)
+          .map(([g, v]) => `${g}: ${v}`)
+          .join(", ")}`
+    ),
+    `  χ² = ${mockCrosstabs.genderByGroup.chi2}, p = ${mockCrosstabs.genderByGroup.p}, Phi = ${mockCrosstabs.genderByGroup.phi}, Cramer's V = ${mockCrosstabs.genderByGroup.cramersV}`,
+    `Weight Cases: ${mockWeights
+      .map((w) => `${w.id}: ${w.weight ?? "-"}`)
+      .join(", ")}`,
+    `Split File (Groups): ${mockSplitGroups.join(", ")}`
+  );
+  return lines.join("\n");
+}
+
 export default DescriptivesTab;

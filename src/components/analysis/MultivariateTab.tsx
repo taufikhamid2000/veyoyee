@@ -277,4 +277,151 @@ const MultivariateTab: React.FC = () => (
   </div>
 );
 
+// Export summary function for PDF/text export
+export function getMultivariateExportSummary() {
+  const lines = [];
+  // Factor Analysis
+  lines.push("Factor Analysis:");
+  lines.push(
+    `  Method: ${mockFactorAnalysis.method} (${mockFactorAnalysis.rotation} rotation)`
+  );
+  lines.push(`  Factors Extracted: ${mockFactorAnalysis.nFactors}`);
+  lines.push(`  Eigenvalues: ${mockFactorAnalysis.eigenvalues.join(", ")}`);
+  lines.push(
+    `  Explained Variance (%): ${mockFactorAnalysis.explainedVariance.join(
+      ", "
+    )}`
+  );
+  lines.push(
+    `  Communalities: ${Object.entries(mockFactorAnalysis.communalities)
+      .map(([item, val]) => `${item}: ${val}`)
+      .join(", ")}`
+  );
+  lines.push("  Loadings:");
+  for (const [factor, items] of Object.entries(mockFactorAnalysis.loadings)) {
+    lines.push(
+      `    ${factor}: ${Object.entries(items)
+        .map(([item, val]) => `${item}=${val}`)
+        .join(", ")}`
+    );
+  }
+  // PCA
+  lines.push("\nPrincipal Component Analysis (PCA):");
+  lines.push(`  Components: ${mockPCA.nComponents}`);
+  lines.push(`  Eigenvalues: ${mockPCA.eigenvalues.join(", ")}`);
+  lines.push(
+    `  Explained Variance (%): ${mockPCA.explainedVariance.join(", ")}`
+  );
+  lines.push("  Component Loadings:");
+  for (const [pc, items] of Object.entries(mockPCA.componentLoadings)) {
+    lines.push(
+      `    ${pc}: ${Object.entries(items)
+        .map(([item, val]) => `${item}=${val}`)
+        .join(", ")}`
+    );
+  }
+  lines.push(`  Scores: ${mockPCA.scores.join(", ")}`);
+  // Reliability
+  lines.push("\nReliability Analysis:");
+  lines.push(`  Cronbach's α: ${mockReliability.cronbachAlpha}`);
+  lines.push(`  Number of Items: ${mockReliability.nItems}`);
+  lines.push(
+    `  Item-Total Correlation: ${Object.entries(
+      mockReliability.itemTotalCorrelation
+    )
+      .map(([item, val]) => `${item}: ${val}`)
+      .join(", ")}`
+  );
+  lines.push(
+    `  α if Item Deleted: ${Object.entries(mockReliability.alphaIfItemDeleted)
+      .map(([item, val]) => `${item}: ${val}`)
+      .join(", ")}`
+  );
+  // Discriminant
+  lines.push("\nDiscriminant Analysis:");
+  lines.push(`  Groups: ${mockDiscriminant.groups.join(", ")}`);
+  lines.push(
+    `  Canonical Correlation: ${mockDiscriminant.canonicalCorrelation}`
+  );
+  lines.push(`  Eigenvalue: ${mockDiscriminant.eigenvalue}`);
+  lines.push(`  Wilks' Lambda: ${mockDiscriminant.wilksLambda}`);
+  lines.push(
+    `  χ²: ${mockDiscriminant.chi2}, df: ${mockDiscriminant.df}, p: ${mockDiscriminant.p}`
+  );
+  lines.push(
+    `  Standardized Coefficients: ${Object.entries(
+      mockDiscriminant.standardizedCoefficients
+    )
+      .map(([item, val]) => `${item}: ${val}`)
+      .join(", ")}`
+  );
+  lines.push(
+    `  Group Centroids: ${Object.entries(mockDiscriminant.groupCentroids)
+      .map(([g, v]) => `${g}: ${v}`)
+      .join(", ")}`
+  );
+  lines.push(
+    `  Classification Accuracy: ${mockDiscriminant.classificationAccuracy}%`
+  );
+  // Cluster
+  lines.push("\nCluster Analysis:");
+  lines.push(`  Method: ${mockCluster.method}`);
+  lines.push(`  Clusters: ${mockCluster.nClusters}`);
+  lines.push(`  Cluster Sizes: ${mockCluster.clusterSizes.join(", ")}`);
+  lines.push("  Centroids:");
+  for (const [cluster, items] of Object.entries(mockCluster.centroids)) {
+    lines.push(
+      `    ${cluster}: ${Object.entries(items)
+        .map(([item, val]) => `${item}=${val}`)
+        .join(", ")}`
+    );
+  }
+  lines.push(`  Assignments: ${mockCluster.assignments.join(", ")}`);
+  lines.push(`  Silhouette: ${mockCluster.silhouette}`);
+  // Correspondence
+  lines.push("\nCorrespondence Analysis:");
+  lines.push(`  Rows: ${mockCorrespondence.rowLabels.join(", ")}`);
+  lines.push(`  Columns: ${mockCorrespondence.colLabels.join(", ")}`);
+  lines.push("  Table:");
+  mockCorrespondence.rowLabels.forEach((row, i) => {
+    lines.push(`    ${row}: ${mockCorrespondence.table[i].join(", ")}`);
+  });
+  lines.push(`  Inertia: ${mockCorrespondence.inertia}`);
+  lines.push(
+    `  Dim 1 (row): ${mockCorrespondence.dim1.row.join(
+      ", "
+    )}, (col): ${mockCorrespondence.dim1.col.join(", ")}`
+  );
+  lines.push(
+    `  Dim 2 (row): ${mockCorrespondence.dim2.row.join(
+      ", "
+    )}, (col): ${mockCorrespondence.dim2.col.join(", ")}`
+  );
+  // Optimal Scaling
+  lines.push("\nOptimal Scaling / CATREG:");
+  lines.push(`  Method: ${mockOptimalScaling.method}`);
+  lines.push(`  Predictors: ${mockOptimalScaling.predictors.join(", ")}`);
+  lines.push("  Transformed Predictors:");
+  for (const [pred, levels] of Object.entries(
+    mockOptimalScaling.transformedPredictors
+  )) {
+    lines.push(
+      `    ${pred}: ${Object.entries(levels)
+        .map(([lvl, val]) => `${lvl}: ${val}`)
+        .join(", ")}`
+    );
+  }
+  lines.push(
+    `  Coefficients: ${Object.entries(mockOptimalScaling.coefficients)
+      .map(([k, v]) => `${k}: ${v}`)
+      .join(", ")}`
+  );
+  lines.push(
+    `  R²: ${mockOptimalScaling.R2}, F: ${
+      mockOptimalScaling.F
+    }, df: ${mockOptimalScaling.df.join(", ")}, p: ${mockOptimalScaling.p}`
+  );
+  return lines.join("\n");
+}
+
 export default MultivariateTab;

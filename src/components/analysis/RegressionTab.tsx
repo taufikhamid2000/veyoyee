@@ -114,4 +114,112 @@ const RegressionTab: React.FC = () => (
   </div>
 );
 
+// Export summary function for PDF/text export
+export function getRegressionExportSummary() {
+  const lines = [];
+  // Linear Regression
+  lines.push("Linear Regression:");
+  lines.push(`  Predictors: ${mockRegression.linear.predictors.join(", ")}`);
+  lines.push(
+    `  Coefficients: ${Object.entries(mockRegression.linear.coefficients)
+      .map(([k, v]) => `${k}: ${v}`)
+      .join(", ")}`
+  );
+  lines.push(
+    `  R² = ${mockRegression.linear.R2}, Adj. R² = ${
+      mockRegression.linear.adjR2
+    }, F = ${mockRegression.linear.F}, df = ${mockRegression.linear.df.join(
+      ", "
+    )}, p = ${mockRegression.linear.p}`
+  );
+  lines.push(`  Durbin–Watson: ${mockRegression.linear.durbinWatson}`);
+  lines.push(
+    `  Collinearity: ${Object.entries(mockRegression.linear.collinearity)
+      .map(([k, v]) => `${k} (VIF: ${v.VIF}, Tol: ${v.tolerance})`)
+      .join(", ")}`
+  );
+  // Binary Logistic Regression
+  lines.push("\nBinary Logistic Regression:");
+  lines.push(
+    `  Predictors: ${mockRegression.binaryLogistic.predictors.join(", ")}`
+  );
+  lines.push(
+    `  Coefficients: ${Object.entries(
+      mockRegression.binaryLogistic.coefficients
+    )
+      .map(([k, v]) => `${k}: ${v}`)
+      .join(", ")}`
+  );
+  lines.push(
+    `  Cox & Snell R² = ${mockRegression.binaryLogistic.CoxSnellR2}, Nagelkerke R² = ${mockRegression.binaryLogistic.NagelkerkeR2}, χ² = ${mockRegression.binaryLogistic.chi2}, df = ${mockRegression.binaryLogistic.df}, p = ${mockRegression.binaryLogistic.p}, AUC = ${mockRegression.binaryLogistic.auc}`
+  );
+  // Multinomial Logistic Regression
+  lines.push("\nMultinomial Logistic Regression:");
+  lines.push(
+    `  Predictors: ${mockRegression.multinomialLogistic.predictors.join(", ")}`
+  );
+  lines.push(
+    `  Classes: ${mockRegression.multinomialLogistic.classes.join(", ")}`
+  );
+  lines.push(
+    `  Coefficients: ${Object.entries(
+      mockRegression.multinomialLogistic.coefficients
+    )
+      .map(
+        ([cls, coefs]) =>
+          `${cls}: ${Object.entries(coefs as Record<string, number>)
+            .map(([k, v]) => `${k}: ${v}`)
+            .join(", ")}`
+      )
+      .join("; ")}`
+  );
+  lines.push(
+    `  χ² = ${mockRegression.multinomialLogistic.chi2}, df = ${mockRegression.multinomialLogistic.df}, p = ${mockRegression.multinomialLogistic.p}, AUC = ${mockRegression.multinomialLogistic.auc}`
+  );
+  // Ordinal Regression
+  lines.push("\nOrdinal Regression:");
+  lines.push(`  Predictors: ${mockRegression.ordinal.predictors.join(", ")}`);
+  lines.push(
+    `  Coefficients: ${Object.entries(mockRegression.ordinal.coefficients)
+      .map(([k, v]) => `${k}: ${v}`)
+      .join(", ")}`
+  );
+  lines.push(
+    `  χ² = ${mockRegression.ordinal.chi2}, df = ${mockRegression.ordinal.df}, p = ${mockRegression.ordinal.p}`
+  );
+  // Probit Regression
+  lines.push("\nProbit Regression:");
+  lines.push(`  Predictors: ${mockRegression.probit.predictors.join(", ")}`);
+  lines.push(
+    `  Coefficients: ${Object.entries(mockRegression.probit.coefficients)
+      .map(([k, v]) => `${k}: ${v}`)
+      .join(", ")}`
+  );
+  lines.push(
+    `  χ² = ${mockRegression.probit.chi2}, df = ${mockRegression.probit.df}, p = ${mockRegression.probit.p}`
+  );
+  // Stepwise/Forward/Backward Selection
+  lines.push("\nStepwise/Forward/Backward Selection:");
+  lines.push(`  Method: ${mockRegression.stepwise.method}`);
+  lines.push(
+    `  Steps: ${mockRegression.stepwise.steps
+      .map(
+        (s, i) =>
+          `Step ${i + 1}: [${s.included.join(", ")}] R² = ${s.R2}, p = ${s.p}`
+      )
+      .join("; ")}`
+  );
+  // Durbin–Watson (global)
+  lines.push(`\nDurbin–Watson: ${mockRegression.durbinWatson}`);
+  // Collinearity Diagnostics (global)
+  lines.push(
+    `Collinearity Diagnostics: ${Object.entries(mockRegression.collinearity)
+      .map(([k, v]) => `${k} (VIF: ${v.VIF}, Tol: ${v.tolerance})`)
+      .join(", ")}`
+  );
+  // ROC Curve / AUC
+  lines.push(`ROC Curve / AUC: AUC = ${mockRegression.binaryLogistic.auc}`);
+  return lines.join("\n");
+}
+
 export default RegressionTab;
