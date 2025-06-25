@@ -99,6 +99,16 @@ export default function Navigation() {
               Explore
             </Link>
             <Link
+              href="/marketplace"
+              className={`text-gray-200 hover:text-white transition-colors${
+                pathname.startsWith("/marketplace")
+                  ? " font-bold border-b-2 border-blue-400"
+                  : ""
+              }`}
+            >
+              Marketplace
+            </Link>
+            <Link
               href="/respondents"
               className={`text-gray-200 hover:text-white transition-colors${
                 pathname.startsWith("/respondents")
@@ -199,6 +209,17 @@ export default function Navigation() {
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Explore
+                </Link>
+                <Link
+                  href="/marketplace"
+                  className={`block px-6 py-3 text-sm text-gray-200 hover:text-white hover:bg-blue-800/50 transition-colors${
+                    pathname.startsWith("/marketplace")
+                      ? " font-bold border-b-2 border-blue-400"
+                      : ""
+                  }`}
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Marketplace
                 </Link>
                 <Link
                   href="/respondents"
