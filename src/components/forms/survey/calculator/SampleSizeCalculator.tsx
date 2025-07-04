@@ -21,6 +21,7 @@ export default function SampleSizeCalculator({
   const [confidenceLevel, setConfidenceLevel] = useState<number>(95);
   const [marginOfError, setMarginOfError] = useState<number>(5);
   const [sampleSize, setSampleSize] = useState<number>(0);
+  const [exceedsLimit, setExceedsLimit] = useState<boolean>(false);
 
   // Calculate on input change
   React.useEffect(() => {
@@ -48,7 +49,14 @@ export default function SampleSizeCalculator({
       const calculatedSampleSize = Math.ceil(
         numerator / denominator / correctionFactor
       );
-      setSampleSize(calculatedSampleSize);
+
+      // Check if the calculated size exceeds the platform limit
+      const exceeds = calculatedSampleSize > 10000;
+      setExceedsLimit(exceeds);
+
+      // Cap the sample size at 10,000 which is the system limit
+      const cappedSampleSize = Math.min(calculatedSampleSize, 10000);
+      setSampleSize(cappedSampleSize);
     };
 
     calculateSampleSize();
@@ -232,6 +240,26 @@ export default function SampleSizeCalculator({
               {confidenceLevel}% confidence level, and {marginOfError}% margin
               of error
             </p>
+            {exceedsLimit && (
+              <div className="mt-2 text-xs text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 p-2 rounded">
+                <svg
+                  className="inline-block w-4 h-4 mr-1 -mt-0.5"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                  <line x1="12" y1="9" x2="12" y2="13"></line>
+                  <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                </svg>
+                The calculated sample size exceeds the platform limit of 10,000
+                respondents and has been capped.
+              </div>
+            )}
           </div>
         </div>
 

@@ -47,6 +47,21 @@ export default function SurveyFormHeader({
   const [generatingQuestions, setGeneratingQuestions] = useState(false);
   const [showSampleSizeCalculator, setShowSampleSizeCalculator] =
     useState(false);
+
+  // Add validation states
+  const [minMaxError, setMinMaxError] = useState<string | null>(null);
+  const [dateError, setDateError] = useState<string | null>(null);
+
+  // Helper function for formatting dates in DD/MM/YYYY format
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    // Format as DD/MM/YYYY explicitly
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are 0-based
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+  };
+
   // Calculate reward per respondent range
   let rewardRange = null;
   if (surveyType === "commerce" && rewardAmount && minRespondents) {
@@ -54,8 +69,8 @@ export default function SurveyFormHeader({
     const max = maxRespondents ? Number(maxRespondents) : min;
     const total = Number(rewardAmount);
     if (min > 0 && total > 0) {
-      const high = (total / min).toFixed(2);
-      const low = max > 0 ? (total / max).toFixed(2) : high;
+      const high = total / min;
+      const low = max > 0 ? total / max : high;
       rewardRange = { low, high };
     }
   }
@@ -127,9 +142,67 @@ export default function SurveyFormHeader({
               </div>
             )}
             {surveyType === "commerce" && rewardRange && (
-              <div className="mt-2 text-sm text-green-700 dark:text-green-300 font-semibold">
-                Respondents may be rewarded from RM {rewardRange.low} to RM{" "}
-                {rewardRange.high} each
+              <div
+                className={`mt-2 text-sm font-semibold ${
+                  rewardRange.low >= 0.1
+                    ? "text-green-700 dark:text-green-300"
+                    : "text-red-600 dark:text-red-400"
+                }`}
+              >
+                {rewardRange.low >= 0.1 ? (
+                  <>
+                    <svg
+                      className="inline-block w-4 h-4 mr-1"
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                      <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                    </svg>
+                    Respondents will be rewarded from RM{" "}
+                    {Number(rewardRange.low).toLocaleString(undefined, {
+                      maximumFractionDigits: 6,
+                    })}{" "}
+                    to RM{" "}
+                    {Number(rewardRange.high).toLocaleString(undefined, {
+                      maximumFractionDigits: 6,
+                    })}{" "}
+                    each.
+                  </>
+                ) : (
+                  <>
+                    <svg
+                      className="inline-block w-4 h-4 mr-1"
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                      <line x1="12" y1="9" x2="12" y2="13"></line>
+                      <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                    </svg>
+                    Warning: Respondents may be rewarded from RM{" "}
+                    {Number(rewardRange.low).toLocaleString(undefined, {
+                      maximumFractionDigits: 6,
+                    })}{" "}
+                    to RM{" "}
+                    {Number(rewardRange.high).toLocaleString(undefined, {
+                      maximumFractionDigits: 6,
+                    })}{" "}
+                    each. Consider increasing total reward or decreasing
+                    respondent count (minimum 10 cents per respondent is
+                    recommended).
+                  </>
+                )}
               </div>
             )}
           </div>
@@ -417,14 +490,39 @@ Structure the questions in logical sections if appropriate.`;
               type="number"
               id="minRespondents"
               value={minRespondents !== undefined ? minRespondents : ""}
-              onChange={(e) =>
-                setMinRespondents(
-                  e.target.value ? Number(e.target.value) : undefined
-                )
-              }
+              onChange={(e) => {
+                let value = e.target.value ? Number(e.target.value) : undefined;
+                // Cap at 10,000 which is the platform limit
+                if (value && value > 10000) {
+                  value = 10000;
+                }
+
+                setMinRespondents(value);
+
+                // Validate the relationship between min and max
+                if (value !== undefined && maxRespondents !== undefined) {
+                  if (value > maxRespondents) {
+                    setMinMaxError(
+                      `Minimum respondents cannot exceed maximum (${maxRespondents})`
+                    );
+                  } else {
+                    setMinMaxError(null);
+                  }
+                }
+              }}
               placeholder="Enter minimum respondents"
-              className="w-full px-4 py-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400 dark:bg-gray-900 dark:text-white"
+              max="10000"
+              className={`w-full px-4 py-2 rounded border ${
+                minMaxError
+                  ? "border-red-500 focus:ring-red-500"
+                  : "border-gray-300 focus:ring-blue-400"
+              } focus:outline-none focus:ring-2 dark:bg-gray-900 dark:text-white`}
             />
+            {minRespondents && minRespondents === 10000 && (
+              <p className="text-amber-500 text-xs mt-1">
+                Maximum platform limit of 10,000 respondents reached.
+              </p>
+            )}
           </div>
           <div className="flex-1">
             <label
@@ -447,9 +545,9 @@ Structure the questions in logical sections if appropriate.`;
                   <path d="M12 16v-4"></path>
                   <path d="M12 8h.01"></path>
                 </svg>
-                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-48 p-2 bg-gray-800 text-white text-xs rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-opacity z-10">
+                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-60 p-2 bg-gray-800 text-white text-xs rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-opacity z-10">
                   Maximum number of responses to collect before closing the
-                  survey.
+                  survey. The platform limit is 10,000 respondents.
                 </div>
               </div>
             </label>
@@ -457,16 +555,67 @@ Structure the questions in logical sections if appropriate.`;
               type="number"
               id="maxRespondents"
               value={maxRespondents !== undefined ? maxRespondents : ""}
-              onChange={(e) =>
-                setMaxRespondents(
-                  e.target.value ? Number(e.target.value) : undefined
-                )
-              }
+              onChange={(e) => {
+                let value = e.target.value ? Number(e.target.value) : undefined;
+                // Cap at 10,000 which is the platform limit
+                if (value && value > 10000) {
+                  value = 10000;
+                }
+
+                setMaxRespondents(value);
+
+                // Validate the relationship between min and max
+                if (value !== undefined && minRespondents !== undefined) {
+                  if (value < minRespondents) {
+                    setMinMaxError(
+                      `Maximum respondents must be greater than or equal to minimum (${minRespondents})`
+                    );
+                  } else {
+                    setMinMaxError(null);
+                  }
+                }
+              }}
               placeholder="Enter maximum respondents"
-              className="w-full px-4 py-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400 dark:bg-gray-900 dark:text-white"
+              max="10000"
+              className={`w-full px-4 py-2 rounded border ${
+                minMaxError
+                  ? "border-red-500 focus:ring-red-500"
+                  : "border-gray-300 focus:ring-blue-400"
+              } focus:outline-none focus:ring-2 dark:bg-gray-900 dark:text-white`}
             />
+            {maxRespondents && maxRespondents === 10000 && (
+              <p className="text-amber-500 text-xs mt-1">
+                Maximum platform limit of 10,000 respondents reached.
+              </p>
+            )}
+            {minMaxError && (
+              <p className="text-red-500 text-xs mt-1">{minMaxError}</p>
+            )}
           </div>
         </div>
+
+        {minRespondents !== undefined &&
+          maxRespondents !== undefined &&
+          !minMaxError &&
+          minRespondents <= maxRespondents && (
+            <p className="text-green-500 text-xs mt-2">
+              <svg
+                className="inline-block w-4 h-4 mr-1"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+              </svg>
+              Respondent requirements set: {minRespondents} - {maxRespondents}{" "}
+              responses
+            </p>
+          )}
 
         {/* Sample Size Calculator Modal */}
         <SampleSizeCalculator
@@ -478,33 +627,108 @@ Structure the questions in logical sections if appropriate.`;
           }}
         />
       </div>
-      <div className="flex gap-4 mb-6">
-        <div className="flex-1">
-          <label htmlFor="startDate" className="block text-lg font-medium mb-2">
-            Start Date
-          </label>
-          <input
-            type="date"
-            id="startDate"
-            value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
-            placeholder="Select start date"
-            className="w-full px-4 py-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400 dark:bg-gray-900 dark:text-white"
-          />
+      <div className="flex flex-col gap-2 mb-6">
+        <div className="flex gap-4">
+          <div className="flex-1">
+            <label
+              htmlFor="startDate"
+              className="block text-lg font-medium mb-2"
+            >
+              Start Date
+            </label>
+            <input
+              type="date"
+              id="startDate"
+              value={startDate}
+              onChange={(e) => {
+                const newStartDate = e.target.value;
+                setStartDate(newStartDate);
+
+                // Validate the relationship between start and end dates
+                if (newStartDate) {
+                  const start = new Date(newStartDate);
+                  const today = new Date();
+                  today.setHours(0, 0, 0, 0); // Reset time portion for accurate date comparison
+
+                  if (start < today) {
+                    setDateError("Start date cannot be in the past");
+                  } else if (endDate) {
+                    const end = new Date(endDate);
+                    if (end <= start) {
+                      setDateError("End date must be after start date");
+                    } else {
+                      setDateError(null);
+                    }
+                  } else {
+                    setDateError(null);
+                  }
+                }
+              }}
+              placeholder="Select start date"
+              className={`w-full px-4 py-2 rounded border ${
+                dateError
+                  ? "border-red-500 focus:ring-red-500"
+                  : "border-gray-300 focus:ring-blue-400"
+              } focus:outline-none focus:ring-2 dark:bg-gray-900 dark:text-white`}
+            />
+          </div>
+          <div className="flex-1">
+            <label htmlFor="endDate" className="block text-lg font-medium mb-2">
+              End Date
+            </label>
+            <input
+              type="date"
+              id="endDate"
+              value={endDate}
+              onChange={(e) => {
+                const newEndDate = e.target.value;
+                setEndDate(newEndDate);
+
+                // Validate the relationship between start and end dates
+                if (startDate && newEndDate) {
+                  const start = new Date(startDate);
+                  const end = new Date(newEndDate);
+
+                  if (end <= start) {
+                    setDateError("End date must be after start date");
+                  } else {
+                    setDateError(null);
+                  }
+                }
+              }}
+              placeholder="Select end date"
+              className={`w-full px-4 py-2 rounded border ${
+                dateError
+                  ? "border-red-500 focus:ring-red-500"
+                  : "border-gray-300 focus:ring-blue-400"
+              } focus:outline-none focus:ring-2 dark:bg-gray-900 dark:text-white`}
+            />
+            {dateError && (
+              <p className="text-red-500 text-xs mt-1">{dateError}</p>
+            )}
+          </div>
         </div>
-        <div className="flex-1">
-          <label htmlFor="endDate" className="block text-lg font-medium mb-2">
-            End Date
-          </label>
-          <input
-            type="date"
-            id="endDate"
-            value={endDate}
-            onChange={(e) => setEndDate(e.target.value)}
-            placeholder="Select end date"
-            className="w-full px-4 py-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400 dark:bg-gray-900 dark:text-white"
-          />
-        </div>
+
+        {/* Date validation success message */}
+        {startDate && endDate && !dateError && (
+          <p className="text-green-500 text-xs mt-1">
+            <svg
+              className="inline-block w-4 h-4 mr-1"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+              <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+            Survey scheduled from {formatDate(startDate)} to{" "}
+            {formatDate(endDate)}
+          </p>
+        )}
       </div>
     </>
   );
