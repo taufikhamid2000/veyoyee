@@ -129,15 +129,69 @@ export default function SurveyFormHeader({
         <label className="block text-lg font-medium mb-2">
           Survey Title <span className="text-red-500">*</span>
         </label>
-        <input
-          type="text"
-          id="surveyTitle"
-          value={surveyTitle}
-          onChange={(e) => setSurveyTitle(e.target.value)}
-          required
-          placeholder="Enter survey title"
-          className="w-full px-4 py-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400 dark:bg-gray-900 dark:text-white"
-        />
+        <div className="flex gap-2">
+          <input
+            type="text"
+            id="surveyTitle"
+            value={surveyTitle}
+            onChange={(e) => setSurveyTitle(e.target.value)}
+            required
+            placeholder="Enter survey title"
+            className="flex-1 px-4 py-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400 dark:bg-gray-900 dark:text-white"
+          />
+          <button
+            type="button"
+            onClick={() => {
+              if (!surveyTitle.trim()) {
+                alert("Please enter a survey title first");
+                return;
+              }
+
+              const promptTemplate = `Create a survey for: ${surveyTitle}
+
+The survey should include a mix of quantitative (rating scale) and qualitative (open-ended) questions.
+Focus areas should be relevant to the topic.
+
+Include:
+- At least 3 rating scale questions (1-5 scale)
+- At least 2 multiple choice questions
+- 2-3 short-answer questions for detailed feedback
+- Make sure the language is clear and professional
+
+Structure the questions in logical sections if appropriate.`;
+
+              // Encode the prompt for URL
+              const encodedPrompt = encodeURIComponent(promptTemplate);
+              // Open ChatGPT with the pre-filled prompt
+              window.open(
+                `https://chat.openai.com/?prompt=${encodedPrompt}`,
+                "_blank"
+              );
+            }}
+            className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded flex items-center gap-2"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <circle cx="12" cy="12" r="10"></circle>
+              <path d="M12 16v-4"></path>
+              <path d="M12 8h.01"></path>
+            </svg>
+            Generate with AI
+          </button>
+        </div>
+        <p className="mt-2 text-sm text-gray-500">
+          Need inspiration? Click &quot;Generate with AI&quot; to create
+          questions using ChatGPT
+        </p>
       </div>
       <div className="flex gap-4 mb-6">
         <div className="flex-1">
