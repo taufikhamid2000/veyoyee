@@ -6,6 +6,7 @@ import Navigation from "@/components/layout/navigation";
 import { SupabaseListener } from "@/components/supabase-listener";
 import { ThemeProvider } from "@/components/theme/theme-provider";
 import Footer from "@/components/layout/footer";
+import { ToastContainer } from "@/components/ui/toast";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -57,6 +58,7 @@ export default function RootLayout({
             <div className="h-16"></div>
             <main className="flex-1 w-full">{children}</main>
             <Footer />
+            <ToastContainer />
           </SupabaseListener>
         </ThemeProvider>
       </body>

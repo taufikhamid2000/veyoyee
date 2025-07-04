@@ -1,163 +1,221 @@
 "use client";
 
-import { useState } from "react";
-import { z } from "zod";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
+import { FormField } from "@/components/ui/form-field";
+import { PasswordField } from "@/components/ui/password-field";
 import { createClient } from "@/utils/supabase/client";
-
-const SignUpSchema = z.object({
-  firstName: z
-    .string()
-    .min(2, { message: "First name must be at least 2 characters" }),
-  lastName: z
-    .string()
-    .min(2, { message: "Last name must be at least 2 characters" }),
-  email: z.string().email({ message: "Please enter a valid email" }),
-  password: z
-    .string()
-    .min(6, { message: "Password must be at least 6 characters" }),
-});
-
-type SignUpFormValues = z.infer<typeof SignUpSchema>;
+import { useValidatedForm } from "@/hooks/useValidatedForm";
+import { signUpSchema, type SignUpFormData } from "@/lib/validations";
+import { useRouter } from "next/navigation";
+import { useToast } from "@/hooks/useToast";
 
 export default function SignUpForm() {
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
+  const { toast } = useToast();
 
   const {
     register,
     handleSubmit,
-    formState: { errors },
-  } = useForm<SignUpFormValues>({
-    resolver: zodResolver(SignUpSchema),
-  });
-  const onSubmit = async (data: SignUpFormValues) => {
-    setIsLoading(true);
-    setError(null);
-    try {
+    isSubmitting,
+    submitError,
+    getFieldError,
+    clearSubmitError,
+  } = useValidatedForm<SignUpFormData>({
+    schema: signUpSchema,
+    defaultValues: {
+      firstName: "",
+      lastName: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+      agreeToTerms: false,
+    },
+    onSubmit: async (data) => {
       const supabase = createClient();
-      // First, directly sign up AND auto-confirm without email verification
-      const { error: signUpError } = await supabase.auth.signUp({
-        email: data.email,
-        password: data.password,
-        options: {
-          data: {
-            first_name: data.firstName,
-            last_name: data.lastName,
-            role: "user",
+
+      console.log("Attempting sign up with:", data.email);
+
+      const { error: signUpError, data: signUpData } =
+        await supabase.auth.signUp({
+          email: data.email,
+          password: data.password,
+          options: {
+            data: {
+              first_name: data.firstName,
+              last_name: data.lastName,
+              role: "user",
+            },
           },
-          // Skip email verification
-          emailRedirectTo: `${process.env.NEXT_PUBLIC_REDIRECT_URL}/dashboard`,
-        },
-      });
+        });
 
       if (signUpError) {
-        throw signUpError;
-      } // Immediately sign in with password
-      const { error: signInError } = await supabase.auth.signInWithPassword({
-        email: data.email,
-        password: data.password,
-      });
-      if (signInError) {
-        throw signInError;
+        console.error("Sign-up error:", signUpError.message);
+
+        if (signUpError.message.includes("User already registered")) {
+          throw new Error(
+            "An account with this email already exists. Please sign in instead."
+          );
+        } else if (signUpError.message.includes("Password should be")) {
+          throw new Error("Password does not meet security requirements.");
+        } else if (signUpError.message.includes("Invalid email")) {
+          throw new Error("Please enter a valid email address.");
+        } else {
+          throw new Error(signUpError.message);
+        }
       }
 
-      // Success - go directly to dashboard, no verification required
-      // Commenting out to prevent redirection issues
-      // window.location.href = "/dashboard";
-    } catch (err) {
-      const error = err as { message?: string };
-      setError(error.message || "An error occurred during sign up");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+      if (signUpData?.user) {
+        console.log("Sign-up successful for user:", signUpData.user.email);
+
+        if (signUpData.user.email_confirmed_at) {
+          // User is immediately confirmed
+          toast.success(
+            "Welcome to Veyoyee!",
+            "Your account has been created successfully."
+          );
+          router.push("/dashboard");
+        } else {
+          // User needs to confirm email
+          toast.info(
+            "Check your email",
+            "Please check your email and click the confirmation link to complete your account setup."
+          );
+          router.push("/auth/signin");
+        }
+      }
+    },
+  });
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      {error && (
-        <div className="p-3 text-sm text-white bg-red-500 rounded">{error}</div>
+    <form onSubmit={handleSubmit} className="space-y-4">
+      {submitError && (
+        <div className="p-3 text-sm text-white bg-red-500 rounded-md flex items-center gap-2">
+          <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
+          </svg>
+          {submitError}
+          <button
+            type="button"
+            onClick={clearSubmitError}
+            className="ml-auto text-white hover:text-gray-200"
+          >
+            ×
+          </button>
+        </div>
       )}
 
       <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <label htmlFor="firstName" className="text-sm font-medium">
-            First Name
-          </label>
-          <input
-            {...register("firstName")}
-            type="text"
-            id="firstName"
-            placeholder="John"
-            className="w-full p-2 border rounded"
-            disabled={isLoading}
-          />
-          {errors.firstName && (
-            <p className="text-sm text-red-500">{errors.firstName.message}</p>
-          )}
-        </div>
+        <FormField
+          {...register("firstName")}
+          type="text"
+          label="First Name"
+          placeholder="John"
+          error={getFieldError("firstName")}
+          disabled={isSubmitting}
+          required
+        />
 
-        <div className="space-y-2">
-          <label htmlFor="lastName" className="text-sm font-medium">
-            Last Name
-          </label>
-          <input
-            {...register("lastName")}
-            type="text"
-            id="lastName"
-            placeholder="Doe"
-            className="w-full p-2 border rounded"
-            disabled={isLoading}
-          />
-          {errors.lastName && (
-            <p className="text-sm text-red-500">{errors.lastName.message}</p>
-          )}
-        </div>
+        <FormField
+          {...register("lastName")}
+          type="text"
+          label="Last Name"
+          placeholder="Doe"
+          error={getFieldError("lastName")}
+          disabled={isSubmitting}
+          required
+        />
       </div>
 
-      <div className="space-y-2">
-        <label htmlFor="email" className="text-sm font-medium">
-          Email
+      <FormField
+        {...register("email")}
+        type="email"
+        label="Email"
+        placeholder="your@email.com"
+        error={getFieldError("email")}
+        disabled={isSubmitting}
+        required
+      />
+
+      <PasswordField
+        {...register("password")}
+        label="Password"
+        placeholder="••••••••"
+        error={getFieldError("password")}
+        helperText="Password must be at least 8 characters with uppercase, lowercase, and number"
+        disabled={isSubmitting}
+        required
+      />
+
+      <PasswordField
+        {...register("confirmPassword")}
+        label="Confirm Password"
+        placeholder="••••••••"
+        error={getFieldError("confirmPassword")}
+        disabled={isSubmitting}
+        required
+      />
+
+      <div className="space-y-3">
+        <label className="flex items-start gap-3 cursor-pointer">
+          <input
+            {...register("agreeToTerms")}
+            type="checkbox"
+            className="mt-1 w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+            disabled={isSubmitting}
+          />
+          <span className="text-sm text-gray-600 dark:text-gray-300">
+            I agree to the{" "}
+            <a
+              href="/terms-of-service"
+              className="text-blue-600 hover:underline dark:text-blue-400"
+              target="_blank"
+            >
+              Terms of Service
+            </a>{" "}
+            and{" "}
+            <a
+              href="/privacy-policy"
+              className="text-blue-600 hover:underline dark:text-blue-400"
+              target="_blank"
+            >
+              Privacy Policy
+            </a>
+          </span>
         </label>
-        <input
-          {...register("email")}
-          type="email"
-          id="email"
-          placeholder="your@email.com"
-          className="w-full p-2 border rounded"
-          disabled={isLoading}
-        />
-        {errors.email && (
-          <p className="text-sm text-red-500">{errors.email.message}</p>
+        {getFieldError("agreeToTerms") && (
+          <p className="text-sm text-red-600 dark:text-red-400 flex items-center gap-1 ml-7">
+            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
+            </svg>
+            {getFieldError("agreeToTerms")}
+          </p>
         )}
       </div>
 
-      <div className="space-y-2">
-        <label htmlFor="password" className="text-sm font-medium">
-          Password
-        </label>
-        <input
-          {...register("password")}
-          type="password"
-          id="password"
-          placeholder="••••••••"
-          className="w-full p-2 border rounded"
-          disabled={isLoading}
-        />
-        {errors.password && (
-          <p className="text-sm text-red-500">{errors.password.message}</p>
+      <Button type="submit" className="w-full" disabled={isSubmitting}>
+        {isSubmitting ? (
+          <div className="flex items-center gap-2">
+            <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+                fill="none"
+              />
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              />
+            </svg>
+            Creating account...
+          </div>
+        ) : (
+          "Create account"
         )}
-      </div>
-
-      <Button
-        type="submit"
-        className="w-full"
-        variant="primary"
-        disabled={isLoading}
-      >
-        {isLoading ? "Creating account..." : "Sign up"}
       </Button>
     </form>
   );

@@ -1,42 +1,32 @@
 "use client";
 
-import { useState } from "react";
-import { z } from "zod";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
+import { FormField } from "@/components/ui/form-field";
+import { PasswordField } from "@/components/ui/password-field";
 import { createClient } from "@/utils/supabase/client";
-
-const SignInSchema = z.object({
-  email: z.string().email({ message: "Please enter a valid email" }),
-  password: z
-    .string()
-    .min(6, { message: "Password must be at least 6 characters" }),
-});
-
-type SignInFormValues = z.infer<typeof SignInSchema>;
+import { useValidatedForm } from "@/hooks/useValidatedForm";
+import { signInSchema, type SignInFormData } from "@/lib/validations";
+import { useRouter } from "next/navigation";
+import { useToast } from "@/hooks/useToast";
 
 export default function SignInForm() {
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
+  const { toast } = useToast();
 
   const {
     register,
     handleSubmit,
-    formState: { errors },
-  } = useForm<SignInFormValues>({
-    resolver: zodResolver(SignInSchema),
-  });
-  const onSubmit = async (data: SignInFormValues) => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      // Use the browser client to set cookies properly
+    isSubmitting,
+    submitError,
+    getFieldError,
+    clearSubmitError,
+  } = useValidatedForm<SignInFormData>({
+    schema: signInSchema,
+    onSubmit: async (data) => {
       const supabase = createClient();
 
       console.log("Attempting sign in with:", data.email);
 
-      // Auth with password sets cookies automatically with createBrowserClient
       const response = await supabase.auth.signInWithPassword({
         email: data.email,
         password: data.password,
@@ -45,90 +35,104 @@ export default function SignInForm() {
       if (response.error) {
         console.error("Sign-in error:", response.error.message);
 
-        // Provide more specific error messages for common auth issues
+        // Provide more specific error messages
         if (response.error.message.includes("Invalid login credentials")) {
-          setError("Invalid email or password. Please try again.");
+          throw new Error("Invalid email or password. Please try again.");
         } else if (response.error.message.includes("Email not confirmed")) {
-          setError("Please verify your email before signing in.");
-        } else if (response.error.message.includes("Invalid API key")) {
-          setError(
-            "Authentication service error. Please try again later or contact support."
+          throw new Error(
+            "Please check your email and click the confirmation link."
+          );
+        } else if (response.error.message.includes("Too many requests")) {
+          throw new Error(
+            "Too many sign-in attempts. Please wait before trying again."
           );
         } else {
-          setError(`Error: ${response.error.message}`);
+          throw new Error(response.error.message);
         }
-        setIsLoading(false);
-        return;
       }
-      console.log("Sign-in successful, session established");
-      // The auth listener will handle navigation
 
-      // Simple redirect - no extra session check
-      // Commenting out to prevent redirection issues
-      // window.location.href = "/dashboard";
-    } catch (err) {
-      const error = err as { message?: string };
-      setError(error.message || "An error occurred during sign in");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+      if (response.data?.user) {
+        console.log("Sign-in successful for user:", response.data.user.email);
+        toast.success("Welcome back!", "You have been signed in successfully.");
+        router.push("/dashboard");
+      }
+    },
+  });
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      {error && (
-        <div className="p-3 text-sm text-white bg-red-500 rounded">{error}</div>
+    <form onSubmit={handleSubmit} className="space-y-4">
+      {submitError && (
+        <div className="p-3 text-sm text-white bg-red-500 rounded-md flex items-center gap-2">
+          <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
+          </svg>
+          {submitError}
+          <button
+            type="button"
+            onClick={clearSubmitError}
+            className="ml-auto text-white hover:text-gray-200"
+          >
+            ×
+          </button>
+        </div>
       )}
 
-      <div className="space-y-2">
-        <label htmlFor="email" className="text-sm font-medium">
-          Email
-        </label>
-        <input
-          {...register("email")}
-          type="email"
-          id="email"
-          placeholder="your@email.com"
-          className="w-full p-2 border rounded"
-          disabled={isLoading}
-        />
-        {errors.email && (
-          <p className="text-sm text-red-500">{errors.email.message}</p>
-        )}
-      </div>
+      <FormField
+        {...register("email")}
+        type="email"
+        label="Email"
+        placeholder="your@email.com"
+        error={getFieldError("email")}
+        disabled={isSubmitting}
+        required
+      />
 
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <label htmlFor="password" className="text-sm font-medium">
+          <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
             Password
+            <span className="text-red-500 ml-1">*</span>
           </label>
           <a
             href="/auth/forgot-password"
-            className="text-xs text-blue-600 hover:underline"
+            className="text-xs text-blue-600 hover:underline dark:text-blue-400"
           >
             Forgot password?
           </a>
         </div>
-        <input
+        <PasswordField
           {...register("password")}
-          type="password"
-          id="password"
           placeholder="••••••••"
-          className="w-full p-2 border rounded"
-          disabled={isLoading}
+          error={getFieldError("password")}
+          disabled={isSubmitting}
+          required
         />
-        {errors.password && (
-          <p className="text-sm text-red-500">{errors.password.message}</p>
-        )}
       </div>
 
-      <Button
-        type="submit"
-        className="w-full"
-        variant="primary"
-        disabled={isLoading}
-      >
-        {isLoading ? "Signing in..." : "Sign in"}
+      <Button type="submit" className="w-full" disabled={isSubmitting}>
+        {isSubmitting ? (
+          <div className="flex items-center gap-2">
+            <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+                fill="none"
+              />
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              />
+            </svg>
+            Signing in...
+          </div>
+        ) : (
+          "Sign in"
+        )}
       </Button>
     </form>
   );
