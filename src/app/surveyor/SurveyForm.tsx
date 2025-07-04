@@ -98,6 +98,7 @@ export default function SurveyForm({
         startDate={startDate}
         setStartDate={setStartDate}
         endDate={endDate}
+        setQuestions={setQuestions}
         setEndDate={setEndDate}
         rewardAmount={rewardAmount}
         setRewardAmount={setRewardAmount}

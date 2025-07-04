@@ -1,4 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
+import { QuestionEdit } from "../../../data/surveyor-data";
+import { SURVEY_TEMPLATES } from "../../../data/templates/survey-templates";
 
 interface SurveyFormHeaderProps {
   surveyTitle: string;
@@ -17,6 +19,8 @@ interface SurveyFormHeaderProps {
   setRewardAmount: (amount: string) => void;
   showReward: boolean;
   setShowReward: (show: boolean) => void;
+  // New props for question management
+  setQuestions?: (questions: QuestionEdit[]) => void;
 }
 
 export default function SurveyFormHeader({
@@ -36,7 +40,10 @@ export default function SurveyFormHeader({
   setRewardAmount,
   showReward,
   setShowReward,
+  setQuestions,
 }: SurveyFormHeaderProps) {
+  const [showTemplates, setShowTemplates] = useState(false);
+  const [generatingQuestions, setGeneratingQuestions] = useState(false);
   // Calculate reward per respondent range
   let rewardRange = null;
   if (surveyType === "commerce" && rewardAmount && minRespondents) {
@@ -139,15 +146,42 @@ export default function SurveyFormHeader({
             placeholder="Enter survey title"
             className="flex-1 px-4 py-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400 dark:bg-gray-900 dark:text-white"
           />
-          <button
-            type="button"
-            onClick={() => {
-              if (!surveyTitle.trim()) {
-                alert("Please enter a survey title first");
-                return;
-              }
+          <div className="flex gap-2">
+            {/* Generate with templates button */}
+            <button
+              type="button"
+              onClick={() => setShowTemplates(!showTemplates)}
+              className="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white font-medium rounded flex items-center gap-2"
+              disabled={generatingQuestions}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="3" y1="9" x2="21" y2="9"></line>
+                <line x1="9" y1="21" x2="9" y2="9"></line>
+              </svg>
+              Templates
+            </button>
 
-              const promptTemplate = `Create a survey for: ${surveyTitle}
+            {/* External ChatGPT button */}
+            <button
+              type="button"
+              onClick={() => {
+                if (!surveyTitle.trim()) {
+                  alert("Please enter a survey title first");
+                  return;
+                }
+
+                const promptTemplate = `Create a survey for: ${surveyTitle}
 
 The survey should include a mix of quantitative (rating scale) and qualitative (open-ended) questions.
 Focus areas should be relevant to the topic.
@@ -160,38 +194,159 @@ Include:
 
 Structure the questions in logical sections if appropriate.`;
 
-              // Encode the prompt for URL
-              const encodedPrompt = encodeURIComponent(promptTemplate);
-              // Open ChatGPT with the pre-filled prompt
-              window.open(
-                `https://chat.openai.com/?prompt=${encodedPrompt}`,
-                "_blank"
-              );
-            }}
-            className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded flex items-center gap-2"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
+                // Encode the prompt for URL
+                const encodedPrompt = encodeURIComponent(promptTemplate);
+                // Open ChatGPT with the pre-filled prompt
+                window.open(
+                  `https://chat.openai.com/?prompt=${encodedPrompt}`,
+                  "_blank"
+                );
+              }}
+              className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded flex items-center gap-2"
+              disabled={generatingQuestions}
             >
-              <circle cx="12" cy="12" r="10"></circle>
-              <path d="M12 16v-4"></path>
-              <path d="M12 8h.01"></path>
-            </svg>
-            Generate with AI
-          </button>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="M12 16v-4"></path>
+                <path d="M12 8h.01"></path>
+              </svg>
+              ChatGPT
+            </button>
+          </div>
         </div>
-        <p className="mt-2 text-sm text-gray-500">
-          Need inspiration? Click &quot;Generate with AI&quot; to create
-          questions using ChatGPT
-        </p>
+
+        {/* Templates dropdown */}
+        {showTemplates && (
+          <div className="mt-4 p-4 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md animate-fadeIn">
+            <h3 className="font-medium mb-3">Select a template:</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              {Object.entries(SURVEY_TEMPLATES).map(([key, template]) => (
+                <button
+                  key={key}
+                  type="button"
+                  className="p-3 border border-gray-200 dark:border-gray-700 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 text-left transition"
+                  onClick={() => {
+                    if (setQuestions) {
+                      // Update title if it's empty
+                      if (!surveyTitle) {
+                        setSurveyTitle(template.title);
+                      }
+                      // Set the questions
+                      setQuestions(template.questions as QuestionEdit[]);
+                      setShowTemplates(false);
+                    }
+                  }}
+                >
+                  <div className="font-medium">{template.title}</div>
+                  <div className="text-sm text-gray-500">
+                    {template.questions.length} questions
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <div className="mt-2 flex flex-wrap gap-2 text-sm">
+          <span className="text-gray-500">
+            Need inspiration? Use templates or generate with AI
+          </span>
+          {setQuestions && (
+            <button
+              type="button"
+              className={`text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1 ${
+                generatingQuestions ? "opacity-50 cursor-not-allowed" : ""
+              }`}
+              onClick={async () => {
+                if (
+                  !surveyTitle.trim() ||
+                  generatingQuestions ||
+                  !setQuestions
+                ) {
+                  alert("Please enter a survey title first");
+                  return;
+                }
+
+                setGeneratingQuestions(true);
+
+                try {
+                  // This is a simulated API call - in a real app, this would call the OpenAI API
+                  // For now we're just using a timeout and a template
+                  await new Promise((resolve) => setTimeout(resolve, 1500));
+
+                  // Select a random template for demonstration
+                  const templateKeys = Object.keys(SURVEY_TEMPLATES);
+                  const randomTemplate =
+                    SURVEY_TEMPLATES[
+                      templateKeys[
+                        Math.floor(Math.random() * templateKeys.length)
+                      ]
+                    ];
+
+                  // Set the questions using the template but customize the title
+                  const customizedQuestions = randomTemplate.questions.map(
+                    (q: QuestionEdit) => ({
+                      ...q,
+                      questionText: q.questionText.replace(
+                        /our product\/service|the event/g,
+                        surveyTitle
+                      ),
+                    })
+                  );
+
+                  setQuestions(customizedQuestions as QuestionEdit[]);
+                  alert(
+                    "Questions generated successfully! Check the questions section below."
+                  );
+                } catch (error) {
+                  console.error("Error generating questions:", error);
+                  alert("Failed to generate questions. Please try again.");
+                } finally {
+                  setGeneratingQuestions(false);
+                }
+              }}
+              disabled={generatingQuestions}
+            >
+              {generatingQuestions ? (
+                <>
+                  <svg
+                    className="animate-spin -ml-1 mr-2 h-4 w-4 text-blue-600"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                  </svg>
+                  Generating...
+                </>
+              ) : (
+                <>Generate Sample Questions</>
+              )}
+            </button>
+          )}
+        </div>
       </div>
       <div className="flex gap-4 mb-6">
         <div className="flex-1">
