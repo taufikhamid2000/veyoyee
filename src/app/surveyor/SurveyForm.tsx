@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type {
   SurveyEdit,
   QuestionEdit,
@@ -63,6 +63,33 @@ export default function SurveyForm({
     Boolean(initialSurvey?.rewardAmount)
   );
 
+  // Warn the user if they try to leave the page with unsaved survey changes
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      // Show a confirmation dialog
+      const confirmationMessage =
+        "Are you sure? Your survey progress will be lost if you leave this page.";
+      e.returnValue = confirmationMessage;
+      return confirmationMessage;
+    };
+
+    // Consider unsaved changes if there are any questions or main survey fields filled
+    const hasUnsavedChanges =
+      questions.length > 0 ||
+      surveyTitle !== "" ||
+      minRespondents !== undefined ||
+      maxRespondents !== undefined ||
+      rewardAmount !== "";
+
+    if (hasUnsavedChanges) {
+      window.addEventListener("beforeunload", handleBeforeUnload);
+    }
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [questions, surveyTitle, minRespondents, maxRespondents, rewardAmount]);
+
   // Form submission handler
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -109,13 +136,60 @@ export default function SurveyForm({
       {/* Questions section */}
       <QuestionList questions={questions} setQuestions={setQuestions} />
 
-      {/* Submit button */}
-      <button
-        type="submit"
-        className="w-full mt-6 px-4 py-2 rounded bg-green-600 text-white font-semibold hover:bg-green-700 transition"
-      >
-        Create Survey
-      </button>
+      {/* Action buttons */}
+      <div className="flex gap-4 mt-6">
+        <button
+          type="button"
+          onClick={() => {
+            // Save as draft logic
+            if (surveyTitle === "") {
+              alert("Please provide a survey title before saving as draft.");
+              return;
+            }
+
+            // TODO: Integrate with backend for draft saving
+            alert("Survey saved as draft! You can continue editing later.");
+          }}
+          className="flex-1 px-4 py-2 rounded bg-blue-500 text-white font-semibold hover:bg-blue-600 transition flex items-center justify-center gap-2"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+            <polyline points="17 21 17 13 7 13 7 21"></polyline>
+            <polyline points="7 3 7 8 15 8"></polyline>
+          </svg>
+          Save as Draft
+        </button>
+        <button
+          type="submit"
+          className="flex-1 px-4 py-2 rounded bg-green-600 text-white font-semibold hover:bg-green-700 transition flex items-center justify-center gap-2"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+          </svg>
+          Create Survey
+        </button>
+      </div>
     </form>
   );
 }

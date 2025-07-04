@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { QuestionEdit } from "../../../data/surveyor-data";
 import { SURVEY_TEMPLATES } from "../../../data/templates/survey-templates";
 import SampleSizeCalculator from "./calculator/SampleSizeCalculator";
@@ -74,6 +74,42 @@ export default function SurveyFormHeader({
       rewardRange = { low, high };
     }
   }
+
+  // Warn the user if they try to leave the page with unsaved changes
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      // Show a confirmation dialog
+      const confirmationMessage =
+        "Are you sure? Your progress will be lost if you leave this page.";
+      e.returnValue = confirmationMessage; // Standard for most browsers
+      return confirmationMessage; // For older browsers
+    };
+
+    // We consider there are unsaved changes if any of the survey fields are populated
+    const hasUnsavedChanges =
+      surveyTitle !== "" ||
+      minRespondents !== undefined ||
+      maxRespondents !== undefined ||
+      rewardAmount !== "" ||
+      startDate !== "" ||
+      endDate !== "";
+
+    // Only add the event listener if there are unsaved changes
+    if (hasUnsavedChanges) {
+      window.addEventListener("beforeunload", handleBeforeUnload);
+    }
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [
+    surveyTitle,
+    minRespondents,
+    maxRespondents,
+    rewardAmount,
+    startDate,
+    endDate,
+  ]);
 
   return (
     <>
