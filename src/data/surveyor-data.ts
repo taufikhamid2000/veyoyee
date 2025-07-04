@@ -32,5 +32,64 @@ export const mockSurveyEdit = {
   ],
 };
 
+// Extended question type definition with new types
+export type QuestionType =
+  | "shortAnswer"
+  | "paragraph"
+  | "multipleChoice"
+  | "checkboxList"
+  | "ratingScale"
+  | "dateQuestion"
+  | "linkInput";
+
+// Rating scale configuration
+export interface RatingScaleConfig {
+  minValue: number;
+  maxValue: number;
+  step: number;
+  labels?: {
+    min?: string;
+    max?: string;
+  };
+}
+
+// Base question type
+interface BaseQuestion {
+  id: string;
+  type: QuestionType;
+  questionText: string;
+  required: boolean;
+}
+
+// Specialized question types
+interface TextQuestion extends BaseQuestion {
+  type: "shortAnswer" | "paragraph";
+}
+
+interface OptionsQuestion extends BaseQuestion {
+  type: "multipleChoice" | "checkboxList";
+  options: string[];
+}
+
+interface RatingQuestion extends BaseQuestion {
+  type: "ratingScale";
+  ratingConfig: RatingScaleConfig;
+}
+
+interface DateQuestion extends BaseQuestion {
+  type: "dateQuestion";
+}
+
+interface LinkQuestion extends BaseQuestion {
+  type: "linkInput";
+}
+
+// Union type of all question types
+export type QuestionEdit =
+  | TextQuestion
+  | OptionsQuestion
+  | RatingQuestion
+  | DateQuestion
+  | LinkQuestion;
+
 export type SurveyEdit = typeof mockSurveyEdit;
-export type QuestionEdit = (typeof mockSurveyEdit.questions)[number];

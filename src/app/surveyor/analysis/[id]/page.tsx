@@ -61,9 +61,17 @@ export default function SurveyAnalysisPage({ params }: any) {
   const barChartData = useMemo(() => {
     if (!questions.length) return [];
     const q = questions[0];
-    if (!q.options) return [];
+
+    // Type guard to check if question has options property
+    const hasOptions = (question: any): question is { options: string[] } => {
+      return Array.isArray(question.options) && question.options.length > 0;
+    };
+
+    if (!hasOptions(q)) return [];
+
     const counts: Record<string, number> = {};
     for (const opt of q.options) counts[opt] = 0;
+
     for (const resp of acceptedResults) {
       const ans = resp.answers[q.id];
       if (Array.isArray(ans)) {
