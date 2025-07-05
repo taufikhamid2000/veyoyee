@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useSurveyActions } from "../../hooks/useSurveyActions";
 import type {
   SurveyEdit,
   QuestionEdit,
@@ -63,6 +64,9 @@ export default function SurveyForm({
     Boolean(initialSurvey?.rewardAmount)
   );
 
+  // Initialize survey actions hook
+  const { createSurvey } = useSurveyActions();
+
   // Warn the user if they try to leave the page with unsaved survey changes
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
@@ -91,15 +95,67 @@ export default function SurveyForm({
   }, [questions, surveyTitle, minRespondents, maxRespondents, rewardAmount]);
 
   // Form submission handler
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    // Basic validation
     const MIN_QUESTIONS = 3;
     if (questions.length < MIN_QUESTIONS) {
       alert(`Please add at least ${MIN_QUESTIONS} questions to the survey.`);
       return;
     }
-    // TODO: Integrate with backend
-    alert("Survey created! (Not yet saved)");
+
+    // Required fields validation
+    if (!surveyTitle.trim()) {
+      alert("Please enter a survey title.");
+      return;
+    }
+
+    if (surveyType === "commerce" && !rewardAmount) {
+      alert("Please enter a reward amount for your commercial survey.");
+      return;
+    }
+
+    try {
+      // Show loading UI
+      alert("Creating your survey...");
+
+      // Create survey data object
+      const surveyData = {
+        title: surveyTitle,
+        type: surveyType,
+        minRespondents,
+        maxRespondents,
+        startDate,
+        endDate,
+        rewardAmount,
+        questions,
+      };
+
+      // Use our hook to create the survey
+      const result = await createSurvey(surveyData, "active");
+
+      if (!result || !result.success) {
+        const errorMsg =
+          result?.error instanceof Error
+            ? result.error.message
+            : "Unknown error";
+        throw new Error("Failed to create survey: " + errorMsg);
+      }
+
+      // Show success message
+      alert(`Survey "${surveyTitle}" created successfully!`);
+
+      // Redirect to dashboard or survey view
+      window.location.href = `/dashboard?created=${result.surveyId}`;
+    } catch (err) {
+      console.error("Error creating survey:", err);
+      alert(
+        `An unexpected error occurred: ${
+          err instanceof Error ? err.message : "Unknown error"
+        }`
+      );
+    }
   };
 
   // Render the appropriate form based on mode
@@ -140,15 +196,67 @@ export default function SurveyForm({
       <div className="flex gap-4 mt-6">
         <button
           type="button"
-          onClick={() => {
+          onClick={async () => {
             // Save as draft logic
             if (surveyTitle === "") {
               alert("Please provide a survey title before saving as draft.");
               return;
             }
 
-            // TODO: Integrate with backend for draft saving
-            alert("Survey saved as draft! You can continue editing later.");
+            try {
+              // Import dynamically to prevent loading on server
+              const { SurveyService } = await import(
+                "../../lib/services/survey-service"
+              );
+
+              // Show loading
+              alert("Saving draft...");
+
+              // Create survey data object
+              const surveyData = {
+                title: surveyTitle,
+                type: surveyType,
+                minRespondents,
+                maxRespondents,
+                startDate,
+                endDate,
+                rewardAmount,
+                questions,
+              };
+
+              // Call service to save draft
+              const result = await SurveyService.createSurvey(
+                surveyData,
+                "draft"
+              );
+
+              if (result.success) {
+                // Show success message
+                alert(
+                  `Draft "${surveyTitle}" saved successfully! You can continue editing later.`
+                );
+
+                // Redirect to dashboard
+                window.location.href = `/dashboard?draft=${result.surveyId}`;
+              } else {
+                // Show error message
+                console.error("Error saving draft:", result.error);
+                alert(
+                  `Failed to save draft: ${
+                    result.error instanceof Error
+                      ? result.error.message
+                      : "Unknown error"
+                  }`
+                );
+              }
+            } catch (error) {
+              console.error("Error saving draft:", error);
+              alert(
+                `An unexpected error occurred: ${
+                  error instanceof Error ? error.message : "Unknown error"
+                }`
+              );
+            }
           }}
           className="flex-1 px-4 py-2 rounded bg-blue-500 text-white font-semibold hover:bg-blue-600 transition flex items-center justify-center gap-2"
         >
