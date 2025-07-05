@@ -360,27 +360,55 @@ export class SurveyService {
   }
 
   // Get surveys by user
-  static async getUserSurveys() {
+  static async getUserSurveys(userId?: string) {
     const supabase = getVeyoyeeClient();
+    let userIdToQuery = userId;
 
     try {
-      const {
-        data: { user },
-        error: userError,
-      } = await supabase.auth.getUser();
+      // If no userId is provided, try to get it from the auth session
+      if (!userIdToQuery) {
+        const {
+          data: { user },
+          error: userError,
+        } = await supabase.auth.getUser();
 
-      if (userError || !user) {
-        throw new Error("User not authenticated");
+        if (userError || !user) {
+          throw new Error("User not authenticated");
+        }
+        userIdToQuery = user.id;
       }
 
+      // Get all surveys by the current user
       const { data: surveys, error: surveysError } = await supabase
+        .schema("veyoyee") // Use the veyoyee schema
         .from("surveys")
         .select("*")
-        .eq("created_by", user.id)
+        .eq("created_by", userIdToQuery)
         .order("created_at", { ascending: false });
 
       if (surveysError) {
         throw surveysError;
+      }
+
+      // Create a map to store question counts for each survey
+      const questionCountsMap = new Map();
+
+      // Get question counts for all user surveys
+      if (surveys && surveys.length > 0) {
+        for (const survey of surveys) {
+          // For each survey, count the questions
+          const { data: questionCount, error: countError } = await supabase
+            .schema("veyoyee") // Use the veyoyee schema
+            .from("questions")
+            .select("*", { count: "exact", head: true })
+            .eq("survey_id", survey.id);
+
+          if (!countError) {
+            // The count comes in the response header
+            const count = questionCount?.length || 0;
+            questionCountsMap.set(survey.id, count);
+          }
+        }
       }
 
       // Format the surveys for client
@@ -397,6 +425,75 @@ export class SurveyService {
         createdBy: survey.created_by,
         createdAt: survey.created_at,
         updatedAt: survey.updated_at,
+        // Add question count if available, otherwise default to 0
+        questions: questionCountsMap.get(survey.id) || 0,
+        // Default values for response data - in a real app, would fetch from responses table
+        responses: 0,
+        completionRate: 0,
+      }));
+
+      return { success: true, surveys: formattedSurveys };
+    } catch (error) {
+      console.error("Error getting user surveys:", error);
+      return { success: false, error };
+    }
+  }
+
+  // This is the server version that can be used in server components
+  static async getUserSurveysServer(supabase: any, userId: string) {
+    try {
+      // Get all surveys by the specified user
+      const { data: surveys, error: surveysError } = await supabase
+        .schema("veyoyee") // Use the veyoyee schema
+        .from("surveys")
+        .select("*")
+        .eq("created_by", userId)
+        .order("created_at", { ascending: false });
+
+      if (surveysError) {
+        throw surveysError;
+      }
+
+      // Create a map to store question counts for each survey
+      const questionCountsMap = new Map();
+
+      // Get question counts for all surveys
+      if (surveys && surveys.length > 0) {
+        for (const survey of surveys) {
+          // For each survey, count the questions
+          const { data: questionCount, error: countError } = await supabase
+            .schema("veyoyee") // Use the veyoyee schema
+            .from("questions")
+            .select("*", { count: "exact", head: true })
+            .eq("survey_id", survey.id);
+
+          if (!countError) {
+            // The count comes in the response header
+            const count = questionCount?.length || 0;
+            questionCountsMap.set(survey.id, count);
+          }
+        }
+      }
+
+      // Format the surveys for client
+      const formattedSurveys = surveys.map((survey: any) => ({
+        id: survey.id,
+        title: survey.title,
+        type: survey.type,
+        status: survey.status,
+        minRespondents: survey.min_respondents,
+        maxRespondents: survey.max_respondents,
+        startDate: survey.start_date,
+        endDate: survey.end_date,
+        rewardAmount: survey.reward_amount?.toString(),
+        createdBy: survey.created_by,
+        createdAt: survey.created_at,
+        updatedAt: survey.updated_at,
+        // Add question count if available, otherwise default to 0
+        questions: questionCountsMap.get(survey.id) || 0,
+        // Default values for response data - in a real app, would fetch from responses table
+        responses: 0,
+        completionRate: 0,
       }));
 
       return { success: true, surveys: formattedSurveys };

@@ -140,13 +140,13 @@ export function useSurveyActions() {
   }, []);
 
   // Get user's surveys
-  const getUserSurveys = useCallback(async () => {
+  const getUserSurveys = useCallback(async (userId?: string) => {
     setIsLoading(true);
     setError(null);
 
     try {
       const { SurveyService } = await import("../lib/services/survey-service");
-      const result = await SurveyService.getUserSurveys();
+      const result = await SurveyService.getUserSurveys(userId);
 
       if (!result.success) {
         throw new Error(

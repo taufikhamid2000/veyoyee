@@ -1,4 +1,6 @@
 export interface Survey {
+  createdAt: any;
+  updatedAt: any;
   id: string;
   title: string;
   type: "commerce" | "academia" | string;
