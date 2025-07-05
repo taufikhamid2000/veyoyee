@@ -4,41 +4,45 @@
 import { notFound } from "next/navigation";
 import { mockSurveys } from "@/data/dashboard-data";
 import { mockSurveyResults } from "@/data/results-data";
-import { useState, use as usePromise, useMemo } from "react";
-import InfoTooltip from "@/components/ui/InfoTooltip";
+import { useState, use as usePromise } from "react";
+import { useSurveyResults } from "@/hooks/useSurveyResults";
+import SearchControls from "@/components/survey-results/SearchControls";
+import BulkActions from "@/components/survey-results/BulkActions";
+import ResultsTable from "@/components/survey-results/ResultsTable";
+import Pagination from "@/components/survey-results/Pagination";
+import ResponseModal from "@/components/survey-results/ResponseModal";
 
 export default function SurveyResultsPage({ params }: any) {
   // Always call usePromise, pass params if it's a Promise, else pass Promise.resolve(params)
   const resolvedParams = usePromise(
     typeof params.then === "function" ? params : Promise.resolve(params)
   ) as { id: string };
+
   const [selectedResponse, setSelectedResponse] = useState<any | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
-  const [selectedRows, setSelectedRows] = useState<string[]>([]);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [sortBy, setSortBy] = useState<"respondent" | "submittedAt">(
-    "submittedAt"
-  );
-  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
-  const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 10;
 
   const id = resolvedParams.id;
   const survey = mockSurveys.find((s) => s.id === id);
   const results = mockSurveyResults.filter((r) => r.surveyId === id);
   const questions = survey?.questionsData || [];
 
-  // Precompute formatted dates for all results to avoid hydration mismatch
-  const formattedDates = useMemo(
-    () =>
-      results.reduce((acc, r) => {
-        acc[r.id] = new Date(r.submittedAt).toLocaleString("en-GB", {
-          timeZone: "UTC",
-        });
-        return acc;
-      }, {} as Record<string, string>),
-    [results]
-  );
+  const {
+    selectedRows,
+    searchTerm,
+    sortBy,
+    sortOrder,
+    currentPage,
+    formattedDates,
+    filteredResults,
+    paginatedResults,
+    totalPages,
+    isAllSelected,
+    handleSearchChange,
+    handleSort,
+    handleRowSelect,
+    handleSelectAll,
+    handlePageChange,
+  } = useSurveyResults({ results, pageSize: 10 });
 
   if (!survey) return notFound();
   if (survey.status === "draft") return notFound();
@@ -46,36 +50,52 @@ export default function SurveyResultsPage({ params }: any) {
   // If there are no questions, show answers as JSON for debugging
   const showRawAnswers = questions.length === 0 && results.length > 0;
 
-  // Filtered and sorted results
-  const filteredResults = results.filter(
-    (r) =>
-      r.respondent.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      new Date(r.submittedAt)
-        .toLocaleString()
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase())
-  );
+  // Event handlers
+  const handleViewResponse = (response: any) => {
+    setSelectedResponse(response);
+    setModalOpen(true);
+  };
 
-  const sortedResults = [...filteredResults].sort((a, b) => {
-    if (sortBy === "respondent") {
-      return sortOrder === "asc"
-        ? a.respondent.localeCompare(b.respondent)
-        : b.respondent.localeCompare(a.respondent);
-    } else {
-      return sortOrder === "asc"
-        ? new Date(a.submittedAt).getTime() - new Date(b.submittedAt).getTime()
-        : new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime();
-    }
-  });
+  const handleCloseModal = () => {
+    setModalOpen(false);
+    setSelectedResponse(null);
+  };
 
-  const totalPages = Math.ceil(sortedResults.length / pageSize);
-  const paginatedResults = sortedResults.slice(
-    (currentPage - 1) * pageSize,
-    currentPage * pageSize
-  );
+  const handleAcceptSelected = () => {
+    // TODO: Implement bulk accept logic
+    alert(`Accepted: ${selectedRows.join(", ")}`);
+  };
+
+  const handleRejectSelected = () => {
+    // TODO: Implement bulk reject logic
+    alert(`Rejected: ${selectedRows.join(", ")}`);
+  };
+
+  const handleDeleteSelected = () => {
+    // TODO: Implement bulk delete logic
+    alert(`Deleted: ${selectedRows.join(", ")}`);
+  };
+
+  const handleAcceptResponse = () => {
+    // TODO: Implement accept logic
+    alert("Accepted! (Implement logic)");
+    handleCloseModal();
+  };
+
+  const handleRejectResponse = () => {
+    // TODO: Implement reject logic
+    alert("Rejected! (Implement logic)");
+    handleCloseModal();
+  };
+
+  const handleDeleteResponse = () => {
+    // TODO: Implement delete logic
+    alert("Deleted! (Implement logic)");
+    handleCloseModal();
+  };
 
   // CSV export helper
-  function exportToCSV() {
+  const handleExportCSV = () => {
     // Only export accepted responses
     const acceptedResults = results.filter(
       (resp) => resp.status === "accepted"
@@ -113,22 +133,6 @@ export default function SurveyResultsPage({ params }: any) {
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
-  }
-
-  // Handler for toggling a single row
-  const handleRowCheckbox = (id: string) => {
-    setSelectedRows((prev) =>
-      prev.includes(id) ? prev.filter((rowId) => rowId !== id) : [...prev, id]
-    );
-  };
-
-  // Handler for toggling all rows
-  const handleAllCheckbox = () => {
-    if (selectedRows.length === results.length) {
-      setSelectedRows([]);
-    } else {
-      setSelectedRows(results.map((r) => r.id));
-    }
   };
 
   return (
@@ -136,6 +140,7 @@ export default function SurveyResultsPage({ params }: any) {
       <h1 className="text-2xl font-bold mb-6">
         Survey Results: {survey.title}
       </h1>
+
       {results.length === 0 ? (
         <div className="text-gray-500 dark:text-gray-400">
           No responses yet.
@@ -152,292 +157,54 @@ export default function SurveyResultsPage({ params }: any) {
         </div>
       ) : (
         <>
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 mb-2">
-            <input
-              type="text"
-              placeholder="Search respondent or date..."
-              className="border px-2 py-1 rounded w-full md:w-64 text-sm"
-              value={searchTerm}
-              onChange={(e) => {
-                setSearchTerm(e.target.value);
-                setCurrentPage(1);
-              }}
-            />
-            <div className="flex gap-2 items-center">
-              <button
-                className={`text-xs px-2 py-1 rounded border transition-colors ${
-                  sortBy === "respondent"
-                    ? "bg-blue-100 border-blue-400 dark:bg-blue-900 dark:border-blue-500 text-blue-800 dark:text-blue-200"
-                    : "border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
-                }`}
-                onClick={() => {
-                  setSortBy("respondent");
-                  setSortOrder(sortOrder === "asc" ? "desc" : "asc");
-                }}
-              >
-                Sort by Respondent
-                {sortBy === "respondent"
-                  ? sortOrder === "asc"
-                    ? "▲"
-                    : "▼"
-                  : ""}
-              </button>
-              <button
-                className={`text-xs px-2 py-1 rounded border ${
-                  sortBy === "submittedAt"
-                    ? "bg-blue-100 border-blue-400 dark:bg-blue-900 dark:border-blue-500 text-blue-800 dark:text-blue-200"
-                    : "border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
-                }`}
-                onClick={() => {
-                  setSortBy("submittedAt");
-                  setSortOrder(sortOrder === "asc" ? "desc" : "asc");
-                }}
-              >
-                Sort by Date
-                {sortBy === "submittedAt"
-                  ? sortOrder === "asc"
-                    ? "▲"
-                    : "▼"
-                  : ""}
-              </button>
-              <button
-                className="text-xs px-2 py-1 rounded border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                onClick={exportToCSV}
-                disabled={results.length === 0}
-              >
-                Export as CSV
-              </button>
-              {/* Analysis page button */}
-              <a
-                href={`/surveyor/analysis/${id}`}
-                className="ml-2 text-xs px-2 py-1 rounded border border-purple-400 bg-purple-100 dark:bg-purple-900 dark:border-purple-500 text-purple-800 dark:text-purple-200 hover:bg-purple-200 dark:hover:bg-purple-800 transition-colors font-semibold"
-                title="View analysis of accepted responses"
-              >
-                View Analysis
-              </a>
-            </div>
-          </div>
-          <div className="overflow-x-auto mb-4">
-            <div className="flex gap-2 mb-2">
-              <button
-                className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded font-semibold disabled:opacity-50"
-                disabled={selectedRows.length === 0}
-                onClick={() => {
-                  // TODO: Implement bulk accept logic
-                  alert(`Accepted: ${selectedRows.join(", ")}`);
-                }}
-              >
-                Accept Selected
-              </button>
-              <button
-                className="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded font-semibold disabled:opacity-50"
-                disabled={selectedRows.length === 0}
-                onClick={() => {
-                  // TODO: Implement bulk reject logic
-                  alert(`Rejected: ${selectedRows.join(", ")}`);
-                }}
-              >
-                Reject Selected
-              </button>
-              <button
-                className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded font-semibold disabled:opacity-50"
-                disabled={selectedRows.length === 0}
-                onClick={() => {
-                  // TODO: Implement bulk delete logic
-                  alert(`Deleted: ${selectedRows.join(", ")}`);
-                }}
-              >
-                Delete Selected
-              </button>
-            </div>
-            <table className="min-w-full border border-gray-200 dark:border-gray-700 rounded-lg">
-              <thead className="bg-gray-50 dark:bg-gray-900/50">
-                <tr>
-                  <th className="px-2 py-2">
-                    <input
-                      type="checkbox"
-                      checked={
-                        selectedRows.length === results.length &&
-                        results.length > 0
-                      }
-                      onChange={handleAllCheckbox}
-                      aria-label="Select all responses"
-                    />
-                  </th>
-                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500 dark:text-gray-400">
-                    Respondent
-                  </th>
-                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500 dark:text-gray-400">
-                    Reputation Score
-                    <InfoTooltip
-                      tooltip={
-                        "A score reflecting the respondent's trustworthiness and participation quality."
-                      }
-                    >
-                      <span className="ml-1 align-middle inline-block"></span>
-                    </InfoTooltip>
-                  </th>
-                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500 dark:text-gray-400">
-                    Submitted At
-                  </th>
-                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500 dark:text-gray-400">
-                    Status
-                  </th>
-                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500 dark:text-gray-400">
-                    View
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                {paginatedResults.map((resp) => (
-                  <tr key={resp.id}>
-                    <td className="px-2 py-2 text-center">
-                      <input
-                        type="checkbox"
-                        checked={selectedRows.includes(resp.id)}
-                        onChange={() => handleRowCheckbox(resp.id)}
-                        aria-label={`Select response ${resp.id}`}
-                        disabled={
-                          resp.status === "accepted" ||
-                          resp.status === "rejected"
-                        }
-                        className={
-                          resp.status === "accepted" ||
-                          resp.status === "rejected"
-                            ? "opacity-50 cursor-not-allowed"
-                            : ""
-                        }
-                      />
-                    </td>
-                    <td className="px-4 py-2 text-sm text-gray-900 dark:text-white">
-                      {resp.respondent}
-                    </td>
-                    <td className="px-4 py-2 text-sm text-gray-900 dark:text-white flex items-center gap-1">
-                      {resp.reputationScore ?? "-"}
-                    </td>
-                    <td className="px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
-                      {formattedDates[resp.id]}
-                    </td>
-                    <td className="px-4 py-2 text-sm">
-                      <span
-                        className={
-                          resp.status === "accepted"
-                            ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 px-2 py-1 rounded text-xs font-semibold"
-                            : resp.status === "rejected"
-                            ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200 px-2 py-1 rounded text-xs font-semibold"
-                            : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200 px-2 py-1 rounded text-xs font-semibold"
-                        }
-                      >
-                        {resp.status.charAt(0).toUpperCase() +
-                          resp.status.slice(1)}
-                      </span>
-                    </td>
-                    <td className="px-4 py-2 text-sm">
-                      <button
-                        className="text-blue-600 hover:underline"
-                        onClick={() => {
-                          setSelectedResponse(resp);
-                          setModalOpen(true);
-                        }}
-                      >
-                        View
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          {/* Pagination controls */}
-          <div className="flex justify-center gap-2 mb-4">
-            <button
-              className="px-3 py-1 rounded border border-gray-300 disabled:opacity-50"
-              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-              disabled={currentPage === 1}
-            >
-              Previous
-            </button>
-            <span className="text-sm px-2 py-1">
-              Page {currentPage} of {totalPages}
-            </span>
-            <button
-              className="px-3 py-1 rounded border border-gray-300 disabled:opacity-50"
-              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-              disabled={currentPage === totalPages}
-            >
-              Next
-            </button>
-          </div>
-          {/* Modal for viewing individual response */}
-          {modalOpen && selectedResponse && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
-              <div className="bg-white dark:bg-gray-900 rounded-lg shadow-lg max-w-lg w-full p-6 relative">
-                <button
-                  className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
-                  onClick={() => setModalOpen(false)}
-                  aria-label="Close"
-                >
-                  &times;
-                </button>
-                <h2 className="text-xl font-bold mb-4">Response Details</h2>
-                <div className="mb-2 text-sm text-gray-500">
-                  <span className="font-semibold">Respondent:</span>
-                  {selectedResponse.respondent}
-                </div>
-                <div className="mb-4 text-sm text-gray-500">
-                  <span className="font-semibold">Submitted At:</span>
-                  {selectedResponse ? formattedDates[selectedResponse.id] : ""}
-                </div>
-                <div className="space-y-3 mb-6">
-                  {questions.map((q) => (
-                    <div key={q.id}>
-                      <div className="font-semibold text-gray-700 dark:text-gray-200">
-                        {q.questionText}
-                      </div>
-                      <div className="text-gray-900 dark:text-white">
-                        {Array.isArray(selectedResponse.answers[q.id])
-                          ? (selectedResponse.answers[q.id] as string[]).join(
-                              ", "
-                            )
-                          : selectedResponse.answers[q.id] || (
-                              <span className="text-gray-400">-</span>
-                            )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                <div className="flex gap-3 justify-end">
-                  <button
-                    className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded font-semibold"
-                    onClick={() => {
-                      // TODO: Implement accept logic
-                      alert("Accepted! (Implement logic)");
-                    }}
-                  >
-                    Accept
-                  </button>
-                  <button
-                    className="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded font-semibold"
-                    onClick={() => {
-                      // TODO: Implement reject logic
-                      alert("Rejected! (Implement logic)");
-                    }}
-                  >
-                    Reject
-                  </button>
-                  <button
-                    className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded font-semibold"
-                    onClick={() => {
-                      // TODO: Implement delete logic
-                      alert("Deleted! (Implement logic)");
-                    }}
-                  >
-                    Delete
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
+          <SearchControls
+            searchTerm={searchTerm}
+            onSearchChange={handleSearchChange}
+            sortBy={sortBy}
+            sortOrder={sortOrder}
+            onSort={handleSort}
+            onExportCSV={handleExportCSV}
+            surveyId={id}
+            resultsCount={results.length}
+          />
+
+          <BulkActions
+            selectedRows={selectedRows}
+            onAcceptSelected={handleAcceptSelected}
+            onRejectSelected={handleRejectSelected}
+            onDeleteSelected={handleDeleteSelected}
+          />
+
+          <ResultsTable
+            results={paginatedResults}
+            selectedRows={selectedRows}
+            formattedDates={formattedDates}
+            onRowSelect={handleRowSelect}
+            onSelectAll={handleSelectAll}
+            onViewResponse={handleViewResponse}
+            isAllSelected={isAllSelected}
+          />
+
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+            totalItems={filteredResults.length}
+            pageSize={10}
+          />
+
+          <ResponseModal
+            response={selectedResponse}
+            questions={questions}
+            formattedDate={
+              selectedResponse ? formattedDates[selectedResponse.id] : ""
+            }
+            isOpen={modalOpen}
+            onClose={handleCloseModal}
+            onAccept={handleAcceptResponse}
+            onReject={handleRejectResponse}
+            onDelete={handleDeleteResponse}
+          />
         </>
       )}
     </div>
