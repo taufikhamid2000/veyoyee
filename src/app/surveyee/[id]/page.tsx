@@ -106,7 +106,10 @@ export default function SurveyeePage({ params }: SurveyeePageProps) {
         </button>
         {showScoreInfo && (
           <div>
-            <h2 className="text-lg font-semibold mb-2 text-center">
+            <h2
+              className="text-lg font-semibold mb-2 text-center"
+              style={{ color: "var(--foreground)" }}
+            >
               How Reputation Score is Calculated
             </h2>
             <table className="min-w-full border border-gray-200 dark:border-gray-700 rounded-lg text-sm mx-auto">
@@ -121,42 +124,37 @@ export default function SurveyeePage({ params }: SurveyeePageProps) {
                 </tr>
               </thead>
               <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                <tr>
-                  <td className="px-4 py-2">✅ Passing attention check</td>
-                  <td className="px-4 py-2">+2</td>
-                </tr>
-                <tr>
-                  <td className="px-4 py-2">
-                    🔁 Consistent responses (low entropy on objective Qs)
-                  </td>
-                  <td className="px-4 py-2">+1</td>
-                </tr>
-                <tr>
-                  <td className="px-4 py-2">
-                    👍 Positive feedback from survey creators
-                  </td>
-                  <td className="px-4 py-2">+5</td>
-                </tr>
-                <tr>
-                  <td className="px-4 py-2">⚠️ Skipped/missing answers</td>
-                  <td className="px-4 py-2">-1</td>
-                </tr>
-                <tr>
-                  <td className="px-4 py-2">❌ Failing attention checks</td>
-                  <td className="px-4 py-2">-5</td>
-                </tr>
-                <tr>
-                  <td className="px-4 py-2">
-                    🚫 Manual report by survey creator (confirmed)
-                  </td>
-                  <td className="px-4 py-2">-10</td>
-                </tr>
-                <tr>
-                  <td className="px-4 py-2">
-                    🔄 Frequent duplicate IP/device/location
-                  </td>
-                  <td className="px-4 py-2">-3</td>
-                </tr>
+                {[
+                  { action: "✅ Passing attention check", score: "+2" },
+                  {
+                    action:
+                      "🔁 Consistent responses (low entropy on objective Qs)",
+                    score: "+1",
+                  },
+                  {
+                    action: "👍 Positive feedback from survey creators",
+                    score: "+5",
+                  },
+                  { action: "⚠️ Skipped/missing answers", score: "-1" },
+                  { action: "❌ Failing attention checks", score: "-5" },
+                  {
+                    action: "🚫 Manual report by survey creator (confirmed)",
+                    score: "-10",
+                  },
+                  {
+                    action: "🔄 Frequent duplicate IP/device/location",
+                    score: "-3",
+                  },
+                ].map((item, index) => (
+                  <tr key={index}>
+                    <td className="px-4 py-2 text-gray-900 dark:text-white">
+                      {item.action}
+                    </td>
+                    <td className="px-4 py-2 text-gray-900 dark:text-white">
+                      {item.score}
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>

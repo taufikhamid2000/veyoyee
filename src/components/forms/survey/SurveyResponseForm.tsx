@@ -32,7 +32,7 @@ export default function SurveyResponseForm({
           key={q.id}
           className="mb-6 p-4 bg-white dark:bg-gray-700 rounded-lg"
         >
-          <label className="block text-lg font-medium mb-2">
+          <label className="block text-lg font-medium mb-2 text-gray-900 dark:text-white">
             {idx + 1}. {q.questionText}
             {q.required && <span className="text-red-500">*</span>}
           </label>
@@ -48,7 +48,10 @@ export default function SurveyResponseForm({
           ) : q.type === "multipleChoice" ? (
             <div className="flex flex-col gap-2">
               {q.options?.map((opt, i) => (
-                <label key={i} className="flex items-center gap-2">
+                <label
+                  key={i}
+                  className="flex items-center gap-2 text-gray-900 dark:text-white"
+                >
                   <input
                     type="radio"
                     name={q.id}
@@ -84,7 +87,10 @@ export default function SurveyResponseForm({
                 };
 
                 return (
-                  <label key={i} className="flex items-center gap-2">
+                  <label
+                    key={i}
+                    className="flex items-center gap-2 text-gray-900 dark:text-white"
+                  >
                     <input
                       type="checkbox"
                       value={opt}
@@ -100,7 +106,7 @@ export default function SurveyResponseForm({
           ) : q.type === "ratingScale" ? (
             <div className="flex flex-wrap items-center gap-2">
               {getRatingConfig(q)?.labels?.min && (
-                <span className="text-sm text-gray-600">
+                <span className="text-sm text-gray-900 dark:text-white font-medium">
                   {getRatingConfig(q)?.labels?.min}
                 </span>
               )}
@@ -117,10 +123,10 @@ export default function SurveyResponseForm({
                   <button
                     key={value}
                     type="button"
-                    className={`px-3 py-2 border border-gray-300 rounded-md ${
+                    className={`px-3 py-2 border rounded-md font-medium ${
                       answers[q.id] === value.toString()
-                        ? "bg-blue-500 text-white"
-                        : "bg-white text-gray-700"
+                        ? "bg-blue-500 text-white border-blue-500"
+                        : "bg-white text-gray-900 border-gray-300 dark:bg-gray-600 dark:text-white dark:border-gray-500 hover:bg-gray-50 dark:hover:bg-gray-500"
                     }`}
                     onClick={() => handleAnswerChange(q.id, value.toString())}
                   >
@@ -129,7 +135,7 @@ export default function SurveyResponseForm({
                 ))}
               </div>
               {getRatingConfig(q)?.labels?.max && (
-                <span className="text-sm text-gray-600">
+                <span className="text-sm text-gray-900 dark:text-white font-medium">
                   {getRatingConfig(q)?.labels?.max}
                 </span>
               )}
