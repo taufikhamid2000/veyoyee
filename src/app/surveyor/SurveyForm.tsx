@@ -215,7 +215,8 @@ export default function SurveyForm({
 
   // Render the appropriate form based on mode
   if (mode === "answer") {
-    return <SurveyResponseForm questions={questions} />;
+    const surveyId = initialSurvey?.id || "";
+    return <SurveyResponseForm questions={questions} surveyId={surveyId} />;
   }
 
   return (

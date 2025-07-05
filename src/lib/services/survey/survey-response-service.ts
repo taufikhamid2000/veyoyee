@@ -88,7 +88,7 @@ export class SurveyResponseService {
       // Create the response record
       const { data: response, error } = await supabase
         .schema("veyoyee")
-        .from("survey_responses")
+        .from("individual_responses")
         .insert({
           survey_id: surveyId,
           respondent_id: respondentId,
@@ -120,7 +120,7 @@ export class SurveyResponseService {
     try {
       const { error } = await supabase
         .schema("veyoyee")
-        .from("survey_responses")
+        .from("individual_responses")
         .update({
           completed_at: new Date().toISOString(),
           is_complete: true,
@@ -220,6 +220,36 @@ export class SurveyResponseService {
       return { success: true, data };
     } catch (error) {
       console.error("Error getting response answers:", error);
+      return { success: false, error };
+    }
+  }
+
+  /**
+   * Check if a user has already answered a survey
+   */
+  static async hasUserAnsweredSurvey(
+    surveyId: string,
+    respondentId: string
+  ): Promise<ServiceResponse<boolean>> {
+    const supabase = getVeyoyeeClient();
+
+    try {
+      const { data, error } = await supabase
+        .schema("veyoyee")
+        .from("individual_responses")
+        .select("id")
+        .eq("survey_id", surveyId)
+        .eq("respondent_id", respondentId)
+        .eq("is_complete", true) // Only check for completed responses
+        .limit(1);
+
+      if (error) {
+        throw error;
+      }
+
+      return { success: true, data: data && data.length > 0 };
+    } catch (error) {
+      console.error("Error checking if user answered survey:", error);
       return { success: false, error };
     }
   }

@@ -386,8 +386,28 @@ export class SurveyCoreService {
         throw surveysError;
       }
 
+      // If user is logged in, also exclude surveys they have already answered
+      let surveyData = surveys;
+      if (excludeUserId) {
+        // Get surveys the user has already responded to (only completed responses)
+        const { data: userResponses, error: responsesError } = await supabase
+          .schema("veyoyee")
+          .from("individual_responses")
+          .select("survey_id")
+          .eq("respondent_id", excludeUserId)
+          .eq("is_complete", true); // Only exclude surveys with completed responses
+
+        if (!responsesError && userResponses) {
+          const answeredSurveyIds = userResponses.map((r: any) => r.survey_id);
+          // Filter out surveys the user has already answered
+          surveyData = surveys.filter(
+            (survey: any) => !answeredSurveyIds.includes(survey.id)
+          );
+        }
+      }
+
       // Extract survey IDs for bulk operations
-      const surveyIds = surveys.map((survey: any) => survey.id);
+      const surveyIds = surveyData.map((survey: any) => survey.id);
 
       // Get question counts for all surveys
       const questionCountsMap =

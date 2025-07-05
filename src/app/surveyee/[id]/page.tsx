@@ -29,7 +29,6 @@ export default function SurveyeePage({ params }: SurveyeePageProps) {
       try {
         setIsLoading(true);
         const surveyData = await getSurvey(surveyId);
-
         setSurvey(surveyData);
       } catch (err) {
         console.error("Error fetching survey:", err);

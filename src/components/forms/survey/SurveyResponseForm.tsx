@@ -1,25 +1,91 @@
 import { QuestionEdit } from "../../../data/surveyor-data";
 import { useState } from "react";
 import { getRatingConfig } from "../survey-builder/question-helpers";
+import { SurveyResponseService } from "../../../lib/services/survey/survey-response-service";
+import { useSupabaseAuth } from "../../../hooks/useSupabaseAuth";
 
 interface SurveyResponseFormProps {
   questions: QuestionEdit[];
+  surveyId: string;
 }
 
 export default function SurveyResponseForm({
   questions,
+  surveyId,
 }: SurveyResponseFormProps) {
   type Answers = Record<string, string>;
   const [answers, setAnswers] = useState<Answers>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { user } = useSupabaseAuth();
 
   const handleAnswerChange = (qid: string, value: string) => {
     setAnswers((prev) => ({ ...prev, [qid]: value }));
   };
 
-  const handleSubmitAnswers = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmitAnswers = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // TODO: Submit answers to backend
-    alert("Answers submitted! (Not yet saved)");
+
+    if (!user) {
+      alert("You must be logged in to submit responses");
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      // 1. Create a survey response record
+      const responseResult = await SurveyResponseService.createSurveyResponse(
+        surveyId,
+        user.id
+      );
+
+      if (!responseResult.success) {
+        throw new Error("Failed to create survey response");
+      }
+
+      const responseId = responseResult.data!.responseId;
+
+      // 2. Save each answer
+      for (const question of questions) {
+        const answer = answers[question.id];
+        if (answer) {
+          // Handle different question types
+          let selectedOptions: string[] | undefined;
+          let answerText = answer;
+
+          if (question.type === "checkboxList") {
+            selectedOptions = answer.split(",").filter((opt) => opt.trim());
+            answerText = selectedOptions.join(", ");
+          } else if (question.type === "multipleChoice") {
+            selectedOptions = [answer];
+          }
+
+          const saveResult = await SurveyResponseService.saveResponseAnswer(
+            responseId,
+            question.id,
+            answerText,
+            selectedOptions
+          );
+
+          if (!saveResult.success) {
+            console.error(`Failed to save answer for question ${question.id}`);
+          }
+        }
+      }
+
+      // 3. Mark response as complete
+      await SurveyResponseService.completeSurveyResponse(responseId);
+
+      alert("Survey responses submitted successfully!");
+
+      // Optionally redirect or clear form
+      setAnswers({});
+    } catch (error) {
+      console.error("Error submitting survey:", error);
+      alert("Failed to submit survey responses. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -162,9 +228,14 @@ export default function SurveyResponseForm({
       ))}
       <button
         type="submit"
-        className="w-full mt-6 px-4 py-2 rounded bg-green-600 text-white font-semibold hover:bg-green-700 transition"
+        disabled={isSubmitting}
+        className={`w-full mt-6 px-4 py-2 rounded font-semibold transition ${
+          isSubmitting
+            ? "bg-gray-400 text-gray-200 cursor-not-allowed"
+            : "bg-green-600 text-white hover:bg-green-700"
+        }`}
       >
-        Submit Answers
+        {isSubmitting ? "Submitting..." : "Submit Answers"}
       </button>
     </form>
   );
