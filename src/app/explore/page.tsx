@@ -1,8 +1,9 @@
 import { createServerClient } from "@/lib/supabase/server";
-import { mockSurveys } from "@/data/dashboard-data";
+import { mockSurveys, Survey } from "@/data/dashboard-data";
 import ExploreClient from "./ExploreClient";
 import { Metadata } from "next";
 import InfoTooltip from "@/components/ui/InfoTooltip";
+import { SurveyService, SurveyListItem } from "@/lib/services/survey-service";
 
 export const metadata: Metadata = {
   title: "Explore Surveys - Veyoyee",
@@ -15,11 +16,45 @@ export default async function ExploreSurveysPage() {
   const { data } = await supabase.auth.getUser();
   const userId = data?.user?.id;
 
-  // Only show surveys not created by the current user
-  const publicSurveys = mockSurveys.filter(
-    (survey: (typeof mockSurveys)[0]) =>
-      survey.createdBy && survey.createdBy !== userId
-  );
+  // Fetch public surveys from Supabase, excluding the current user's surveys
+  let publicSurveys: Survey[] = [];
+  try {
+    const result = await SurveyService.getPublicSurveysServer(supabase, userId);
+    if (result.success && Array.isArray(result.data)) {
+      publicSurveys = result.data.map(
+        (survey: SurveyListItem): Survey => ({
+          id: survey.id,
+          title: survey.title,
+          type: survey.type,
+          status: survey.status,
+          minRespondents: survey.minRespondents || undefined,
+          maxRespondents: survey.maxRespondents || undefined,
+          startDate: survey.startDate || undefined,
+          endDate: survey.endDate || undefined,
+          rewardAmount: survey.rewardAmount || undefined,
+          createdBy: survey.createdBy,
+          responses: survey.responses,
+          completionRate: survey.completionRate,
+          lastUpdated: survey.lastUpdated,
+          questions: survey.questions,
+          createdAt: survey.createdAt,
+          updatedAt: survey.updatedAt,
+        })
+      );
+    } else {
+      console.error("Error fetching public surveys:", result.error);
+      // Fallback to mock data if there's an error
+      publicSurveys = mockSurveys.filter(
+        (survey) => survey.createdBy && survey.createdBy !== userId
+      );
+    }
+  } catch (error) {
+    console.error("Failed to fetch public surveys:", error);
+    // Fallback to mock data if there's an error
+    publicSurveys = mockSurveys.filter(
+      (survey) => survey.createdBy && survey.createdBy !== userId
+    );
+  }
 
   return (
     <div className="min-w-0 w-screen max-w-none bg-inherit">

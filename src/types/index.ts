@@ -35,3 +35,6 @@ export type Database = {
     Functions: object;
   };
 };
+
+// Re-export survey-related types from survey.ts
+export * from "./survey";

@@ -1,10 +1,10 @@
 "use client";
 import { useState, useMemo } from "react";
 import SurveyCard from "@/components/dashboard/SurveyCard";
-import { mockSurveys } from "@/data/dashboard-data";
+import { Survey } from "@/data/dashboard-data";
 
 interface ExploreClientProps {
-  surveys: typeof mockSurveys;
+  surveys: Survey[];
 }
 
 export default function ExploreClient({ surveys }: ExploreClientProps) {

@@ -47,6 +47,26 @@ export type VeyoyeeSchema = {
     created_at: string;
     updated_at: string;
   };
+  survey_responses: {
+    id: string;
+    survey_id: string;
+    respondent_id: string;
+    started_at: string;
+    completed_at: string | null;
+    ip_address: string | null;
+    is_complete: boolean;
+    created_at: string;
+    updated_at: string;
+  };
+  response_answers: {
+    id: string;
+    response_id: string;
+    question_id: string;
+    answer_text: string | null;
+    selected_option_id: string | null;
+    created_at: string;
+    updated_at: string;
+  };
 };
 
 export const createVeyoyeeClient = () => {

@@ -1,7 +1,11 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import { SurveyData } from "../lib/services/survey-service";
+import {
+  SurveyData,
+  SurveyListItem,
+  FormattedSurvey,
+} from "../lib/services/survey-service";
 
 // Custom hook for survey operations
 export function useSurveyActions() {
@@ -84,32 +88,41 @@ export function useSurveyActions() {
   );
 
   // Get survey
-  const getSurvey = useCallback(async (surveyId: string) => {
-    setIsLoading(true);
-    setError(null);
+  const getSurvey = useCallback(
+    async (surveyId: string): Promise<FormattedSurvey> => {
+      setIsLoading(true);
+      setError(null);
 
-    try {
-      const { SurveyService } = await import("../lib/services/survey-service");
-      const result = await SurveyService.getSurveyById(surveyId);
-
-      if (!result.success) {
-        throw new Error(
-          result.error instanceof Error
-            ? result.error.message
-            : "Failed to get survey"
+      try {
+        const { SurveyService } = await import(
+          "../lib/services/survey-service"
         );
-      }
+        const result = await SurveyService.getSurveyById(surveyId);
 
-      return result.survey;
-    } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : "An unexpected error occurred";
-      setError(new Error(errorMessage));
-      throw err;
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+        if (!result.success) {
+          throw new Error(
+            result.error instanceof Error
+              ? result.error.message
+              : "Failed to get survey"
+          );
+        }
+
+        if (!result.data) {
+          throw new Error("Survey data is missing");
+        }
+
+        return result.data;
+      } catch (err) {
+        const errorMessage =
+          err instanceof Error ? err.message : "An unexpected error occurred";
+        setError(new Error(errorMessage));
+        throw err;
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    []
+  );
 
   // Delete survey
   const deleteSurvey = useCallback(async (surveyId: string) => {
@@ -140,32 +153,78 @@ export function useSurveyActions() {
   }, []);
 
   // Get user's surveys
-  const getUserSurveys = useCallback(async (userId?: string) => {
-    setIsLoading(true);
-    setError(null);
+  const getUserSurveys = useCallback(
+    async (userId?: string): Promise<SurveyListItem[]> => {
+      setIsLoading(true);
+      setError(null);
 
-    try {
-      const { SurveyService } = await import("../lib/services/survey-service");
-      const result = await SurveyService.getUserSurveys(userId);
-
-      if (!result.success) {
-        throw new Error(
-          result.error instanceof Error
-            ? result.error.message
-            : "Failed to get user surveys"
+      try {
+        const { SurveyService } = await import(
+          "../lib/services/survey-service"
         );
-      }
+        const result = await SurveyService.getUserSurveys(userId);
 
-      return result.surveys;
-    } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : "An unexpected error occurred";
-      setError(new Error(errorMessage));
-      throw err;
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+        if (!result.success) {
+          throw new Error(
+            result.error instanceof Error
+              ? result.error.message
+              : "Failed to get user surveys"
+          );
+        }
+
+        if (!result.data) {
+          return []; // Return empty array if no data
+        }
+
+        return result.data;
+      } catch (err) {
+        const errorMessage =
+          err instanceof Error ? err.message : "An unexpected error occurred";
+        setError(new Error(errorMessage));
+        throw err;
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    []
+  );
+
+  // Get public surveys
+  const getPublicSurveys = useCallback(
+    async (excludeUserId?: string): Promise<SurveyListItem[]> => {
+      setIsLoading(true);
+      setError(null);
+
+      try {
+        const { SurveyService } = await import(
+          "../lib/services/survey-service"
+        );
+        const result = await SurveyService.getPublicSurveys(excludeUserId);
+
+        if (!result.success) {
+          throw new Error(
+            result.error instanceof Error
+              ? result.error.message
+              : "Failed to get public surveys"
+          );
+        }
+
+        if (!result.data) {
+          return []; // Return empty array if no data
+        }
+
+        return result.data;
+      } catch (err) {
+        const errorMessage =
+          err instanceof Error ? err.message : "An unexpected error occurred";
+        setError(new Error(errorMessage));
+        throw err;
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    []
+  );
 
   return {
     createSurvey,
@@ -173,6 +232,7 @@ export function useSurveyActions() {
     getSurvey,
     deleteSurvey,
     getUserSurveys,
+    getPublicSurveys,
     isLoading,
     error,
   };

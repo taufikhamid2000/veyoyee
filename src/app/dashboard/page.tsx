@@ -3,7 +3,7 @@ import { createServerClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { mockActivities, getDashboardStats, Survey } from "../../data";
 import DashboardClient from "@/app/dashboard/DashboardClient";
-import { SurveyService } from "@/lib/services/survey-service";
+import { SurveyService, SurveyListItem } from "@/lib/services/survey-service";
 
 export const metadata: Metadata = {
   title: "Dashboard - Veyoyee",
@@ -69,24 +69,28 @@ export default async function DashboardPage() {
       supabase,
       data.user.id
     );
-    if (surveyResult.success && surveyResult.surveys) {
-      // The API now returns survey data with all fields needed by the Survey interface
-      userSurveys = surveyResult.surveys.map((survey: Survey) => ({
-        id: survey.id,
-        title: survey.title,
-        type: survey.type,
-        status: survey.status,
-        minRespondents: survey.minRespondents,
-        maxRespondents: survey.maxRespondents,
-        startDate: survey.startDate,
-        endDate: survey.endDate,
-        rewardAmount: survey.rewardAmount,
-        createdBy: survey.createdBy,
-        responses: survey.responses || 0,
-        completionRate: survey.completionRate || 0,
-        lastUpdated: survey.updatedAt || survey.createdAt,
-        questions: survey.questions || 0,
-      }));
+    if (surveyResult.success && Array.isArray(surveyResult.data)) {
+      // The API returns SurveyListItem type, we need to convert to Survey type
+      userSurveys = surveyResult.data.map(
+        (survey: SurveyListItem): Survey => ({
+          id: survey.id,
+          title: survey.title,
+          type: survey.type,
+          status: survey.status,
+          minRespondents: survey.minRespondents || undefined,
+          maxRespondents: survey.maxRespondents || undefined,
+          startDate: survey.startDate || undefined,
+          endDate: survey.endDate || undefined,
+          rewardAmount: survey.rewardAmount || undefined,
+          createdBy: survey.createdBy,
+          responses: survey.responses,
+          completionRate: survey.completionRate,
+          lastUpdated: survey.lastUpdated,
+          questions: survey.questions,
+          createdAt: survey.createdAt,
+          updatedAt: survey.updatedAt,
+        })
+      );
     } else {
       console.error("Error fetching user surveys:", surveyResult.error);
     }

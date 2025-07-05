@@ -1,32 +1,23 @@
-export interface Survey {
-  createdAt: any;
-  updatedAt: any;
-  id: string;
-  title: string;
-  type: "commerce" | "academia" | string;
-  responses: number;
-  completionRate: number;
-  status: "active" | "draft" | "closed";
-  lastUpdated: string;
-  questions: number;
-  createdBy: string;
-  minRespondents?: number;
-  maxRespondents?: number;
-  startDate?: string;
-  endDate?: string;
-  rewardAmount?: string;
-  questionsData?: import("./surveyor-data").QuestionEdit[];
+/**
+ * @deprecated Use Survey and ActivityItem types from src/types/survey.ts instead
+ */
+import {
+  Survey as SurveyType,
+  ActivityItem as ActivityItemType,
+} from "../types/survey";
+
+// We need to slightly modify the Survey type for backwards compatibility with mock data
+export interface Survey extends Omit<SurveyType, "createdAt" | "updatedAt"> {
+  createdAt?: string;
+  updatedAt?: string;
 }
 
-export interface ActivityItem {
-  id: string;
-  type: "response" | "edit" | "export" | "create";
-  surveyId: string;
-  surveyTitle: string;
-  date: string;
-  ipAddress?: string;
-}
+export type ActivityItem = ActivityItemType;
 
+/**
+ * @deprecated Use real data from SurveyService instead
+ * This mock data is kept for testing and development purposes
+ */
 export const mockSurveys: Survey[] = [
   {
     id: "survey1",
@@ -344,6 +335,10 @@ export const mockSurveys: Survey[] = [
   },
 ];
 
+/**
+ * @deprecated Use real data from ActivityService instead when available
+ * This mock data is kept for testing and development purposes
+ */
 export const mockActivities: ActivityItem[] = [
   {
     id: "activity1",
@@ -369,6 +364,9 @@ export const mockActivities: ActivityItem[] = [
   },
 ];
 
+/**
+ * @deprecated Use getDashboardStats from src/types/survey.ts instead
+ */
 export const getDashboardStats = (surveys: Survey[] = mockSurveys) => {
   const activeSurveys = surveys.filter((s) => s.status === "active").length;
   const draftSurveys = surveys.filter((s) => s.status === "draft").length;
