@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState, useRef } from "react";
-import { createClient } from "@/utils/supabase/client";
+import { createClient } from "@/lib/supabase/client";
 import { User, Session } from "@supabase/supabase-js";
 // import SignOutButton from "@/components/auth/sign-out-button";
 import { Menu, X } from "lucide-react";

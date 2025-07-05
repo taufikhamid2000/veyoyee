@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import type { DependencyList } from "react";
 import { SupabaseClient, User } from "@supabase/supabase-js";
-import { createClient } from "@/utils/supabase/client";
+import { createClient } from "@/lib/supabase/client";
 
 interface SupabaseFetchState<T> {
   data: T | null;

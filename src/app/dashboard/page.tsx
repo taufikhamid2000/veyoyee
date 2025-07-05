@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import { createServerClient } from "@/utils/supabase/server";
+import { createServerClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { mockSurveys, mockActivities, getDashboardStats } from "../../data";
 import DashboardClient from "@/app/dashboard/DashboardClient";

@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { FormField } from "@/components/ui/form-field";
 import { PasswordField } from "@/components/ui/password-field";
-import { createClient } from "@/utils/supabase/client";
+import { createClient } from "@/lib/supabase/client";
 import { useValidatedForm } from "@/hooks/useValidatedForm";
 import { signUpSchema, type SignUpFormData } from "@/lib/validations";
 import { useRouter } from "next/navigation";

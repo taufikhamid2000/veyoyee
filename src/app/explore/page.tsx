@@ -1,4 +1,4 @@
-import { createServerClient } from "@/utils/supabase/server";
+import { createServerClient } from "@/lib/supabase/server";
 import { mockSurveys } from "@/data/dashboard-data";
 import ExploreClient from "./ExploreClient";
 import { Metadata } from "next";

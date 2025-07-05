@@ -6,6 +6,7 @@ export function createClient() {
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
+      // Configure auth options for best user experience
       auth: {
         persistSession: true,
         autoRefreshToken: true,
