@@ -111,6 +111,27 @@ export class SurveyService {
       optionId
     );
   }
+
+  // Re-export response methods
+  static async hasUserAnsweredSurvey(
+    ...args: Parameters<typeof SurveyResponseService.hasUserAnsweredSurvey>
+  ) {
+    return SurveyResponseService.hasUserAnsweredSurvey(...args);
+  }
+
+  static async getUserAnsweredSurveyIds(
+    ...args: Parameters<typeof SurveyResponseService.getUserAnsweredSurveyIds>
+  ) {
+    return SurveyResponseService.getUserAnsweredSurveyIds(...args);
+  }
+
+  static async getUserAnsweredSurveyIdsServer(
+    ...args: Parameters<
+      typeof SurveyResponseService.getUserAnsweredSurveyIdsServer
+    >
+  ) {
+    return SurveyResponseService.getUserAnsweredSurveyIdsServer(...args);
+  }
 }
 
 // Also export the formatting functions for backward compatibility

@@ -253,6 +253,61 @@ export class SurveyResponseService {
       return { success: false, error };
     }
   }
+
+  /**
+   * Get all survey IDs that a user has answered (completed responses only)
+   */
+  static async getUserAnsweredSurveyIds(
+    respondentId: string
+  ): Promise<ServiceResponse<string[]>> {
+    const supabase = getVeyoyeeClient();
+
+    try {
+      const { data, error } = await supabase
+        .schema("veyoyee")
+        .from("individual_responses")
+        .select("survey_id")
+        .eq("respondent_id", respondentId)
+        .eq("is_complete", true); // Only get completed responses
+
+      if (error) {
+        throw error;
+      }
+
+      const surveyIds = data?.map((response) => response.survey_id) || [];
+      return { success: true, data: surveyIds };
+    } catch (error) {
+      console.error("Error getting user answered survey IDs:", error);
+      return { success: false, error };
+    }
+  }
+
+  /**
+   * Get all survey IDs that a user has answered (server version with supabase client)
+   */
+  static async getUserAnsweredSurveyIdsServer(
+    supabase: any,
+    respondentId: string
+  ): Promise<ServiceResponse<string[]>> {
+    try {
+      const { data, error } = await supabase
+        .schema("veyoyee")
+        .from("individual_responses")
+        .select("survey_id")
+        .eq("respondent_id", respondentId)
+        .eq("is_complete", true); // Only get completed responses
+
+      if (error) {
+        throw error;
+      }
+
+      const surveyIds = data?.map((response: any) => response.survey_id) || [];
+      return { success: true, data: surveyIds };
+    } catch (error) {
+      console.error("Error getting user answered survey IDs (server):", error);
+      return { success: false, error };
+    }
+  }
 }
 
 // Import at the bottom to avoid circular dependency

@@ -5,12 +5,17 @@ import { Survey } from "@/data/dashboard-data";
 
 interface ExploreClientProps {
   surveys: Survey[];
+  answeredSurveyIds?: string[]; // IDs of surveys the user has already answered
 }
 
-export default function ExploreClient({ surveys }: ExploreClientProps) {
+export default function ExploreClient({
+  surveys,
+  answeredSurveyIds = [],
+}: ExploreClientProps) {
   const [search, setSearch] = useState("");
   const [type, setType] = useState<string>("all");
   const [sort, setSort] = useState<string>("recent");
+  const [showUnansweredOnly, setShowUnansweredOnly] = useState(true); // Default to true
   const [page, setPage] = useState(1);
   const pageSize = 6;
 
@@ -22,7 +27,8 @@ export default function ExploreClient({ surveys }: ExploreClientProps) {
           s.status === "active" &&
           (type === "all" || s.type === type) &&
           (!search.trim() ||
-            s.title.toLowerCase().includes(search.toLowerCase()))
+            s.title.toLowerCase().includes(search.toLowerCase())) &&
+          (!showUnansweredOnly || !answeredSurveyIds.includes(s.id))
       )
       .sort((a, b) => {
         if (sort === "recent") {
@@ -34,7 +40,7 @@ export default function ExploreClient({ surveys }: ExploreClientProps) {
         }
         return 0;
       });
-  }, [surveys, search, type, sort]);
+  }, [surveys, search, type, sort, showUnansweredOnly, answeredSurveyIds]);
 
   const totalPages = Math.ceil(filtered.length / pageSize);
   const paginated = filtered.slice((page - 1) * pageSize, page * pageSize);
@@ -74,6 +80,48 @@ export default function ExploreClient({ surveys }: ExploreClientProps) {
           <option value="responses">Most Responses</option>
           <option value="alpha">A-Z</option>
         </select>
+        <div className="flex items-center gap-3 px-4 py-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800 transition-colors">
+          <label className="flex items-center gap-2 cursor-pointer text-blue-700 dark:text-blue-300 font-medium">
+            <div className="relative">
+              <input
+                type="checkbox"
+                checked={showUnansweredOnly}
+                onChange={(e) => {
+                  setShowUnansweredOnly(e.target.checked);
+                  setPage(1);
+                }}
+                className="sr-only"
+              />
+              <div
+                className={`w-5 h-5 rounded border-2 transition-all duration-200 ${
+                  showUnansweredOnly
+                    ? "bg-blue-600 border-blue-600 dark:bg-blue-500 dark:border-blue-500"
+                    : "bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600"
+                }`}
+              >
+                {showUnansweredOnly && (
+                  <svg
+                    className="w-3 h-3 text-white mx-auto mt-0.5"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                )}
+              </div>
+            </div>
+            <span className="text-sm select-none">Show unanswered only</span>
+          </label>
+          {showUnansweredOnly && (
+            <span className="text-xs text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/40 px-2 py-1 rounded-full">
+              {filtered.length} surveys
+            </span>
+          )}
+        </div>
       </div>
       {/* Survey Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

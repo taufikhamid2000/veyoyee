@@ -18,6 +18,8 @@ export default async function ExploreSurveysPage() {
 
   // Fetch public surveys from Supabase, excluding the current user's surveys
   let publicSurveys: Survey[] = [];
+  let answeredSurveyIds: string[] = [];
+
   try {
     const result = await SurveyService.getPublicSurveysServer(supabase, userId);
     if (result.success && Array.isArray(result.data)) {
@@ -54,6 +56,26 @@ export default async function ExploreSurveysPage() {
     publicSurveys = mockSurveys.filter(
       (survey) => survey.createdBy && survey.createdBy !== userId
     );
+  }
+
+  // Fetch answered survey IDs if user is logged in
+  if (userId) {
+    try {
+      const answeredResult = await SurveyService.getUserAnsweredSurveyIdsServer(
+        supabase,
+        userId
+      );
+      if (answeredResult.success && answeredResult.data) {
+        answeredSurveyIds = answeredResult.data;
+      } else {
+        console.error(
+          "Error fetching answered survey IDs:",
+          answeredResult.error
+        );
+      }
+    } catch (error) {
+      console.error("Failed to fetch answered survey IDs:", error);
+    }
   }
 
   return (
@@ -100,7 +122,10 @@ export default async function ExploreSurveysPage() {
           </div>
         </div>
         <div className="w-full px-0 md:px-0">
-          <ExploreClient surveys={publicSurveys} />
+          <ExploreClient
+            surveys={publicSurveys}
+            answeredSurveyIds={answeredSurveyIds}
+          />
         </div>
       </div>
     </div>

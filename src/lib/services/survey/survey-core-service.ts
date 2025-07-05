@@ -364,7 +364,8 @@ export class SurveyCoreService {
    */
   static async getPublicSurveysServer(
     supabase: any,
-    excludeUserId?: string
+    excludeUserId?: string,
+    includeAnsweredSurveys?: boolean
   ): Promise<ServiceResponse<SurveyListItem[]>> {
     try {
       // Get all active surveys
@@ -386,9 +387,9 @@ export class SurveyCoreService {
         throw surveysError;
       }
 
-      // If user is logged in, also exclude surveys they have already answered
+      // If user is logged in, also exclude surveys they have already answered (unless includeAnsweredSurveys is true)
       let surveyData = surveys;
-      if (excludeUserId) {
+      if (excludeUserId && !includeAnsweredSurveys) {
         // Get surveys the user has already responded to (only completed responses)
         const { data: userResponses, error: responsesError } = await supabase
           .schema("veyoyee")
