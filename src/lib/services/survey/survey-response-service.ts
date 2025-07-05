@@ -182,7 +182,7 @@ export class SurveyResponseService {
     try {
       const { data, error } = await supabase
         .schema("veyoyee")
-        .from("survey_responses")
+        .from("individual_responses")
         .select("*")
         .eq("survey_id", surveyId)
         .order("started_at", { ascending: false });
@@ -194,6 +194,72 @@ export class SurveyResponseService {
       return { success: true, data };
     } catch (error) {
       console.error("Error getting survey responses:", error);
+      return { success: false, error };
+    }
+  }
+
+  /**
+   * Get formatted survey responses with answers for results page
+   */
+  static async getSurveyResponsesWithAnswers(
+    surveyId: string
+  ): Promise<ServiceResponse<any[]>> {
+    const supabase = getVeyoyeeClient();
+
+    try {
+      // Get all individual responses for the survey
+      const { data: responses, error: responsesError } = await supabase
+        .schema("veyoyee")
+        .from("individual_responses")
+        .select("*")
+        .eq("survey_id", surveyId)
+        .eq("is_complete", true) // Only get completed responses
+        .order("completed_at", { ascending: false });
+
+      if (responsesError) {
+        throw responsesError;
+      }
+
+      if (!responses || responses.length === 0) {
+        return { success: true, data: [] };
+      }
+
+      // Get all answers for these responses
+      const responseIds = responses.map((r) => r.id);
+      const { data: answers, error: answersError } = await supabase
+        .schema("veyoyee")
+        .from("response_answers")
+        .select("*")
+        .in("response_id", responseIds);
+
+      if (answersError) {
+        throw answersError;
+      }
+
+      // Group answers by response_id
+      const answersByResponse = (answers || []).reduce((acc, answer) => {
+        if (!acc[answer.response_id]) {
+          acc[answer.response_id] = {};
+        }
+        acc[answer.response_id][answer.question_id] =
+          answer.selected_options || answer.answer_text;
+        return acc;
+      }, {} as Record<string, Record<string, any>>);
+
+      // Format responses for the results page
+      const formattedResponses = responses.map((response) => ({
+        id: response.id,
+        surveyId: response.survey_id,
+        respondent: `User ${response.respondent_id.slice(-8)}`, // Show last 8 chars of ID
+        submittedAt: response.completed_at || response.started_at,
+        status: "accepted" as const, // For now, all completed responses are accepted
+        reputationScore: Math.floor(Math.random() * 100) + 50, // Mock reputation score
+        answers: answersByResponse[response.id] || {},
+      }));
+
+      return { success: true, data: formattedResponses };
+    } catch (error) {
+      console.error("Error getting survey responses with answers:", error);
       return { success: false, error };
     }
   }

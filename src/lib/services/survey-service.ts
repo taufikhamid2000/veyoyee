@@ -132,6 +132,26 @@ export class SurveyService {
   ) {
     return SurveyResponseService.getUserAnsweredSurveyIdsServer(...args);
   }
+
+  static async getSurveyResponses(
+    ...args: Parameters<typeof SurveyResponseService.getSurveyResponses>
+  ) {
+    return SurveyResponseService.getSurveyResponses(...args);
+  }
+
+  static async getSurveyResponsesWithAnswers(
+    ...args: Parameters<
+      typeof SurveyResponseService.getSurveyResponsesWithAnswers
+    >
+  ) {
+    return SurveyResponseService.getSurveyResponsesWithAnswers(...args);
+  }
+
+  static async getResponseAnswers(
+    ...args: Parameters<typeof SurveyResponseService.getResponseAnswers>
+  ) {
+    return SurveyResponseService.getResponseAnswers(...args);
+  }
 }
 
 // Also export the formatting functions for backward compatibility
