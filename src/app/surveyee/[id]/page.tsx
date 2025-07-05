@@ -1,33 +1,92 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
-import { mockSurveys } from "@/data/dashboard-data";
-import { notFound } from "next/navigation";
+
 import SurveyForm from "@/app/surveyor/SurveyForm";
-import { use as usePromise, useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useSurveyActions } from "@/hooks/useSurveyActions";
+import { FormattedSurvey } from "@/lib/services/survey/survey-types";
+import { SurveyEdit } from "@/data/surveyor-data";
 
 interface SurveyeePageProps {
   params: { id: string };
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export default function SurveyeePage({ params }: any) {
-  const [showScoreInfo, setShowScoreInfo] = useState(false);
-  const resolvedParams = usePromise(
-    typeof params.then === "function" ? params : Promise.resolve(params)
-  ) as { id: string };
-  // Fetch survey data by ID (mock for now)
-  const survey = mockSurveys.find((s) => s.id === resolvedParams.id);
-  if (!survey) return notFound();
+export default function SurveyeePage({ params }: SurveyeePageProps) {
+  // Use a forward-compatible approach to access the id parameter
+  // This handles both current (direct access) and future (Promise-based) APIs
+  const unwrappedParams =
+    params instanceof Promise ? React.use(params) : params;
+  const surveyId = unwrappedParams.id;
 
-  // Ensure required fields are present for SurveyForm
-  const safeSurvey = {
-    ...survey,
+  const [showScoreInfo, setShowScoreInfo] = useState(false);
+  const [survey, setSurvey] = useState<FormattedSurvey | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+  const { getSurvey } = useSurveyActions();
+
+  useEffect(() => {
+    // Fetch the survey data from our service
+    const fetchSurvey = async () => {
+      try {
+        setIsLoading(true);
+        const surveyData = await getSurvey(surveyId);
+
+        setSurvey(surveyData);
+      } catch (err) {
+        console.error("Error fetching survey:", err);
+        setError(
+          err instanceof Error ? err : new Error("Failed to load survey")
+        );
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchSurvey();
+  }, [surveyId, getSurvey]);
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center min-h-[70vh]">
+        <div className="animate-pulse flex flex-col items-center">
+          <div className="h-8 w-64 bg-gray-300 dark:bg-gray-700 rounded mb-4"></div>
+          <div className="h-4 w-48 bg-gray-300 dark:bg-gray-700 rounded"></div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (error || !survey) {
+    return (
+      <div className="max-w-2xl mx-auto py-12 px-4 text-center">
+        <h1 className="text-3xl font-bold mb-4 text-red-600">
+          Survey Not Found
+        </h1>
+        <p className="mb-8">
+          The survey you&apos;re looking for doesn&apos;t exist or is no longer
+          available.
+        </p>
+        <a href="/explore" className="text-blue-600 hover:underline">
+          Browse other available surveys
+        </a>
+      </div>
+    );
+  }
+
+  // Survey is loaded, prepare it for the form
+  // Format survey data for the SurveyForm component
+  const safeSurvey: SurveyEdit = {
+    id: survey.id,
+    title: survey.title,
+    type: survey.type,
+    status: survey.status,
+    createdBy: survey.createdBy,
+    lastUpdated: survey.updatedAt || survey.createdAt,
     minRespondents: survey.minRespondents ?? 0,
     maxRespondents: survey.maxRespondents ?? 0,
     rewardAmount: survey.rewardAmount ?? "",
-    questions: Array.isArray(survey.questions)
-      ? survey.questions
-      : survey.questionsData ?? [],
+    questions: survey.questions || [],
     startDate: survey.startDate ?? "",
     endDate: survey.endDate ?? "",
   };

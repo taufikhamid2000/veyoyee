@@ -3,6 +3,7 @@
 // For better organization, the implementation has been split into separate files
 import { SurveyCoreService } from "./survey/survey-core-service";
 import { SurveyResponseService } from "./survey/survey-response-service";
+import { SurveyMetricsService } from "./survey/survey-metrics-service";
 import { formatQuestionsForClient } from "./survey/survey-formatter";
 
 // Re-export types
@@ -18,6 +19,9 @@ export type {
   SurveyListItem,
   ServiceResponse,
 } from "./survey/survey-types";
+
+// Re-export metrics types
+export type { SurveyMetrics } from "./survey/survey-metrics-service";
 
 // Re-export the service classes
 export class SurveyService {
@@ -72,7 +76,40 @@ export class SurveyService {
 
   // Helper method for response metrics - keep this for backward compatibility
   static async getResponseMetrics(supabase: any, surveyIds: string[]) {
-    return SurveyResponseService.getSurveyResponseMetrics(supabase, surveyIds);
+    // Try to use the new metrics service first, if that fails fall back to the old method
+    try {
+      return SurveyMetricsService.getSurveyResponseMetrics(supabase, surveyIds);
+    } catch (error) {
+      console.error(
+        "Error using metrics service, falling back to old method:",
+        error
+      );
+      return SurveyResponseService.getSurveyResponseMetrics(
+        supabase,
+        surveyIds
+      );
+    }
+  }
+
+  // New methods for survey metrics
+  static async getSurveyMetrics(surveyId: string) {
+    return SurveyMetricsService.getSurveyMetrics(surveyId);
+  }
+
+  static async recordSurveyResponse(
+    surveyId: string,
+    questionId: string,
+    responseType: "option" | "rating" | "text",
+    value: string | number,
+    optionId?: string
+  ) {
+    return SurveyMetricsService.recordSurveyResponse(
+      surveyId,
+      questionId,
+      responseType,
+      value,
+      optionId
+    );
   }
 }
 

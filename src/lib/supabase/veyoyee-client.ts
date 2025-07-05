@@ -3,6 +3,14 @@ import { createBrowserClient } from "@supabase/ssr";
 
 // Define the database schema
 export type VeyoyeeSchema = {
+  // View for survey metrics
+  survey_response_metrics: {
+    survey_id: string;
+    total_questions: number;
+    total_responses: number;
+    last_response_date: string | null;
+    response_days: number;
+  };
   surveys: {
     id: string;
     title: string;
@@ -50,11 +58,13 @@ export type VeyoyeeSchema = {
   survey_responses: {
     id: string;
     survey_id: string;
-    respondent_id: string;
-    started_at: string;
-    completed_at: string | null;
-    ip_address: string | null;
-    is_complete: boolean;
+    question_id: string;
+    response_option_id: string | null;
+    response_count: number;
+    avg_rating: number | null;
+    response_date: string;
+    text_responses: Record<string, unknown> | null;
+    metadata: Record<string, unknown> | null;
     created_at: string;
     updated_at: string;
   };

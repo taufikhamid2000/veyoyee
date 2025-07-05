@@ -22,58 +22,51 @@ export class SurveyResponseService {
         return responseMetricsMap;
       }
 
-      // Get total responses counts
-      const { data: responseCounts, error: responseError } = await supabase
-        .schema("veyoyee")
-        .from("survey_responses")
-        .select("survey_id, count")
-        .in("survey_id", surveyIds);
+      // Get metrics using the get_survey_metrics function which handles proper GROUP BY internally
+      const { data: responseCounts, error: responseError } = await supabase.rpc(
+        "get_survey_metrics",
+        {
+          survey_ids: surveyIds,
+        }
+      );
 
       if (responseError) {
-        // Check if this is just because the table doesn't exist yet
-        if (responseError.code === "42P01") {
-          // Table does not exist
-          console.warn("survey_responses table does not exist yet");
-          return responseMetricsMap;
-        }
-        throw responseError;
+        console.warn("Error fetching survey metrics:", responseError);
+        return responseMetricsMap;
       }
 
       if (!responseCounts || !responseCounts.length) {
         return responseMetricsMap;
       }
 
-      // Get completed responses counts
-      const { data: completedCounts, error: completedError } = await supabase
-        .schema("veyoyee")
-        .from("survey_responses")
-        .select("survey_id, count")
-        .in("survey_id", surveyIds)
-        .eq("is_complete", true)
-        .group("survey_id");
+      // Get completed responses counts using a direct RPC call to avoid GROUP BY syntax issues
+      const { data: completedCounts, error: completedError } =
+        await supabase.rpc("get_completed_survey_counts", {
+          survey_ids: surveyIds,
+        });
 
-      if (completedError && completedError.code !== "42P01") {
-        throw completedError;
+      // If the RPC doesn't exist yet, just continue with zeroes for completed counts
+      if (completedError) {
+        console.warn(
+          "Could not get completed counts, defaulting to zero:",
+          completedError
+        );
+        // Continue execution, we'll just use zeroes for completed counts
       }
 
-      // Process the response data
+      // Process the response data from the function
       responseCounts.forEach((item: any) => {
         const surveyId = item.survey_id;
-        const totalResponses = parseInt(item.count);
+        const totalResponses = parseInt(item.responses || 0);
+        const completionRate = parseFloat(item.completion_rate || 0);
 
-        // Find completed count for this survey
+        // Get completed counts from the separate RPC (which we still need for now)
         const completedItem =
           completedCounts &&
           completedCounts.find((c: any) => c.survey_id === surveyId);
         const completedResponses = completedItem
           ? parseInt(completedItem.count)
           : 0;
-
-        // Calculate completion rate
-        const completionRate =
-          totalResponses > 0
-            ? Math.round((completedResponses / totalResponses) * 100)
-            : 0;
 
         // Store in map
         responseMetricsMap.set(surveyId, {
