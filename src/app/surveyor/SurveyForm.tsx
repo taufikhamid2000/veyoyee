@@ -2,11 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useSurveyActions } from "../../hooks/useSurveyActions";
-import type {
-  SurveyEdit,
-  QuestionEdit,
-  QuestionType,
-} from "../../data/surveyor-data";
+import type { SurveyEdit, QuestionEdit } from "../../data/surveyor-data";
 import { createDefaultQuestion } from "../../components/forms/survey-builder/question-helpers";
 import SurveyFormHeader from "../../components/forms/survey/SurveyFormHeader";
 import QuestionList from "../../components/forms/survey/QuestionList";
@@ -26,19 +22,78 @@ export default function SurveyForm({
   const [questions, setQuestions] = useState<QuestionEdit[]>(() => {
     // Convert initial questions to proper QuestionEdit types
     if (initialSurvey?.questions && initialSurvey.questions.length > 0) {
-      return initialSurvey.questions.map((q) => {
-        // Create proper typed questions based on the question type
+      return initialSurvey.questions.map((q): QuestionEdit => {
+        // Preserve the actual question data instead of creating defaults
         if (typeof q.type === "string" && typeof q.id === "string") {
-          // Transfer any existing data from the original question
-          const newQuestion = createDefaultQuestion(
-            q.type as QuestionType,
-            q.id
-          );
-          return {
-            ...newQuestion,
-            questionText: q.questionText || "",
-            required: q.required || false,
-          };
+          // Handle different question types and preserve their specific data
+          switch (q.type) {
+            case "multipleChoice":
+              return {
+                id: q.id,
+                questionText: q.questionText || "",
+                required: q.required || false,
+                type: "multipleChoice",
+                options: (q as { options?: string[] }).options || [""],
+              };
+            case "checkboxList":
+              return {
+                id: q.id,
+                questionText: q.questionText || "",
+                required: q.required || false,
+                type: "checkboxList",
+                options: (q as { options?: string[] }).options || [""],
+              };
+            case "ratingScale":
+              return {
+                id: q.id,
+                questionText: q.questionText || "",
+                required: q.required || false,
+                type: "ratingScale",
+                ratingConfig: (
+                  q as {
+                    ratingConfig?: {
+                      minValue: number;
+                      maxValue: number;
+                      step: number;
+                      labels: { min?: string; max?: string };
+                    };
+                  }
+                ).ratingConfig || {
+                  minValue: 1,
+                  maxValue: 5,
+                  step: 1,
+                  labels: { min: "Poor", max: "Excellent" },
+                },
+              };
+            case "dateQuestion":
+              return {
+                id: q.id,
+                questionText: q.questionText || "",
+                required: q.required || false,
+                type: "dateQuestion",
+              };
+            case "linkInput":
+              return {
+                id: q.id,
+                questionText: q.questionText || "",
+                required: q.required || false,
+                type: "linkInput",
+              };
+            case "paragraph":
+              return {
+                id: q.id,
+                questionText: q.questionText || "",
+                required: q.required || false,
+                type: "paragraph",
+              };
+            default:
+              return {
+                id: q.id,
+                questionText: q.questionText || "",
+                required: q.required || false,
+                type: "shortAnswer",
+              };
+          }
         }
         // Fallback - should not happen with properly structured data
         return createDefaultQuestion("shortAnswer", String(Math.random()));
@@ -147,7 +202,7 @@ export default function SurveyForm({
       alert(`Survey "${surveyTitle}" created successfully!`);
 
       // Redirect to dashboard or survey view
-      window.location.href = `/dashboard?created=${result.surveyId}`;
+      window.location.href = `/dashboard?created=${result.data?.surveyId}`;
     } catch (err) {
       console.error("Error creating survey:", err);
       alert(
@@ -237,7 +292,7 @@ export default function SurveyForm({
                 );
 
                 // Redirect to dashboard
-                window.location.href = `/dashboard?draft=${result.surveyId}`;
+                window.location.href = `/dashboard?draft=${result.data?.surveyId}`;
               } else {
                 // Show error message
                 console.error("Error saving draft:", result.error);

@@ -7,15 +7,22 @@ import { SupabaseClient } from "@supabase/supabase-js";
  */
 export interface SurveyMetrics {
   responses: number;
+  totalQuestions?: number;
+  totalResponses?: number;
+  responseDays?: number;
   completionRate: number;
   lastResponseDate?: string;
 }
 
-interface MetricsResult {
+interface SurveyResponseData {
   survey_id: string;
-  responses: number;
-  completion_rate: number;
-  last_response_date: string | null;
+  response_count: number;
+  response_date: string;
+}
+
+interface SurveyMetricsAgg {
+  totalResponses: number;
+  responseDates: Set<string>;
 }
 
 /**
@@ -34,25 +41,66 @@ export class SurveyMetricsService {
         return new Map();
       }
 
-      // Use the database function to get metrics with proper grouping
-      const { data, error } = await supabase.rpc("get_survey_metrics", {
-        survey_ids: surveyIds,
-      });
+      // Query the survey_responses table directly instead of using functions
+      const { data: responseData, error } = await supabase
+        .schema("veyoyee")
+        .from("survey_responses")
+        .select("survey_id, response_count, response_date")
+        .in("survey_id", surveyIds);
 
       if (error) {
         console.error("Error fetching survey metrics:", error);
         throw error;
       }
 
-      // Convert to a Map for easier lookup
+      // Convert to a Map for easier lookup and calculate metrics in JS
       const metricsMap = new Map<string, SurveyMetrics>();
-      data?.forEach((item: MetricsResult) => {
-        metricsMap.set(item.survey_id, {
-          responses: Number(item.responses) || 0,
-          completionRate: Number(item.completion_rate) || 0,
-          lastResponseDate: item.last_response_date || undefined,
+
+      // Initialize all surveys with zero metrics
+      surveyIds.forEach((id) => {
+        metricsMap.set(id, {
+          responses: 0,
+          totalQuestions: 0,
+          totalResponses: 0,
+          responseDays: 0,
+          completionRate: 0,
+          lastResponseDate: undefined,
         });
       });
+
+      // Aggregate the data
+      if (responseData) {
+        const surveyMetrics: Record<string, SurveyMetricsAgg> = {};
+
+        responseData.forEach((item: SurveyResponseData) => {
+          const surveyId = item.survey_id;
+          if (!surveyMetrics[surveyId]) {
+            surveyMetrics[surveyId] = {
+              totalResponses: 0,
+              responseDates: new Set<string>(),
+            };
+          }
+
+          surveyMetrics[surveyId].totalResponses += item.response_count || 0;
+          if (item.response_date) {
+            surveyMetrics[surveyId].responseDates.add(item.response_date);
+          }
+        });
+
+        // Update the metrics map
+        Object.entries(surveyMetrics).forEach(
+          ([surveyId, metrics]: [string, SurveyMetricsAgg]) => {
+            const sortedDates = Array.from(metrics.responseDates).sort();
+            metricsMap.set(surveyId, {
+              responses: metrics.totalResponses,
+              totalResponses: metrics.totalResponses,
+              responseDays: metrics.responseDates.size,
+              completionRate: 0, // We'll calculate this properly later if needed
+              lastResponseDate: sortedDates[sortedDates.length - 1],
+            });
+          }
+        );
+      }
 
       return metricsMap;
     } catch (error) {
@@ -102,24 +150,24 @@ export class SurveyMetricsService {
     try {
       if (responseType === "option" && optionId) {
         // For multiple choice responses
-        await supabase.rpc("aggregate_survey_response", {
-          _survey_id: surveyId,
-          _question_id: questionId,
-          _response_option_id: optionId,
+        await supabase.schema("veyoyee").rpc("aggregate_survey_response", {
+          input_survey_id: surveyId,
+          input_question_id: questionId,
+          input_response_option_id: optionId,
         });
       } else if (responseType === "rating" && typeof value === "number") {
         // For rating scale responses
-        await supabase.rpc("aggregate_survey_response", {
-          _survey_id: surveyId,
-          _question_id: questionId,
-          _rating_value: value,
+        await supabase.schema("veyoyee").rpc("aggregate_survey_response", {
+          input_survey_id: surveyId,
+          input_question_id: questionId,
+          input_rating_value: value,
         });
       } else if (responseType === "text" && typeof value === "string") {
         // For text responses
-        await supabase.rpc("aggregate_survey_response", {
-          _survey_id: surveyId,
-          _question_id: questionId,
-          _text_response: value,
+        await supabase.schema("veyoyee").rpc("aggregate_survey_response", {
+          input_survey_id: surveyId,
+          input_question_id: questionId,
+          input_text_response: value,
         });
       } else {
         throw new Error("Invalid response type or value");

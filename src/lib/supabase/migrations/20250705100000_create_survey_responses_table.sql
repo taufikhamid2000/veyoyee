@@ -97,146 +97,80 @@ BEGIN
 END
 $$;
 
+-- Drop and recreate the function with renamed parameters
+DROP FUNCTION IF EXISTS veyoyee.aggregate_survey_response(UUID, UUID, UUID, DECIMAL, TEXT);
+
 -- Add function to aggregate survey responses
-CREATE OR REPLACE FUNCTION veyoyee.aggregate_survey_response(
-    _survey_id UUID,
-    _question_id UUID,
-    _response_option_id UUID DEFAULT NULL,
-    _rating_value DECIMAL DEFAULT NULL,
-    _text_response TEXT DEFAULT NULL
+CREATE FUNCTION veyoyee.aggregate_survey_response(
+    input_survey_id UUID,
+    input_question_id UUID,
+    input_response_option_id UUID DEFAULT NULL,
+    input_rating_value DECIMAL DEFAULT NULL,
+    input_text_response TEXT DEFAULT NULL
 ) RETURNS void AS $$
 DECLARE
-    _response_date DATE := CURRENT_DATE;
-    _text_responses JSONB;
+    input_response_date DATE := CURRENT_DATE;
+    temp_text_responses JSONB;
 BEGIN
     -- Handle different response types based on the parameters provided
     
-    IF _response_option_id IS NOT NULL THEN
+    IF input_response_option_id IS NOT NULL THEN
         -- For multiple choice/checkbox responses
         INSERT INTO veyoyee.survey_responses (
             survey_id, question_id, response_option_id, response_count, response_date
         ) VALUES (
-            _survey_id, _question_id, _response_option_id, 1, _response_date
+            input_survey_id, input_question_id, input_response_option_id, 1, input_response_date
         )
         ON CONFLICT (survey_id, question_id, response_option_id, response_date) 
         DO UPDATE SET
             response_count = survey_responses.response_count + 1,
             updated_at = NOW();
             
-    ELSIF _rating_value IS NOT NULL THEN
+    ELSIF input_rating_value IS NOT NULL THEN
         -- For rating scale responses
         INSERT INTO veyoyee.survey_responses (
             survey_id, question_id, response_option_id, avg_rating, response_count, response_date
         ) VALUES (
-            _survey_id, _question_id, NULL, _rating_value, 1, _response_date
+            input_survey_id, input_question_id, NULL, input_rating_value, 1, input_response_date
         )
         ON CONFLICT (survey_id, question_id, response_option_id, response_date) 
         DO UPDATE SET
             -- Update average rating
-            avg_rating = (survey_responses.avg_rating * survey_responses.response_count + _rating_value) / 
+            avg_rating = (survey_responses.avg_rating * survey_responses.response_count + input_rating_value) / 
                         (survey_responses.response_count + 1),
             response_count = survey_responses.response_count + 1,
             updated_at = NOW();
             
-    ELSIF _text_response IS NOT NULL THEN
+    ELSIF input_text_response IS NOT NULL THEN
         -- For text/paragraph responses
         -- Add to JSONB array of text responses
-        SELECT text_responses INTO _text_responses 
+        SELECT text_responses INTO temp_text_responses 
         FROM veyoyee.survey_responses
-        WHERE survey_id = _survey_id 
-          AND question_id = _question_id 
+        WHERE survey_id = input_survey_id 
+          AND question_id = input_question_id 
           AND response_option_id IS NULL
-          AND response_date = _response_date;
+          AND response_date = input_response_date;
           
-        IF _text_responses IS NULL THEN
-            _text_responses := jsonb_build_array(_text_response);
+        IF temp_text_responses IS NULL THEN
+            temp_text_responses := jsonb_build_array(input_text_response);
         ELSE
-            _text_responses := _text_responses || jsonb_build_array(_text_response);
+            temp_text_responses := temp_text_responses || jsonb_build_array(input_text_response);
         END IF;
         
         INSERT INTO veyoyee.survey_responses (
             survey_id, question_id, response_option_id, text_responses, response_count, response_date
         ) VALUES (
-            _survey_id, _question_id, NULL, _text_responses, 1, _response_date
+            input_survey_id, input_question_id, NULL, temp_text_responses, 1, input_response_date
         )
         ON CONFLICT (survey_id, question_id, response_option_id, response_date) 
         DO UPDATE SET
-            text_responses = _text_responses,
+            text_responses = temp_text_responses,
             response_count = survey_responses.response_count + 1,
             updated_at = NOW();
     END IF;
 END;
 $$ LANGUAGE plpgsql;
 
--- Create a function to get survey response metrics by survey_id
-CREATE OR REPLACE FUNCTION veyoyee.get_survey_metrics(survey_ids UUID[])
-RETURNS TABLE (
-    survey_id UUID,
-    total_questions BIGINT,
-    total_responses BIGINT,
-    response_days BIGINT, 
-    responses BIGINT,
-    completion_rate DECIMAL(5, 2),
-    last_response_date DATE
-) AS $$
-BEGIN
-    RETURN QUERY
-    WITH metrics AS (
-        SELECT 
-            sr.survey_id,
-            COUNT(DISTINCT sr.question_id) AS total_questions,
-            SUM(sr.response_count) AS total_responses,
-            MAX(sr.response_date) AS last_response_date,
-            COUNT(DISTINCT sr.response_date) AS response_days
-        FROM veyoyee.survey_responses sr
-        WHERE sr.survey_id = ANY(survey_ids)
-        GROUP BY sr.survey_id
-    )
-    SELECT 
-        s.id AS survey_id,
-        COALESCE(m.total_questions, 0) AS total_questions,
-        COALESCE(m.total_responses, 0) AS total_responses,
-        COALESCE(m.response_days, 0) AS response_days,
-        COALESCE(m.total_responses, 0) AS responses,
-        CASE 
-            WHEN COALESCE(q_count.question_count, 0) = 0 THEN 0
-            ELSE COALESCE(m.total_responses, 0)::DECIMAL / (COALESCE(q_count.question_count, 0) * GREATEST(1, COALESCE(m.response_days, 0))) * 100
-        END AS completion_rate,
-        m.last_response_date
-    FROM UNNEST(survey_ids) AS s(id)
-    LEFT JOIN (
-        SELECT survey_id, COUNT(*) AS question_count
-        FROM veyoyee.questions
-        WHERE survey_id = ANY(survey_ids)
-        GROUP BY survey_id
-    ) q_count ON s.id = q_count.survey_id
-    LEFT JOIN metrics m ON s.id = m.survey_id;
-END;
-$$ LANGUAGE plpgsql;
-
 -- Grant permissions
 GRANT ALL ON TABLE veyoyee.survey_responses TO anon, authenticated, service_role;
 GRANT EXECUTE ON FUNCTION veyoyee.aggregate_survey_response TO authenticated;
-GRANT EXECUTE ON FUNCTION veyoyee.get_survey_metrics TO anon, authenticated, service_role;
-
--- Create a function to get completed survey counts to avoid GROUP BY in JS
-CREATE OR REPLACE FUNCTION veyoyee.get_completed_survey_counts(survey_ids UUID[])
-RETURNS TABLE (
-    survey_id UUID,
-    count BIGINT,
-    completion_date TIMESTAMPTZ
-) AS $$
-BEGIN
-    RETURN QUERY
-    SELECT 
-        sr.survey_id,
-        COUNT(*) AS count,
-        MAX(sr.completed_at) AS completion_date
-    FROM veyoyee.survey_responses sr
-    WHERE sr.survey_id = ANY(survey_ids)
-    AND sr.is_complete = true
-    GROUP BY sr.survey_id;
-END;
-$$ LANGUAGE plpgsql;
-
-GRANT EXECUTE ON FUNCTION veyoyee.get_completed_survey_counts TO anon, authenticated, service_role;

@@ -22,13 +22,12 @@ export class SurveyResponseService {
         return responseMetricsMap;
       }
 
-      // Get metrics using the get_survey_metrics function which handles proper GROUP BY internally
-      const { data: responseCounts, error: responseError } = await supabase.rpc(
-        "get_survey_metrics",
-        {
-          survey_ids: surveyIds,
-        }
-      );
+      // Get metrics using direct table queries instead of functions
+      const { data: responseCounts, error: responseError } = await supabase
+        .schema("veyoyee")
+        .from("survey_responses")
+        .select("survey_id, response_count, response_date")
+        .in("survey_id", surveyIds);
 
       if (responseError) {
         console.warn("Error fetching survey metrics:", responseError);
@@ -39,40 +38,33 @@ export class SurveyResponseService {
         return responseMetricsMap;
       }
 
-      // Get completed responses counts using a direct RPC call to avoid GROUP BY syntax issues
-      const { data: completedCounts, error: completedError } =
-        await supabase.rpc("get_completed_survey_counts", {
-          survey_ids: surveyIds,
-        });
+      // Process the response data directly
+      const surveyMetrics: Record<
+        string,
+        { totalResponses: number; responseDates: Set<string> }
+      > = {};
 
-      // If the RPC doesn't exist yet, just continue with zeroes for completed counts
-      if (completedError) {
-        console.warn(
-          "Could not get completed counts, defaulting to zero:",
-          completedError
-        );
-        // Continue execution, we'll just use zeroes for completed counts
-      }
-
-      // Process the response data from the function
       responseCounts.forEach((item: any) => {
         const surveyId = item.survey_id;
-        const totalResponses = parseInt(item.responses || 0);
-        const completionRate = parseFloat(item.completion_rate || 0);
+        if (!surveyMetrics[surveyId]) {
+          surveyMetrics[surveyId] = {
+            totalResponses: 0,
+            responseDates: new Set(),
+          };
+        }
 
-        // Get completed counts from the separate RPC (which we still need for now)
-        const completedItem =
-          completedCounts &&
-          completedCounts.find((c: any) => c.survey_id === surveyId);
-        const completedResponses = completedItem
-          ? parseInt(completedItem.count)
-          : 0;
+        surveyMetrics[surveyId].totalResponses += item.response_count || 0;
+        if (item.response_date) {
+          surveyMetrics[surveyId].responseDates.add(item.response_date);
+        }
+      });
 
-        // Store in map
+      // Convert to map format
+      Object.entries(surveyMetrics).forEach(([surveyId, metrics]) => {
         responseMetricsMap.set(surveyId, {
-          responses: totalResponses,
-          completedResponses,
-          completionRate,
+          responses: metrics.totalResponses,
+          completedResponses: 0, // We'll implement this properly later if needed
+          completionRate: 0, // We'll calculate this properly later if needed
         });
       });
 
