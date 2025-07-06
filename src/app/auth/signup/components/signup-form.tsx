@@ -164,15 +164,15 @@ export default function SignUpForm() {
             disabled={isSubmitting}
           />
           <span className="text-sm text-gray-600 dark:text-gray-300">
-            I agree to the{" "}
+            I agree to the
             <a
               href="/terms-of-service"
               className="text-blue-600 hover:underline dark:text-blue-400"
               target="_blank"
             >
               Terms of Service
-            </a>{" "}
-            and{" "}
+            </a>
+            and
             <a
               href="/privacy-policy"
               className="text-blue-600 hover:underline dark:text-blue-400"

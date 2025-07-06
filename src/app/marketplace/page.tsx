@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useState, useRef } from "react";
+import { formatDate } from "@/lib/utils";
 
 // Mock data for marketplace listings
 const mockMarketplace = [
@@ -236,8 +237,7 @@ export default function MarketplacePage() {
                   Owner: <span className="font-mono">{item.owner}</span>
                 </div>
                 <div className="text-xs text-gray-500 dark:text-gray-400 mb-2">
-                  Last Updated:
-                  {new Date(item.lastUpdated).toLocaleDateString()}
+                  Last Updated: {formatDate(item.lastUpdated)}
                 </div>
               </div>
               <div className="flex items-center justify-between mt-4">

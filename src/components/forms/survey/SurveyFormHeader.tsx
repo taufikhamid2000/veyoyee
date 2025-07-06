@@ -200,14 +200,14 @@ export default function SurveyFormHeader({
                       <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
                       <polyline points="22 4 12 14.01 9 11.01"></polyline>
                     </svg>
-                    Respondents will be rewarded from RM{" "}
+                    Respondents will be rewarded from RM
                     {Number(rewardRange.low).toLocaleString(undefined, {
                       maximumFractionDigits: 6,
-                    })}{" "}
-                    to RM{" "}
+                    })}
+                    to RM
                     {Number(rewardRange.high).toLocaleString(undefined, {
                       maximumFractionDigits: 6,
-                    })}{" "}
+                    })}
                     each.
                   </>
                 ) : (
@@ -226,14 +226,14 @@ export default function SurveyFormHeader({
                       <line x1="12" y1="9" x2="12" y2="13"></line>
                       <line x1="12" y1="17" x2="12.01" y2="17"></line>
                     </svg>
-                    Warning: Respondents may be rewarded from RM{" "}
+                    Warning: Respondents may be rewarded from RM
                     {Number(rewardRange.low).toLocaleString(undefined, {
                       maximumFractionDigits: 6,
-                    })}{" "}
-                    to RM{" "}
+                    })}
+                    to RM
                     {Number(rewardRange.high).toLocaleString(undefined, {
                       maximumFractionDigits: 6,
-                    })}{" "}
+                    })}
                     each. Consider increasing total reward or decreasing
                     respondent count (minimum 10 cents per respondent is
                     recommended).
@@ -648,7 +648,7 @@ Structure the questions in logical sections if appropriate.`;
                 <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
                 <polyline points="22 4 12 14.01 9 11.01"></polyline>
               </svg>
-              Respondent requirements set: {minRespondents} - {maxRespondents}{" "}
+              Respondent requirements set: {minRespondents} - {maxRespondents}
               responses
             </p>
           )}
@@ -761,7 +761,7 @@ Structure the questions in logical sections if appropriate.`;
               <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
               <polyline points="22 4 12 14.01 9 11.01"></polyline>
             </svg>
-            Survey scheduled from {formatDate(startDate)} to{" "}
+            Survey scheduled from {formatDate(startDate)} to
             {formatDate(endDate)}
           </p>
         )}

@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { formatDateTime } from "@/lib/utils";
 
 interface SurveyResponse {
   id: string;
@@ -29,9 +30,7 @@ export function useSurveyResults({
   const formattedDates = useMemo(
     () =>
       results.reduce((acc, r) => {
-        acc[r.id] = new Date(r.submittedAt).toLocaleString("en-GB", {
-          timeZone: "UTC",
-        });
+        acc[r.id] = formatDateTime(r.submittedAt);
         return acc;
       }, {} as Record<string, string>),
     [results]

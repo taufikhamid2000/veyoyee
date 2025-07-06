@@ -4,6 +4,15 @@ module.exports = {
   content: ["./src/**/*.{js,jsx,ts,tsx}"],
   theme: {
     extend: {
+      colors: {
+        gray: {
+          25: "#fafafa",
+          75: "#f4f4f5",
+          750: "#374151",
+          775: "#323943",
+          825: "#1e293b",
+        },
+      },
       animation: {
         ripple: "ripple 0.6s linear",
         dropdown: "dropdown 0.2s ease-out",

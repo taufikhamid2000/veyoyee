@@ -207,17 +207,18 @@ export class SurveyResponseService {
     const supabase = getVeyoyeeClient();
 
     try {
-      // Get all individual responses for the survey
-      const { data: responses, error: responsesError } = await supabase
+      // Simple direct query
+      const { data: responses, error } = await supabase
         .schema("veyoyee")
         .from("individual_responses")
         .select("*")
         .eq("survey_id", surveyId)
-        .eq("is_complete", true) // Only get completed responses
+        .eq("is_complete", true)
         .order("completed_at", { ascending: false });
 
-      if (responsesError) {
-        throw responsesError;
+      if (error) {
+        console.error("Error fetching responses:", error);
+        return { success: false, error };
       }
 
       if (!responses || responses.length === 0) {
@@ -225,7 +226,8 @@ export class SurveyResponseService {
       }
 
       // Get all answers for these responses
-      const responseIds = responses.map((r) => r.id);
+      const responseIds = responses.map((r: any) => r.id);
+
       const { data: answers, error: answersError } = await supabase
         .schema("veyoyee")
         .from("response_answers")
@@ -233,27 +235,31 @@ export class SurveyResponseService {
         .in("response_id", responseIds);
 
       if (answersError) {
-        throw answersError;
+        console.error("Error fetching answers:", answersError);
+        return { success: false, error: answersError };
       }
 
       // Group answers by response_id
-      const answersByResponse = (answers || []).reduce((acc, answer) => {
-        if (!acc[answer.response_id]) {
-          acc[answer.response_id] = {};
-        }
-        acc[answer.response_id][answer.question_id] =
-          answer.selected_options || answer.answer_text;
-        return acc;
-      }, {} as Record<string, Record<string, any>>);
+      const answersByResponse = (answers || []).reduce(
+        (acc: Record<string, Record<string, any>>, answer: any) => {
+          if (!acc[answer.response_id]) {
+            acc[answer.response_id] = {};
+          }
+          acc[answer.response_id][answer.question_id] =
+            answer.selected_options || answer.answer_text;
+          return acc;
+        },
+        {}
+      );
 
-      // Format responses for the results page
-      const formattedResponses = responses.map((response) => ({
+      // Format responses
+      const formattedResponses = responses.map((response: any) => ({
         id: response.id,
         surveyId: response.survey_id,
-        respondent: `User ${response.respondent_id.slice(-8)}`, // Show last 8 chars of ID
-        submittedAt: response.completed_at || response.started_at,
-        status: "accepted" as const, // For now, all completed responses are accepted
-        reputationScore: Math.floor(Math.random() * 100) + 50, // Mock reputation score
+        respondent: `User ${response.respondent_id.slice(-8)}`,
+        submittedAt: response.completed_at,
+        status: "accepted" as const,
+        reputationScore: Math.floor(Math.random() * 50) + 50,
         answers: answersByResponse[response.id] || {},
       }));
 

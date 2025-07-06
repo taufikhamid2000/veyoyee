@@ -49,34 +49,57 @@ export default function Pagination({
   };
 
   return (
-    <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-      <p className="text-sm text-gray-700 dark:text-gray-300">
-        Showing <span className="font-medium">{startItem}</span> to{" "}
-        <span className="font-medium">{endItem}</span> of{" "}
-        <span className="font-medium">{totalItems}</span> results
-      </p>
+    <div className="flex flex-col lg:flex-row items-center justify-between gap-4">
+      <div className="text-sm text-gray-600 dark:text-gray-400">
+        Showing
+        <span className="font-semibold text-gray-900 dark:text-white">
+          {startItem}
+        </span>
+        -
+        <span className="font-semibold text-gray-900 dark:text-white">
+          {endItem}
+        </span>
+        of
+        <span className="font-semibold text-gray-900 dark:text-white">
+          {totalItems}
+        </span>
+        responses
+      </div>
 
-      <div className="flex items-center gap-2">
+      <nav className="flex items-center gap-1" aria-label="Pagination">
         <button
-          className="px-3 py-1 rounded border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+          className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-l-lg hover:bg-gray-50 dark:hover:bg-gray-600 hover:text-gray-700 dark:hover:text-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage === 1}
         >
+          <svg
+            className="w-4 h-4 mr-1"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M15 19l-7-7 7-7"
+            />
+          </svg>
           Previous
         </button>
 
-        <div className="flex items-center gap-1">
+        <div className="flex items-center">
           {getVisiblePages().map((page, index) => (
             <button
               key={index}
               onClick={() => typeof page === "number" && onPageChange(page)}
               disabled={page === "..."}
-              className={`px-3 py-1 rounded transition-colors ${
+              className={`px-3 py-2 text-sm font-medium border-t border-b border-r border-gray-300 dark:border-gray-600 transition-colors ${
                 page === currentPage
-                  ? "bg-blue-600 text-white"
+                  ? "bg-blue-600 text-white border-blue-600 z-10"
                   : page === "..."
-                  ? "text-gray-500 cursor-default"
-                  : "border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-800"
+                  ? "bg-white dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-default"
+                  : "bg-white dark:bg-gray-700 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-600 hover:text-gray-700 dark:hover:text-gray-200"
               }`}
             >
               {page}
@@ -85,13 +108,26 @@ export default function Pagination({
         </div>
 
         <button
-          className="px-3 py-1 rounded border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+          className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-r-lg hover:bg-gray-50 dark:hover:bg-gray-600 hover:text-gray-700 dark:hover:text-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           onClick={() => onPageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
         >
           Next
+          <svg
+            className="w-4 h-4 ml-1"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M9 5l7 7-7 7"
+            />
+          </svg>
         </button>
-      </div>
+      </nav>
     </div>
   );
 }

@@ -1,5 +1,6 @@
 "use client";
 import { mockSurveyResults } from "@/data/results-data";
+import { formatDateTime } from "@/lib/utils";
 import Link from "next/link";
 
 export default function RespondentRankingPage() {
@@ -90,7 +91,7 @@ export default function RespondentRankingPage() {
                   {r.count}
                 </td>
                 <td className="px-4 py-2 text-gray-900 dark:text-gray-100">
-                  {new Date(r.latest).toLocaleString()}
+                  {formatDateTime(r.latest)}
                 </td>
               </tr>
             ))}

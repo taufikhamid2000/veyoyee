@@ -236,7 +236,7 @@ export default function SampleSizeCalculator({
               {sampleSize}
             </p>
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-              Based on {populationSize.toLocaleString()} population,{" "}
+              Based on {populationSize.toLocaleString()} population,
               {confidenceLevel}% confidence level, and {marginOfError}% margin
               of error
             </p>
