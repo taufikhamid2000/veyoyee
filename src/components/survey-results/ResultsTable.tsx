@@ -252,7 +252,7 @@ function ResultsTableRow({
         transition-all duration-200 hover:shadow-sm
         ${
           isEven
-            ? "bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-750"
+            ? "bg-white dark:bg-gray-800 hover:bg-gray-900 dark:hover:bg-gray-750"
             : "bg-gray-25 dark:bg-gray-825 hover:bg-gray-75 dark:hover:bg-gray-775"
         }
         ${

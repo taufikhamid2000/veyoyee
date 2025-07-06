@@ -7,7 +7,6 @@ import { User, Session } from "@supabase/supabase-js";
 // import SignOutButton from "@/components/auth/sign-out-button";
 import { Menu, X } from "lucide-react";
 import UserNavDropdown from "@/components/layout/user-nav-dropdown";
-import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { usePathname } from "next/navigation";
 
 export default function Navigation() {
@@ -128,13 +127,11 @@ export default function Navigation() {
             >
               Claim
             </Link>
-            <ThemeToggle />
             {user && <UserNavDropdown user={user} />}
           </div>
         ) : (
           // Unauthenticated menu items
           <div className="flex items-center gap-6">
-            <ThemeToggle />
             <Link
               href="/auth/signin"
               className="text-gray-200 hover:text-white transition-colors"
@@ -246,9 +243,6 @@ export default function Navigation() {
                 <div className="px-6 py-3">
                   <UserNavDropdown user={user} />
                 </div>
-                <div className="px-6 py-3 flex justify-center border-t border-blue-800/50 mt-1">
-                  <ThemeToggle />
-                </div>
               </>
             ) : (
               // Unauthenticated mobile menu
@@ -268,9 +262,6 @@ export default function Navigation() {
                   >
                     Sign Up
                   </Link>
-                </div>
-                <div className="px-6 py-3 flex justify-center border-t border-blue-800/50 mt-1">
-                  <ThemeToggle />
                 </div>
               </>
             )}
