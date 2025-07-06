@@ -7,7 +7,7 @@ import { FormattedSurvey } from "@/lib/services/survey/survey-types";
 import { SurveyEdit } from "@/data/surveyor-data";
 
 interface SurveyeePageProps {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 export default function SurveyeePage({ params }: SurveyeePageProps) {

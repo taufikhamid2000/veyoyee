@@ -253,16 +253,46 @@ export class SurveyResponseService {
         {}
       );
 
+      // Get user reputation data for respondents
+      const respondentIds = [
+        ...new Set(responses.map((r: any) => r.respondent_id)),
+      ];
+      const { data: userData, error: userError } = await supabase
+        .schema("veyoyee")
+        .from("users")
+        .select("id, username, display_name, total_reputation")
+        .in("id", respondentIds);
+
+      if (userError) {
+        console.warn("Error fetching user data:", userError);
+      }
+
+      // Create user lookup map
+      const userLookup = (userData || []).reduce(
+        (acc: Record<string, any>, user: any) => {
+          acc[user.id] = user;
+          return acc;
+        },
+        {}
+      );
+
       // Format responses
-      const formattedResponses = responses.map((response: any) => ({
-        id: response.id,
-        surveyId: response.survey_id,
-        respondent: `User ${response.respondent_id.slice(-8)}`,
-        submittedAt: response.completed_at,
-        status: response.status || "pending", // Use database status, fallback to pending
-        reputationScore: Math.floor(Math.random() * 50) + 50,
-        answers: answersByResponse[response.id] || {},
-      }));
+      const formattedResponses = responses.map((response: any) => {
+        const user = userLookup[response.respondent_id];
+        return {
+          id: response.id,
+          surveyId: response.survey_id,
+          respondent:
+            user?.display_name ||
+            user?.username ||
+            `User ${response.respondent_id.slice(-8)}`,
+          submittedAt: response.completed_at,
+          status: response.status || "pending",
+          reputationScore: response.reputation_awarded || 0,
+          totalUserReputation: user?.total_reputation || 0,
+          answers: answersByResponse[response.id] || {},
+        };
+      });
 
       return { success: true, data: formattedResponses };
     } catch (error) {
@@ -460,6 +490,244 @@ export class SurveyResponseService {
     } catch (error) {
       console.error("Error deleting response:", error);
       return { success: false, error };
+    }
+  }
+
+  /**
+   * Get user profile with reputation data
+   */
+  static async getUserProfile(
+    userId: string,
+    supabaseClient?: any
+  ): Promise<ServiceResponse<any>> {
+    const supabase = supabaseClient || getVeyoyeeClient();
+
+    try {
+      const { data, error } = await supabase
+        .schema("veyoyee")
+        .from("users")
+        .select("*")
+        .eq("id", userId)
+        .single();
+
+      if (error) {
+        throw error;
+      }
+
+      return { success: true, data };
+    } catch (error) {
+      console.error("Error getting user profile:", error);
+      return { success: false, error };
+    }
+  }
+
+  /**
+   * Update user profile
+   */
+  static async updateUserProfile(
+    userId: string,
+    profileData: {
+      username?: string;
+      display_name?: string;
+      bio?: string;
+      avatar_url?: string;
+      location?: string;
+      website_url?: string;
+    },
+    supabaseClient?: any
+  ): Promise<ServiceResponse<void>> {
+    const supabase = supabaseClient || getVeyoyeeClient();
+
+    try {
+      const { error } = await supabase
+        .schema("veyoyee")
+        .from("users")
+        .update({
+          ...profileData,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", userId);
+
+      if (error) {
+        throw error;
+      }
+
+      return { success: true };
+    } catch (error) {
+      console.error("Error updating user profile:", error);
+      return { success: false, error };
+    }
+  }
+
+  /**
+   * Get leaderboard of users by reputation
+   */
+  static async getReputationLeaderboard(
+    limit: number = 10,
+    supabaseClient?: any
+  ): Promise<ServiceResponse<any[]>> {
+    const supabase = supabaseClient || getVeyoyeeClient();
+
+    try {
+      const { data, error } = await supabase
+        .schema("veyoyee")
+        .from("users")
+        .select(
+          "id, username, display_name, total_reputation, responses_accepted, surveys_completed, surveys_created"
+        )
+        .order("total_reputation", { ascending: false })
+        .limit(limit);
+
+      if (error) {
+        throw error;
+      }
+
+      return { success: true, data: data || [] };
+    } catch (error) {
+      console.error("Error getting reputation leaderboard:", error);
+      return { success: false, error };
+    }
+  }
+
+  /**
+   * Get user's reputation statistics
+   */
+  static async getUserReputationStats(
+    userId: string,
+    supabaseClient?: any
+  ): Promise<
+    ServiceResponse<{
+      totalReputation: number;
+      rank: number;
+      responsesAccepted: number;
+      responsesRejected: number;
+      surveysCompleted: number;
+      surveysCreated: number;
+    }>
+  > {
+    const supabase = supabaseClient || getVeyoyeeClient();
+
+    try {
+      // Get user's current stats
+      const { data: userStats, error: userError } = await supabase
+        .schema("veyoyee")
+        .from("users")
+        .select(
+          "total_reputation, responses_accepted, responses_rejected, surveys_completed, surveys_created"
+        )
+        .eq("id", userId)
+        .single();
+
+      if (userError) {
+        throw userError;
+      }
+
+      // Get user's rank by counting users with higher reputation
+      const { count: rank, error: rankError } = await supabase
+        .schema("veyoyee")
+        .from("users")
+        .select("*", { count: "exact", head: true })
+        .gt("total_reputation", userStats.total_reputation);
+
+      if (rankError) {
+        throw rankError;
+      }
+
+      return {
+        success: true,
+        data: {
+          totalReputation: userStats.total_reputation,
+          rank: (rank || 0) + 1, // Add 1 because rank is 0-indexed
+          responsesAccepted: userStats.responses_accepted,
+          responsesRejected: userStats.responses_rejected,
+          surveysCompleted: userStats.surveys_completed,
+          surveysCreated: userStats.surveys_created,
+        },
+      };
+    } catch (error) {
+      console.error("Error getting user reputation stats:", error);
+      return { success: false, error };
+    }
+  }
+
+  /**
+   * Manually award reputation to a user (admin function)
+   */
+  static async awardReputation(
+    userId: string,
+    points: number,
+    reason?: string,
+    supabaseClient?: any
+  ): Promise<ServiceResponse<void>> {
+    const supabase = supabaseClient || getVeyoyeeClient();
+
+    try {
+      const { error } = await supabase
+        .schema("veyoyee")
+        .from("users")
+        .update({
+          total_reputation: supabase.raw(`total_reputation + ${points}`),
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", userId);
+
+      if (error) {
+        throw error;
+      }
+
+      // Optionally log the reputation award
+      console.log(
+        `Awarded ${points} reputation to user ${userId}${
+          reason ? ` for: ${reason}` : ""
+        }`
+      );
+
+      return { success: true };
+    } catch (error) {
+      console.error("Error awarding reputation:", error);
+      return { success: false, error };
+    }
+  }
+
+  /**
+   * Format reputation for display
+   * Shows "100+" for reputation >= 100, otherwise shows exact number (including negatives)
+   */
+  static formatReputationForDisplay(reputation: number): string {
+    if (reputation >= 100) {
+      return "100+";
+    }
+    return reputation.toString();
+  }
+
+  /**
+   * Get reputation tier/badge based on reputation score
+   */
+  static getReputationTier(reputation: number): {
+    tier: string;
+    color: string;
+    minReputation: number;
+  } {
+    if (reputation >= 100) {
+      return { tier: "Expert", color: "text-purple-600", minReputation: 100 };
+    } else if (reputation >= 50) {
+      return { tier: "Advanced", color: "text-blue-600", minReputation: 50 };
+    } else if (reputation >= 20) {
+      return {
+        tier: "Intermediate",
+        color: "text-green-600",
+        minReputation: 20,
+      };
+    } else if (reputation >= 5) {
+      return { tier: "Beginner", color: "text-yellow-600", minReputation: 5 };
+    } else if (reputation >= 0) {
+      return { tier: "Novice", color: "text-gray-600", minReputation: 0 };
+    } else {
+      return {
+        tier: "Probation",
+        color: "text-red-600",
+        minReputation: -Infinity,
+      };
     }
   }
 }

@@ -36,5 +36,55 @@ export type Database = {
   };
 };
 
+// Veyoyee User Profile with reputation system
+export interface VeyoyeeUser {
+  id: string;
+  username?: string;
+  display_name?: string;
+  email?: string;
+  total_reputation: number;
+  surveys_completed: number;
+  surveys_created: number;
+  responses_accepted: number;
+  responses_rejected: number;
+  created_at: string;
+  updated_at: string;
+  bio?: string;
+  avatar_url?: string;
+  location?: string;
+  website_url?: string;
+}
+
+export interface UserReputationStats {
+  totalReputation: number;
+  rank: number;
+  responsesAccepted: number;
+  responsesRejected: number;
+  surveysCompleted: number;
+  surveysCreated: number;
+}
+
+export interface LeaderboardEntry {
+  id: string;
+  username?: string;
+  display_name?: string;
+  total_reputation: number;
+  responses_accepted: number;
+  surveys_completed: number;
+  surveys_created: number;
+}
+
+// Enhanced survey response with reputation data
+export interface SurveyResponseWithReputation {
+  id: string;
+  surveyId: string;
+  respondent: string;
+  submittedAt: string;
+  status: "pending" | "accepted" | "rejected";
+  reputationScore: number; // Reputation awarded for this specific response
+  totalUserReputation: number; // User's total reputation
+  answers: Record<string, string | string[] | number | boolean>;
+}
+
 // Re-export survey-related types from survey.ts
 export * from "./survey";
