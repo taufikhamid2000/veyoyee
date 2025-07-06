@@ -41,9 +41,10 @@ export default async function SurveyResultsPage({ params }: PageProps) {
       return notFound();
     }
 
-    // Fetch survey responses
+    // Fetch survey responses using server client for proper authentication
     const responsesResult = await SurveyService.getSurveyResponsesWithAnswers(
-      id
+      id,
+      supabase
     );
     const responses = responsesResult.success ? responsesResult.data || [] : [];
 

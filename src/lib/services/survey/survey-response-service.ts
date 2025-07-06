@@ -202,9 +202,10 @@ export class SurveyResponseService {
    * Get formatted survey responses with answers for results page
    */
   static async getSurveyResponsesWithAnswers(
-    surveyId: string
+    surveyId: string,
+    supabaseClient?: any
   ): Promise<ServiceResponse<any[]>> {
-    const supabase = getVeyoyeeClient();
+    const supabase = supabaseClient || getVeyoyeeClient();
 
     try {
       // Simple direct query
@@ -258,7 +259,7 @@ export class SurveyResponseService {
         surveyId: response.survey_id,
         respondent: `User ${response.respondent_id.slice(-8)}`,
         submittedAt: response.completed_at,
-        status: "accepted" as const,
+        status: response.status || "pending", // Use database status, fallback to pending
         reputationScore: Math.floor(Math.random() * 50) + 50,
         answers: answersByResponse[response.id] || {},
       }));
@@ -377,6 +378,87 @@ export class SurveyResponseService {
       return { success: true, data: surveyIds };
     } catch (error) {
       console.error("Error getting user answered survey IDs (server):", error);
+      return { success: false, error };
+    }
+  }
+
+  /**
+   * Accept a survey response
+   */
+  static async acceptResponse(
+    responseId: string,
+    supabaseClient?: any
+  ): Promise<ServiceResponse<void>> {
+    const supabase = supabaseClient || getVeyoyeeClient();
+
+    try {
+      const { error } = await supabase
+        .schema("veyoyee")
+        .from("individual_responses")
+        .update({ status: "accepted" })
+        .eq("id", responseId);
+
+      if (error) {
+        throw error;
+      }
+
+      return { success: true };
+    } catch (error) {
+      console.error("Error accepting response:", error);
+      return { success: false, error };
+    }
+  }
+
+  /**
+   * Reject a survey response
+   */
+  static async rejectResponse(
+    responseId: string,
+    supabaseClient?: any
+  ): Promise<ServiceResponse<void>> {
+    const supabase = supabaseClient || getVeyoyeeClient();
+
+    try {
+      const { error } = await supabase
+        .schema("veyoyee")
+        .from("individual_responses")
+        .update({ status: "rejected" })
+        .eq("id", responseId);
+
+      if (error) {
+        throw error;
+      }
+
+      return { success: true };
+    } catch (error) {
+      console.error("Error rejecting response:", error);
+      return { success: false, error };
+    }
+  }
+
+  /**
+   * Delete a survey response
+   */
+  static async deleteResponse(
+    responseId: string,
+    supabaseClient?: any
+  ): Promise<ServiceResponse<void>> {
+    const supabase = supabaseClient || getVeyoyeeClient();
+
+    try {
+      const { error } = await supabase
+        .schema("veyoyee")
+        .from("individual_responses")
+        .delete()
+        .eq("id", responseId);
+
+      if (error) {
+        throw error;
+      }
+
+      return { success: true };
+    } catch (error) {
+      console.error("Error deleting response:", error);
       return { success: false, error };
     }
   }

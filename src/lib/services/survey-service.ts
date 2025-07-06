@@ -152,6 +152,25 @@ export class SurveyService {
   ) {
     return SurveyResponseService.getResponseAnswers(...args);
   }
+
+  // Response management methods
+  static async acceptResponse(
+    ...args: Parameters<typeof SurveyResponseService.acceptResponse>
+  ) {
+    return SurveyResponseService.acceptResponse(...args);
+  }
+
+  static async rejectResponse(
+    ...args: Parameters<typeof SurveyResponseService.rejectResponse>
+  ) {
+    return SurveyResponseService.rejectResponse(...args);
+  }
+
+  static async deleteResponse(
+    ...args: Parameters<typeof SurveyResponseService.deleteResponse>
+  ) {
+    return SurveyResponseService.deleteResponse(...args);
+  }
 }
 
 // Also export the formatting functions for backward compatibility
