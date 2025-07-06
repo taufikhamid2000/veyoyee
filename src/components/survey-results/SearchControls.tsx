@@ -20,9 +20,9 @@ export default function SearchControls({
   resultsCount,
 }: SearchControlsProps) {
   return (
-    <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+    <div className="space-y-4">
       {/* Search Input */}
-      <div className="relative flex-1 max-w-md">
+      <div className="relative">
         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
           <svg
             className="h-5 w-5 text-gray-400"
@@ -47,16 +47,16 @@ export default function SearchControls({
         />
       </div>
 
-      {/* Controls */}
-      <div className="flex flex-wrap items-center gap-3">
+      {/* Controls Row */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         {/* Sort Controls */}
-        <div className="flex items-center gap-2">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3">
           <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
             Sort by:
           </span>
           <div className="flex rounded-lg border border-gray-300 dark:border-gray-600 overflow-hidden">
             <button
-              className={`px-3 py-2 text-sm font-medium transition-colors ${
+              className={`flex-1 sm:flex-none px-3 py-2 text-sm font-medium transition-colors ${
                 sortBy === "respondent"
                   ? "bg-blue-600 text-white"
                   : "bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600"
@@ -69,7 +69,7 @@ export default function SearchControls({
               )}
             </button>
             <button
-              className={`px-3 py-2 text-sm font-medium border-l border-gray-300 dark:border-gray-600 transition-colors ${
+              className={`flex-1 sm:flex-none px-3 py-2 text-sm font-medium border-l border-gray-300 dark:border-gray-600 transition-colors ${
                 sortBy === "submittedAt"
                   ? "bg-blue-600 text-white"
                   : "bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600"
@@ -85,9 +85,9 @@ export default function SearchControls({
         </div>
 
         {/* Action Buttons */}
-        <div className="flex items-center gap-2">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
           <button
-            className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="inline-flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             onClick={onExportCSV}
             disabled={resultsCount === 0}
           >
@@ -104,11 +104,12 @@ export default function SearchControls({
                 d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
               />
             </svg>
-            Export CSV
+            <span className="hidden sm:inline">Export CSV</span>
+            <span className="sm:hidden">Export</span>
           </button>
           <a
             href={`/surveyor/analysis/${surveyId}`}
-            className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 rounded-lg transition-colors"
+            className="inline-flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 rounded-lg transition-colors"
           >
             <svg
               className="w-4 h-4"

@@ -43,9 +43,25 @@ export default function ResultsTable({
             )}
           </div>
         </div>
+
+        {/* Mobile bulk selection */}
+        <div className="mt-4 flex items-center justify-between sm:hidden">
+          <label className="flex items-center space-x-2">
+            <input
+              type="checkbox"
+              checked={isAllSelected && results.length > 0}
+              onChange={onSelectAll}
+              className="w-4 h-4 rounded border-2 border-gray-300 text-blue-600 focus:ring-blue-500"
+            />
+            <span className="text-sm text-gray-600 dark:text-gray-300">
+              Select all
+            </span>
+          </label>
+        </div>
       </div>
 
-      <div className="overflow-x-auto">
+      {/* Desktop Table View */}
+      <div className="hidden sm:block overflow-x-auto">
         <table className="min-w-full">
           <thead className="bg-gradient-to-r from-gray-100 to-gray-50 dark:from-gray-800 dark:to-gray-900 border-b-2 border-gray-200 dark:border-gray-600">
             <tr>
@@ -109,7 +125,7 @@ export default function ResultsTable({
                       <path d="M12 16v-4"></path>
                       <path d="M12 8h.01"></path>
                     </svg>
-                    <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-3 w-72 p-4 bg-gray-900 dark:bg-gray-700 text-white text-sm rounded-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-30 shadow-2xl border border-gray-600">
+                    <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-3 w-72 p-4 bg-gray-900 dark:bg-gray-700 text-white text-sm rounded-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 shadow-2xl border border-gray-600">
                       <div className="font-semibold mb-2 text-blue-300">
                         Reputation Score
                       </div>
@@ -118,8 +134,8 @@ export default function ResultsTable({
                         trustworthiness, response quality, and platform
                         engagement history.
                       </div>
-                      <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1">
-                        <div className="w-0 h-0 border-l-[6px] border-r-[6px] border-t-[6px] border-transparent border-t-gray-900 dark:border-t-gray-700"></div>
+                      <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1">
+                        <div className="w-0 h-0 border-l-[6px] border-r-[6px] border-b-[6px] border-transparent border-b-gray-900 dark:border-b-gray-700"></div>
                       </div>
                     </div>
                   </div>
@@ -195,6 +211,21 @@ export default function ResultsTable({
             ))}
           </tbody>
         </table>
+      </div>
+
+      {/* Mobile Card View */}
+      <div className="sm:hidden">
+        {results.map((resp, index) => (
+          <MobileResponseCard
+            key={resp.id}
+            response={resp}
+            isSelected={selectedRows.includes(resp.id)}
+            formattedDate={formattedDates[resp.id]}
+            onSelect={() => onRowSelect(resp.id)}
+            onView={() => onViewResponse(resp)}
+            isLast={index === results.length - 1}
+          />
+        ))}
       </div>
 
       {/* Enhanced empty state */}
@@ -422,5 +453,150 @@ function StatusBadge({ status }: { status: string }) {
       {config.icon}
       {status.charAt(0).toUpperCase() + status.slice(1)}
     </span>
+  );
+}
+
+function MobileResponseCard({
+  response,
+  isSelected,
+  formattedDate,
+  onSelect,
+  onView,
+  isLast,
+}: {
+  response: SurveyResponse;
+  isSelected: boolean;
+  formattedDate: string;
+  onSelect: () => void;
+  onView: () => void;
+  isLast: boolean;
+}) {
+  const isProcessed =
+    response.status === "accepted" || response.status === "rejected";
+
+  return (
+    <div
+      className={`
+        p-4 transition-all duration-200
+        ${!isLast ? "border-b border-gray-200 dark:border-gray-700" : ""}
+        ${
+          isSelected
+            ? "bg-blue-50 dark:bg-blue-900/20 border-l-4 border-l-blue-500"
+            : "hover:bg-gray-50 dark:hover:bg-gray-750"
+        }
+        ${isProcessed ? "opacity-75" : ""}
+      `}
+    >
+      {/* Header with checkbox and respondent info */}
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center space-x-3">
+          <input
+            type="checkbox"
+            checked={isSelected}
+            onChange={onSelect}
+            disabled={isProcessed}
+            className={`w-4 h-4 rounded border-2 border-gray-300 text-blue-600 focus:ring-blue-500 ${
+              isProcessed ? "opacity-50 cursor-not-allowed" : ""
+            }`}
+          />
+          <div className="flex items-center space-x-3">
+            <div className="flex-shrink-0 w-8 h-8 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center text-white text-sm font-semibold">
+              {response.respondent.charAt(0).toUpperCase()}
+            </div>
+            <div>
+              <div className="text-sm font-medium text-gray-900 dark:text-white">
+                {response.respondent}
+              </div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">
+                ID: {response.id}
+              </div>
+            </div>
+          </div>
+        </div>
+        <StatusBadge status={response.status} />
+      </div>
+
+      {/* Details grid */}
+      <div className="grid grid-cols-2 gap-4 mb-4">
+        {/* Reputation */}
+        <div>
+          <div className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">
+            Reputation
+          </div>
+          <span
+            className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold ${
+              response.reputationScore
+                ? response.reputationScore >= 80
+                  ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300"
+                  : response.reputationScore >= 60
+                  ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300"
+                  : "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300"
+                : "bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400"
+            }`}
+          >
+            {response.reputationScore ?? "N/A"}
+            {response.reputationScore && (
+              <svg
+                className="w-3 h-3 ml-1"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+              </svg>
+            )}
+          </span>
+        </div>
+
+        {/* Submitted Date */}
+        <div>
+          <div className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">
+            Submitted
+          </div>
+          <div className="flex items-center space-x-1 text-sm text-gray-600 dark:text-gray-300">
+            <svg
+              className="w-3 h-3 text-gray-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+            <span className="font-medium">{formattedDate}</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Action button */}
+      <button
+        className="w-full inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/40 hover:text-blue-700 dark:hover:text-blue-300 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1"
+        onClick={onView}
+      >
+        <svg
+          className="w-4 h-4 mr-2"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="2"
+            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+          />
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="2"
+            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+          />
+        </svg>
+        View Response Details
+      </button>
+    </div>
   );
 }
