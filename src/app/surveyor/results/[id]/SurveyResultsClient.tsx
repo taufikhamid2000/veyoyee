@@ -12,6 +12,7 @@ import Pagination from "@/components/survey-results/Pagination";
 import ResponseModal from "@/components/survey-results/ResponseModal";
 import { FormattedSurvey } from "@/lib/services/survey-service";
 import { SurveyResponseService } from "@/lib/services/survey/survey-response-service";
+import { SurveyService } from "@/lib/services/survey-service";
 import { useRouter } from "next/navigation";
 
 interface SurveyResultsClientProps {
@@ -171,7 +172,7 @@ export default function SurveyResultsClient({
 
     if (
       !confirm(
-        `Are you sure you want to restore ${selectedRows.length} deleted response(s)? They will be set to pending status.`
+        `Are you sure you want to restore ${selectedRows.length} response(s)? They will be set to pending status.`
       )
     ) {
       return;
@@ -183,7 +184,8 @@ export default function SurveyResultsClient({
         selectedRows
       );
       if (result.success) {
-        // Refresh the page to update the data
+        // Clear selection and refresh the page to update the data
+        setSelectedRows([]);
         router.refresh();
       } else {
         console.error("Failed to restore responses:", result.error);
@@ -192,6 +194,82 @@ export default function SurveyResultsClient({
     } catch (error) {
       console.error("Error restoring responses:", error);
       alert("An error occurred while restoring responses.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleEndSurveyEarly = async () => {
+    if (survey.status === "closed") {
+      alert("Survey is already closed.");
+      return;
+    }
+
+    if (
+      !confirm(
+        "Are you sure you want to end this survey early? This will:\n\n" +
+          "• Close the survey to new responses\n" +
+          "• Mark all pending responses as deleted\n" +
+          "• This action cannot be undone\n\n" +
+          "Do you want to continue?"
+      )
+    ) {
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const result = await SurveyService.endSurveyEarly(surveyId);
+      if (result.success) {
+        alert(
+          "Survey has been closed successfully. All pending responses have been marked as deleted."
+        );
+        // Refresh the page to update the data
+        router.refresh();
+      } else {
+        console.error("Failed to end survey:", result.error);
+        alert("Failed to end survey. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error ending survey:", error);
+      alert("An error occurred while ending the survey.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleReopenSurvey = async () => {
+    if (survey.status !== "closed") {
+      alert("Only closed surveys can be reopened.");
+      return;
+    }
+
+    if (
+      !confirm(
+        "Are you sure you want to reopen this survey? This will:\n\n" +
+          "• Set the survey status back to active\n" +
+          "• Allow new responses to be submitted\n" +
+          "• Deleted responses will remain deleted unless explicitly restored\n\n" +
+          "Do you want to continue?"
+      )
+    ) {
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const result = await SurveyService.reopenSurvey(surveyId);
+      if (result.success) {
+        alert("Survey has been reopened successfully.");
+        // Refresh the page to update the data
+        router.refresh();
+      } else {
+        console.error("Failed to reopen survey:", result.error);
+        alert("Failed to reopen survey. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error reopening survey:", error);
+      alert("An error occurred while reopening the survey.");
     } finally {
       setIsLoading(false);
     }
@@ -390,6 +468,27 @@ export default function SurveyResultsClient({
 
               {/* Survey Meta */}
               <div className="flex flex-wrap items-center gap-4 sm:gap-6 text-sm text-gray-500 dark:text-gray-400">
+                {/* Survey Type */}
+                {survey.type && (
+                  <div className="flex items-center gap-2">
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
+                      />
+                    </svg>
+                    <span className="capitalize">{survey.type}</span>
+                  </div>
+                )}
+
+                {/* Question Count */}
                 <div className="flex items-center gap-2">
                   <svg
                     className="w-4 h-4"
@@ -409,6 +508,74 @@ export default function SurveyResultsClient({
                     {questions.length !== 1 ? "s" : ""}
                   </span>
                 </div>
+
+                {/* Respondent Range */}
+                {(survey.minRespondents || survey.maxRespondents) && (
+                  <div className="flex items-center gap-2">
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+                      />
+                    </svg>
+                    <span>
+                      {survey.minRespondents && survey.maxRespondents
+                        ? `${survey.minRespondents}-${survey.maxRespondents} respondents`
+                        : survey.minRespondents
+                        ? `Min ${survey.minRespondents} respondents`
+                        : `Max ${survey.maxRespondents} respondents`}
+                    </span>
+                  </div>
+                )}
+
+                {/* Start Date */}
+                {survey.startDate && (
+                  <div className="flex items-center gap-2">
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                      />
+                    </svg>
+                    <span>Starts {formatDate(survey.startDate)}</span>
+                  </div>
+                )}
+
+                {/* End Date */}
+                {survey.endDate && (
+                  <div className="flex items-center gap-2">
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                      />
+                    </svg>
+                    <span>Ends {formatDate(survey.endDate)}</span>
+                  </div>
+                )}
+
+                {/* Created Date */}
                 <div className="flex items-center gap-2">
                   <svg
                     className="w-4 h-4"
@@ -425,6 +592,8 @@ export default function SurveyResultsClient({
                   </svg>
                   <span>Created {formatDate(survey.createdAt || "")}</span>
                 </div>
+
+                {/* Status */}
                 {survey.status && (
                   <div className="flex items-center gap-2">
                     <div
@@ -482,6 +651,60 @@ export default function SurveyResultsClient({
                 </svg>
                 View Analysis
               </a>
+
+              {/* End Survey Button - only show if survey is active */}
+              {survey.status === "active" && (
+                <button
+                  onClick={handleEndSurveyEarly}
+                  disabled={isLoading}
+                  className="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 disabled:bg-red-400 disabled:cursor-not-allowed rounded-lg transition-colors"
+                >
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"
+                    />
+                  </svg>
+                  {isLoading ? "Ending..." : "End Survey"}
+                </button>
+              )}
+
+              {/* Reopen Survey Button - only show if survey is closed */}
+              {survey.status === "closed" && (
+                <button
+                  onClick={handleReopenSurvey}
+                  disabled={isLoading}
+                  className="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 disabled:bg-green-400 disabled:cursor-not-allowed rounded-lg transition-colors"
+                >
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                    />
+                  </svg>
+                  {isLoading ? "Reopening..." : "Reopen Survey"}
+                </button>
+              )}
             </div>
           </div>
         </div>

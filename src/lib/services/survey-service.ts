@@ -171,6 +171,18 @@ export class SurveyService {
   ) {
     return SurveyResponseService.deleteResponse(...args);
   }
+
+  static async endSurveyEarly(
+    ...args: Parameters<typeof SurveyCoreService.endSurveyEarly>
+  ) {
+    return SurveyCoreService.endSurveyEarly(...args);
+  }
+
+  static async reopenSurvey(
+    ...args: Parameters<typeof SurveyCoreService.reopenSurvey>
+  ) {
+    return SurveyCoreService.reopenSurvey(...args);
+  }
 }
 
 // Also export the formatting functions for backward compatibility

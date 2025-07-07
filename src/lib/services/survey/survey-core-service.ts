@@ -97,9 +97,10 @@ export class SurveyCoreService {
    * Get a survey by ID
    */
   static async getSurveyById(
-    surveyId: string
+    surveyId: string,
+    supabaseClient?: any
   ): Promise<ServiceResponse<FormattedSurvey>> {
-    const supabase = getVeyoyeeClient();
+    const supabase = supabaseClient || getVeyoyeeClient();
 
     try {
       // Get the survey
@@ -455,5 +456,132 @@ export class SurveyCoreService {
   ): Promise<ServiceResponse<SurveyListItem[]>> {
     const supabase = getVeyoyeeClient();
     return this.getPublicSurveysServer(supabase, excludeUserId);
+  }
+
+  /**
+   * End a survey early - close the survey and mark all pending responses as deleted
+   */
+  static async endSurveyEarly(
+    surveyId: string,
+    supabaseClient?: any
+  ): Promise<ServiceResponse<void>> {
+    const supabase = supabaseClient || getVeyoyeeClient();
+
+    try {
+      // Get the current user
+      const {
+        data: { user },
+        error: userError,
+      } = await supabase.auth.getUser();
+
+      if (userError || !user) {
+        throw new Error("User not authenticated");
+      }
+
+      // 1. Verify the user owns this survey
+      const { data: survey, error: surveyError } = await supabase
+        .schema("veyoyee")
+        .from("surveys")
+        .select("id, created_by, status")
+        .eq("id", surveyId)
+        .eq("created_by", user.id)
+        .single();
+
+      if (surveyError || !survey) {
+        throw new Error("Survey not found or access denied");
+      }
+
+      if (survey.status === "closed") {
+        throw new Error("Survey is already closed");
+      }
+
+      // 2. Start a transaction-like operation
+      // First, mark all pending responses as deleted
+      const { error: responsesError } = await supabase
+        .schema("veyoyee")
+        .from("individual_responses")
+        .update({ status: "deleted" })
+        .eq("survey_id", surveyId)
+        .eq("status", "pending");
+
+      if (responsesError) {
+        throw responsesError;
+      }
+
+      // 3. Close the survey
+      const { error: updateError } = await supabase
+        .schema("veyoyee")
+        .from("surveys")
+        .update({
+          status: "closed",
+        })
+        .eq("id", surveyId);
+
+      if (updateError) {
+        throw updateError;
+      }
+
+      return { success: true };
+    } catch (error) {
+      console.error("Error ending survey early:", error);
+      return { success: false, error };
+    }
+  }
+
+  /**
+   * Reopen a closed survey - set status back to active
+   */
+  static async reopenSurvey(
+    surveyId: string,
+    supabaseClient?: any
+  ): Promise<ServiceResponse<void>> {
+    const supabase = supabaseClient || getVeyoyeeClient();
+
+    try {
+      // Get the current user
+      const {
+        data: { user },
+        error: userError,
+      } = await supabase.auth.getUser();
+
+      if (userError || !user) {
+        throw new Error("User not authenticated");
+      }
+
+      // 1. Verify the user owns this survey and it's closed
+      const { data: survey, error: surveyError } = await supabase
+        .schema("veyoyee")
+        .from("surveys")
+        .select("id, created_by, status")
+        .eq("id", surveyId)
+        .eq("created_by", user.id)
+        .single();
+
+      if (surveyError || !survey) {
+        throw new Error("Survey not found or access denied");
+      }
+
+      if (survey.status !== "closed") {
+        throw new Error("Only closed surveys can be reopened");
+      }
+
+      // 2. Reopen the survey by setting status back to active
+      const { error: updateError } = await supabase
+        .schema("veyoyee")
+        .from("surveys")
+        .update({
+          status: "active",
+        })
+        .eq("id", surveyId);
+
+      if (updateError) {
+        throw updateError;
+      }
+
+      return { success: true };
+    } catch (error) {
+      console.error("Error reopening survey:", error);
+      return { success: false, error };
+    }
   }
 }

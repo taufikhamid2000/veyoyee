@@ -23,8 +23,8 @@ export default async function SurveyResultsPage({ params }: PageProps) {
   }
 
   try {
-    // Fetch survey data
-    const surveyResult = await SurveyService.getSurveyById(id);
+    // Fetch survey data using server client for proper authentication
+    const surveyResult = await SurveyService.getSurveyById(id, supabase);
     if (!surveyResult.success || !surveyResult.data) {
       return notFound();
     }
@@ -36,7 +36,7 @@ export default async function SurveyResultsPage({ params }: PageProps) {
       return notFound();
     }
 
-    // Don't show results for draft surveys
+    // Don't show results for draft surveys (but allow active and closed surveys)
     if (survey.status === "draft") {
       return notFound();
     }
