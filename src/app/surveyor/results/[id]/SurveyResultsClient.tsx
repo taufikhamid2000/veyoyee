@@ -3,6 +3,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
 import { useSurveyResults } from "@/hooks/useSurveyResults";
+import { useSupabaseAuth } from "@/hooks/useSupabaseAuth";
 import { formatDate } from "@/lib/utils";
 import SearchControls from "@/components/survey-results/SearchControls";
 import BulkActions from "@/components/survey-results/BulkActions";
@@ -28,6 +29,7 @@ export default function SurveyResultsClient({
   const [modalOpen, setModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+  const { user } = useSupabaseAuth();
 
   const questions = survey?.questions || [];
 
@@ -96,19 +98,31 @@ export default function SurveyResultsClient({
     }
   };
 
-  const handleRejectSelected = async () => {
+  const handleRejectSelected = async (reason: string) => {
     if (selectedRows.length === 0) return;
+
+    if (!user?.id) {
+      alert("You must be logged in to reject responses.");
+      return;
+    }
 
     setIsLoading(true);
     try {
-      console.log("Attempting to bulk reject:", selectedRows);
-      const result = await SurveyResponseService.bulkRejectResponses(
-        selectedRows
+      console.log("Attempting to bulk reject with reason:", {
+        selectedRows,
+        reason,
+        reviewerId: user.id,
+      });
+      const result = await SurveyResponseService.bulkRejectResponsesWithReason(
+        selectedRows,
+        reason,
+        user.id
       );
       console.log("Bulk reject service result:", result);
 
       if (result.success) {
-        // Refresh the page to update the data
+        // Clear selection and refresh the page to update the data
+        setSelectedRows([]);
         router.refresh();
       } else {
         console.error("Failed to reject responses:", result.error);
@@ -659,6 +673,7 @@ export default function SurveyResultsClient({
                 onRejectSelected={handleRejectSelected}
                 onDeleteSelected={handleDeleteSelected}
                 setSelectedRows={setSelectedRows}
+                isLoading={isLoading}
               />
             </div>
 

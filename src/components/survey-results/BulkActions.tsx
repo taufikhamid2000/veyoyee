@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useState } from "react";
+import BulkRejectModal from "./BulkRejectModal";
 
 interface BulkActionsProps {
   selectedRows: string[];
@@ -7,9 +8,10 @@ interface BulkActionsProps {
     status: "pending" | "accepted" | "rejected";
   }>; // Need status info
   onAcceptSelected: () => void;
-  onRejectSelected: () => void;
+  onRejectSelected: (reason: string) => void; // Updated to accept reason
   onDeleteSelected: () => void;
   setSelectedRows: (rows: string[]) => void; // Add this to help users fix selection
+  isLoading?: boolean; // Add loading state
 }
 
 export default function BulkActions({
@@ -19,12 +21,20 @@ export default function BulkActions({
   onRejectSelected,
   onDeleteSelected,
   setSelectedRows,
+  isLoading = false,
 }: BulkActionsProps) {
+  const [showRejectModal, setShowRejectModal] = useState(false);
   const hasSelection = selectedRows.length > 0;
 
   if (!hasSelection) {
     return null;
   }
+
+  // Handle reject with reason
+  const handleRejectWithReason = (reason: string) => {
+    setShowRejectModal(false);
+    onRejectSelected(reason);
+  };
 
   // Analyze selected response statuses
   const statuses = selectedResponses.map((r) => r.status);
@@ -151,8 +161,9 @@ export default function BulkActions({
 
           {canReject && (
             <button
-              className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-white bg-yellow-500 hover:bg-yellow-600 focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 rounded-lg transition-colors"
-              onClick={onRejectSelected}
+              className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-white bg-yellow-500 hover:bg-yellow-600 focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              onClick={() => setShowRejectModal(true)}
+              disabled={isLoading}
               title="Pending responses will lose 5 reputation"
             >
               <svg
@@ -200,6 +211,15 @@ export default function BulkActions({
           )}
         </div>
       </div>
+
+      {/* Rejection Modal */}
+      <BulkRejectModal
+        isOpen={showRejectModal}
+        onClose={() => setShowRejectModal(false)}
+        onConfirm={handleRejectWithReason}
+        selectedCount={statuses.filter((s) => s === "pending").length}
+        isLoading={isLoading}
+      />
     </div>
   );
 }

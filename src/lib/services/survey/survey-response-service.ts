@@ -876,6 +876,81 @@ export class SurveyResponseService {
       return { success: false, error };
     }
   }
+
+  /**
+   * Get predefined rejection reasons
+   */
+  static async getRejectionReasons(
+    supabaseClient?: any
+  ): Promise<
+    ServiceResponse<
+      Array<{ id: string; reason_text: string; is_default?: boolean }>
+    >
+  > {
+    const supabase = supabaseClient || getVeyoyeeClient();
+
+    try {
+      const { data, error } = await supabase
+        .schema("veyoyee")
+        .from("rejection_reasons")
+        .select("id, reason_text")
+        .eq("is_active", true)
+        .order("reason_text");
+
+      if (error) {
+        throw error;
+      }
+
+      // Add is_default flag to the first reason (most common)
+      const processedData = (data || []).map((reason: any, index: number) => ({
+        ...reason,
+        is_default: index === 0, // Mark first reason as default
+      }));
+
+      return { success: true, data: processedData };
+    } catch (error) {
+      console.error("Error fetching rejection reasons:", error);
+      return { success: false, error };
+    }
+  }
+
+  /**
+   * Bulk reject multiple survey responses with reason
+   */
+  static async bulkRejectResponsesWithReason(
+    responseIds: string[],
+    reason: string,
+    reviewerId: string,
+    supabaseClient?: any
+  ): Promise<ServiceResponse<void>> {
+    const supabase = supabaseClient || getVeyoyeeClient();
+
+    if (!reason.trim()) {
+      return { success: false, error: "Rejection reason is required" };
+    }
+
+    try {
+      const { error } = await supabase
+        .schema("veyoyee")
+        .from("individual_responses")
+        .update({
+          status: "rejected",
+          rejection_reason: reason.trim(),
+          reviewed_by: reviewerId,
+          reviewed_at: new Date().toISOString(),
+        })
+        .in("id", responseIds);
+
+      if (error) {
+        throw error;
+      }
+
+      return { success: true };
+    } catch (error) {
+      console.error("Error bulk rejecting responses with reason:", error);
+      return { success: false, error };
+    }
+  }
 }
 
 // Import at the bottom to avoid circular dependency

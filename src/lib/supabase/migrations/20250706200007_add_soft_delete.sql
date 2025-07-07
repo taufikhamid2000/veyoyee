@@ -109,3 +109,33 @@ BEGIN
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Add rejection reason and review tracking to individual_responses
+ALTER TABLE veyoyee.individual_responses 
+ADD COLUMN IF NOT EXISTS rejection_reason TEXT,
+ADD COLUMN IF NOT EXISTS reviewed_by UUID REFERENCES auth.users(id),
+ADD COLUMN IF NOT EXISTS reviewed_at TIMESTAMP WITH TIME ZONE,
+ADD COLUMN IF NOT EXISTS auto_accepted_at TIMESTAMP WITH TIME ZONE;
+
+-- Create predefined rejection reasons table
+CREATE TABLE IF NOT EXISTS veyoyee.rejection_reasons (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    reason_text TEXT NOT NULL UNIQUE,
+    is_active BOOLEAN NOT NULL DEFAULT true,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Insert common rejection reasons
+INSERT INTO veyoyee.rejection_reasons (reason_text) VALUES 
+('Incomplete responses'),
+('Low quality answers'),
+('Failed attention checks'),
+('Spam or bot responses'),
+('Did not follow instructions'),
+('Duplicate submission'),
+('Off-topic responses')
+ON CONFLICT (reason_text) DO NOTHING;
+
+-- Create index for faster rejection reason lookups
+CREATE INDEX IF NOT EXISTS idx_individual_responses_reviewed_by ON veyoyee.individual_responses(reviewed_by);
+CREATE INDEX IF NOT EXISTS idx_individual_responses_reviewed_at ON veyoyee.individual_responses(reviewed_at);
