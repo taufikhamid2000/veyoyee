@@ -9,6 +9,8 @@ interface SearchControlsProps {
   onExportCSV: () => void;
   surveyId: string;
   resultsCount: number;
+  hideDeleted: boolean;
+  onHideDeletedChange: (hide: boolean) => void;
 }
 
 export default function SearchControls({
@@ -20,6 +22,8 @@ export default function SearchControls({
   onExportCSV,
   surveyId,
   resultsCount,
+  hideDeleted,
+  onHideDeletedChange,
 }: SearchControlsProps) {
   return (
     <div className="space-y-4">
@@ -47,6 +51,23 @@ export default function SearchControls({
           value={searchTerm}
           onChange={(e) => onSearchChange(e.target.value)}
         />
+      </div>
+
+      {/* Filter Checkbox */}
+      <div className="flex items-center gap-2">
+        <input
+          type="checkbox"
+          id="hideDeleted"
+          checked={hideDeleted}
+          onChange={(e) => onHideDeletedChange(e.target.checked)}
+          className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-600 rounded"
+        />
+        <label
+          htmlFor="hideDeleted"
+          className="text-sm font-medium text-gray-700 dark:text-gray-300 cursor-pointer"
+        >
+          Hide deleted responses
+        </label>
       </div>
 
       {/* Controls Row */}

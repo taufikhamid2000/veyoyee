@@ -5,11 +5,12 @@ interface BulkActionsProps {
   selectedRows: string[];
   selectedResponses: Array<{
     id: string;
-    status: "pending" | "accepted" | "rejected";
+    status: "pending" | "accepted" | "rejected" | "deleted";
   }>; // Need status info
   onAcceptSelected: () => void;
   onRejectSelected: (reason: string) => void; // Updated to accept reason
   onDeleteSelected: () => void;
+  onRestoreSelected: () => void; // Add restore action
   setSelectedRows: (rows: string[]) => void; // Add this to help users fix selection
   isLoading?: boolean; // Add loading state
 }
@@ -20,6 +21,7 @@ export default function BulkActions({
   onAcceptSelected,
   onRejectSelected,
   onDeleteSelected,
+  onRestoreSelected,
   setSelectedRows,
   isLoading = false,
 }: BulkActionsProps) {
@@ -41,8 +43,10 @@ export default function BulkActions({
   const hasAccepted = statuses.includes("accepted");
   const hasPending = statuses.includes("pending");
   const hasRejected = statuses.includes("rejected");
+  const hasDeleted = statuses.includes("deleted");
   const allPending = statuses.every((s) => s === "pending");
   const allRejected = statuses.every((s) => s === "rejected");
+  const allDeleted = statuses.every((s) => s === "deleted");
 
   // If any accepted responses are selected, disable all actions
   if (hasAccepted) {
@@ -100,9 +104,10 @@ export default function BulkActions({
   }
 
   // Determine available actions based on selection
-  const canAccept = hasPending || hasRejected; // Both pending and rejected can be accepted
-  const canReject = hasPending; // Only pending can be rejected (rejected responses are already rejected)
-  const canDelete = hasPending || hasRejected; // Both can be soft deleted
+  const canAccept = (hasPending || hasRejected) && !hasDeleted; // Both pending and rejected can be accepted, but not deleted
+  const canReject = hasPending && !hasDeleted; // Only pending can be rejected (rejected responses are already rejected), and not deleted
+  const canDelete = (hasPending || hasRejected) && !hasDeleted; // Both can be soft deleted if not already deleted
+  const canRestore = hasDeleted; // Only deleted responses can be restored
 
   return (
     <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
@@ -118,7 +123,13 @@ export default function BulkActions({
           {/* Show status breakdown */}
           <span className="text-xs opacity-75">
             (
-            {hasPending && hasRejected
+            {allDeleted
+              ? "all deleted"
+              : hasDeleted
+              ? `${statuses.filter((s) => s === "deleted").length} deleted, ${
+                  statuses.filter((s) => s !== "deleted").length
+                } active`
+              : hasPending && hasRejected
               ? `${statuses.filter((s) => s === "pending").length} pending, ${
                   statuses.filter((s) => s === "rejected").length
                 } rejected`
@@ -207,6 +218,29 @@ export default function BulkActions({
                 />
               </svg>
               Delete ({selectedRows.length})
+            </button>
+          )}
+
+          {canRestore && (
+            <button
+              className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-lg transition-colors"
+              onClick={onRestoreSelected}
+              title="Restore deleted responses to pending status"
+            >
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                />
+              </svg>
+              Restore ({statuses.filter((s) => s === "deleted").length})
             </button>
           )}
         </div>

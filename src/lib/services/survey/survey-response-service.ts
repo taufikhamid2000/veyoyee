@@ -7,8 +7,15 @@ import {
 } from "./survey-types";
 
 export class SurveyResponseService {
-  /**
-   * Get response metrics for multiple surveys
+  /**      // Simple direct query - include all responses (including deleted) for admin review
+      const { data: responses, error } = await supabase
+        .schema("veyoyee")
+        .from("individual_responses")
+        .select("*")
+        .eq("survey_id", surveyId)
+        .eq("is_complete", true)
+        // Removed: .neq("status", "deleted") - now including deleted responses for frontend filtering
+        .order("completed_at", { ascending: false }); response metrics for multiple surveys
    */
   static async getSurveyResponseMetrics(
     supabase: any,
@@ -185,7 +192,7 @@ export class SurveyResponseService {
         .from("individual_responses")
         .select("*")
         .eq("survey_id", surveyId)
-        .eq("is_deleted", false) // Exclude soft deleted responses
+        .neq("status", "deleted") // Exclude deleted responses
         .order("started_at", { ascending: false });
 
       if (error) {
@@ -209,14 +216,14 @@ export class SurveyResponseService {
     const supabase = supabaseClient || getVeyoyeeClient();
 
     try {
-      // Simple direct query - exclude soft deleted responses
+      // Simple direct query - include all responses for frontend filtering
       const { data: responses, error } = await supabase
         .schema("veyoyee")
         .from("individual_responses")
         .select("*")
         .eq("survey_id", surveyId)
         .eq("is_complete", true)
-        .eq("is_deleted", false) // Exclude soft deleted responses
+        // No status filtering here - let frontend handle showing/hiding deleted responses
         .order("completed_at", { ascending: false });
 
       if (error) {
@@ -346,7 +353,7 @@ export class SurveyResponseService {
         .eq("survey_id", surveyId)
         .eq("respondent_id", respondentId)
         .eq("is_complete", true) // Only check for completed responses
-        .eq("is_deleted", false) // Exclude soft deleted responses
+        .neq("status", "deleted") // Exclude deleted responses
         .limit(1);
 
       if (error) {
@@ -375,7 +382,7 @@ export class SurveyResponseService {
         .select("survey_id")
         .eq("respondent_id", respondentId)
         .eq("is_complete", true) // Only get completed responses
-        .eq("is_deleted", false); // Exclude soft deleted responses
+        .neq("status", "deleted"); // Exclude deleted responses
 
       if (error) {
         throw error;
@@ -403,7 +410,7 @@ export class SurveyResponseService {
         .select("survey_id")
         .eq("respondent_id", respondentId)
         .eq("is_complete", true) // Only get completed responses
-        .eq("is_deleted", false); // Exclude soft deleted responses
+        .neq("status", "deleted"); // Exclude deleted responses
 
       if (error) {
         throw error;
@@ -511,7 +518,7 @@ export class SurveyResponseService {
       const { error } = await supabase
         .schema("veyoyee")
         .from("individual_responses")
-        .update({ is_deleted: true })
+        .update({ status: "deleted" })
         .eq("id", responseId);
 
       if (error) {
@@ -538,7 +545,7 @@ export class SurveyResponseService {
       const { error } = await supabase
         .schema("veyoyee")
         .from("individual_responses")
-        .update({ is_deleted: false })
+        .update({ status: "pending" })
         .eq("id", responseId);
 
       if (error) {
@@ -863,7 +870,7 @@ export class SurveyResponseService {
       const { error } = await supabase
         .schema("veyoyee")
         .from("individual_responses")
-        .update({ is_deleted: true })
+        .update({ status: "deleted" })
         .in("id", responseIds);
 
       if (error) {
@@ -948,6 +955,33 @@ export class SurveyResponseService {
       return { success: true };
     } catch (error) {
       console.error("Error bulk rejecting responses with reason:", error);
+      return { success: false, error };
+    }
+  }
+
+  /**
+   * Bulk restore multiple deleted survey responses (sets status back to pending)
+   */
+  static async bulkRestoreResponses(
+    responseIds: string[],
+    supabaseClient?: any
+  ): Promise<ServiceResponse<void>> {
+    const supabase = supabaseClient || getVeyoyeeClient();
+
+    try {
+      const { error } = await supabase
+        .schema("veyoyee")
+        .from("individual_responses")
+        .update({ status: "pending" })
+        .in("id", responseIds);
+
+      if (error) {
+        throw error;
+      }
+
+      return { success: true };
+    } catch (error) {
+      console.error("Error bulk restoring responses:", error);
       return { success: false, error };
     }
   }

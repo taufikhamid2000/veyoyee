@@ -80,7 +80,7 @@ export interface SurveyResponseWithReputation {
   surveyId: string;
   respondent: string;
   submittedAt: string;
-  status: "pending" | "accepted" | "rejected";
+  status: "pending" | "accepted" | "rejected" | "deleted";
   reputationScore: number; // Reputation awarded for this specific response
   totalUserReputation: number; // User's total reputation
   answers: Record<string, string | string[] | number | boolean>;

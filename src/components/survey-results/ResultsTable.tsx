@@ -6,7 +6,7 @@ interface SurveyResponse {
   reputationScore?: number; // Individual response reputation (+5/-5)
   totalUserReputation?: number; // User's total reputation (for display)
   submittedAt: string;
-  status: "pending" | "accepted" | "rejected";
+  status: "pending" | "accepted" | "rejected" | "deleted";
   answers: Record<string, string | string[]>;
 }
 

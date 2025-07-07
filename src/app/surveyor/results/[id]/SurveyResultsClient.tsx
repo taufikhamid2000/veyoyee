@@ -39,6 +39,7 @@ export default function SurveyResultsClient({
     sortBy,
     sortOrder,
     currentPage,
+    hideDeleted,
     formattedDates,
     filteredResults,
     paginatedResults,
@@ -49,6 +50,7 @@ export default function SurveyResultsClient({
     handleRowSelect,
     handleSelectAll,
     handlePageChange,
+    handleHideDeletedChange,
     setSelectedRows,
   } = useSurveyResults({ results: responses, pageSize: 10 });
 
@@ -61,6 +63,7 @@ export default function SurveyResultsClient({
     return {
       id,
       status: response?.status || "pending",
+      isDeleted: response?.isDeleted || false,
     };
   });
 
@@ -108,17 +111,11 @@ export default function SurveyResultsClient({
 
     setIsLoading(true);
     try {
-      console.log("Attempting to bulk reject with reason:", {
-        selectedRows,
-        reason,
-        reviewerId: user.id,
-      });
       const result = await SurveyResponseService.bulkRejectResponsesWithReason(
         selectedRows,
         reason,
         user.id
       );
-      console.log("Bulk reject service result:", result);
 
       if (result.success) {
         // Clear selection and refresh the page to update the data
@@ -164,6 +161,37 @@ export default function SurveyResultsClient({
     } catch (error) {
       console.error("Error deleting responses:", error);
       alert("An error occurred while deleting responses.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleRestoreSelected = async () => {
+    if (selectedRows.length === 0) return;
+
+    if (
+      !confirm(
+        `Are you sure you want to restore ${selectedRows.length} deleted response(s)? They will be set to pending status.`
+      )
+    ) {
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const result = await SurveyResponseService.bulkRestoreResponses(
+        selectedRows
+      );
+      if (result.success) {
+        // Refresh the page to update the data
+        router.refresh();
+      } else {
+        console.error("Failed to restore responses:", result.error);
+        alert("Failed to restore responses. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error restoring responses:", error);
+      alert("An error occurred while restoring responses.");
     } finally {
       setIsLoading(false);
     }
@@ -244,6 +272,38 @@ export default function SurveyResultsClient({
     } catch (error) {
       console.error("Error deleting response:", error);
       alert("An error occurred while deleting response.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleRestoreResponse = async () => {
+    if (!selectedResponse) return;
+
+    if (
+      !confirm(
+        "Are you sure you want to restore this response? It will be set to pending status."
+      )
+    ) {
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const result = await SurveyResponseService.restoreResponse(
+        selectedResponse.id
+      );
+      if (result.success) {
+        handleCloseModal();
+        // Refresh the page to update the data
+        router.refresh();
+      } else {
+        console.error("Failed to restore response:", result.error);
+        alert("Failed to restore response. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error restoring response:", error);
+      alert("An error occurred while restoring response.");
     } finally {
       setIsLoading(false);
     }
@@ -664,6 +724,8 @@ export default function SurveyResultsClient({
                 onExportCSV={handleExportCSV}
                 surveyId={surveyId}
                 resultsCount={responses.length}
+                hideDeleted={hideDeleted}
+                onHideDeletedChange={handleHideDeletedChange}
               />
 
               <BulkActions
@@ -672,6 +734,7 @@ export default function SurveyResultsClient({
                 onAcceptSelected={handleAcceptSelected}
                 onRejectSelected={handleRejectSelected}
                 onDeleteSelected={handleDeleteSelected}
+                onRestoreSelected={handleRestoreSelected}
                 setSelectedRows={setSelectedRows}
                 isLoading={isLoading}
               />
@@ -708,6 +771,7 @@ export default function SurveyResultsClient({
               onAccept={handleAcceptResponse}
               onReject={handleRejectResponse}
               onDelete={handleDeleteResponse}
+              onRestore={handleRestoreResponse}
               isLoading={isLoading}
             />
           </div>

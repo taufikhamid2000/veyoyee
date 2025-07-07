@@ -5,7 +5,8 @@ interface SurveyResponse {
   id: string;
   respondent: string;
   submittedAt: string;
-  status: "pending" | "accepted" | "rejected";
+  status: "pending" | "accepted" | "rejected" | "deleted";
+  isDeleted?: boolean;
   answers: Record<string, string | string[]>;
 }
 
@@ -25,6 +26,7 @@ export function useSurveyResults({
   );
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [currentPage, setCurrentPage] = useState(1);
+  const [hideDeleted, setHideDeleted] = useState(true); // Default to hiding deleted responses
 
   // Precompute formatted dates for all results to avoid hydration mismatch
   const formattedDates = useMemo(
@@ -38,12 +40,18 @@ export function useSurveyResults({
 
   // Filtered and sorted results
   const filteredResults = useMemo(() => {
-    return results.filter(
-      (r) =>
+    return results.filter((r) => {
+      // Filter by search term
+      const matchesSearch =
         r.respondent.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        formattedDates[r.id].toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  }, [results, searchTerm, formattedDates]);
+        formattedDates[r.id].toLowerCase().includes(searchTerm.toLowerCase());
+
+      // Filter by deleted status
+      const matchesDeleteFilter = hideDeleted ? r.status !== "deleted" : true;
+
+      return matchesSearch && matchesDeleteFilter;
+    });
+  }, [results, searchTerm, formattedDates, hideDeleted]);
 
   const sortedResults = useMemo(() => {
     return [...filteredResults].sort((a, b) => {
@@ -123,6 +131,11 @@ export function useSurveyResults({
     setCurrentPage(page);
   };
 
+  const handleHideDeletedChange = (hide: boolean) => {
+    setHideDeleted(hide);
+    setCurrentPage(1); // Reset to first page when filter changes
+  };
+
   return {
     // State
     selectedRows,
@@ -130,6 +143,7 @@ export function useSurveyResults({
     sortBy,
     sortOrder,
     currentPage,
+    hideDeleted,
 
     // Computed values
     formattedDates,
@@ -152,6 +166,7 @@ export function useSurveyResults({
     handleRowSelect,
     handleSelectAll,
     handlePageChange,
+    handleHideDeletedChange,
 
     // Utilities
     setSelectedRows,
