@@ -1,7 +1,8 @@
 interface SurveyResponse {
   id: string;
   respondent: string;
-  reputationScore?: number;
+  reputationScore?: number; // Individual response reputation (+5/-5)
+  totalUserReputation?: number; // User's total reputation (for display)
   submittedAt: string;
   status: "pending" | "accepted" | "rejected";
   answers: Record<string, string | string[]>;
@@ -274,8 +275,8 @@ function ResultsTableRow({
   onView: () => void;
   isEven: boolean;
 }) {
-  const isProcessed =
-    response.status === "accepted" || response.status === "rejected";
+  const isAccepted = response.status === "accepted";
+  const isProcessed = isAccepted || response.status === "rejected";
 
   return (
     <tr
@@ -300,11 +301,11 @@ function ResultsTableRow({
             type="checkbox"
             checked={isSelected}
             onChange={onSelect}
-            disabled={isProcessed}
+            disabled={isAccepted} // Only disable for accepted responses
             aria-label={`Select response ${response.id}`}
             className={`w-4 h-4 rounded border-2 border-gray-300 text-blue-600 focus:ring-blue-500 focus:ring-2 focus:ring-offset-1 transition-all duration-200 ${
-              isProcessed
-                ? "opacity-50 cursor-not-allowed"
+              isAccepted
+                ? "opacity-50 cursor-not-allowed bg-gray-100 dark:bg-gray-700"
                 : "hover:border-blue-400"
             }`}
           />
@@ -322,28 +323,27 @@ function ResultsTableRow({
       </td>
       <td className="px-6 py-5">
         <div className="flex items-center">
-          <span
-            className={`inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 ${
-              response.reputationScore
-                ? response.reputationScore >= 80
-                  ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300"
-                  : response.reputationScore >= 60
-                  ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300"
-                  : "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300"
-                : "bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400"
-            }`}
-          >
-            {response.reputationScore ?? "N/A"}
-            {response.reputationScore && (
-              <svg
-                className="w-3 h-3 ml-1"
-                fill="currentColor"
-                viewBox="0 0 20 20"
+          {(() => {
+            const totalRep = response.totalUserReputation ?? 0;
+            const displayRep = totalRep >= 100 ? "100+" : totalRep.toString();
+            const tier = getReputationTier(totalRep);
+
+            return (
+              <span
+                className={`inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 ${tier.colorClass}`}
+                title={`Total Reputation: ${totalRep} (${tier.tier})`}
               >
-                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
-              </svg>
-            )}
-          </span>
+                {displayRep}
+                <svg
+                  className="w-3 h-3 ml-1"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                </svg>
+              </span>
+            );
+          })()}
         </div>
       </td>
       <td className="px-6 py-5">
@@ -471,8 +471,8 @@ function MobileResponseCard({
   onView: () => void;
   isLast: boolean;
 }) {
-  const isProcessed =
-    response.status === "accepted" || response.status === "rejected";
+  const isAccepted = response.status === "accepted";
+  const isProcessed = isAccepted || response.status === "rejected";
 
   return (
     <div
@@ -494,9 +494,11 @@ function MobileResponseCard({
             type="checkbox"
             checked={isSelected}
             onChange={onSelect}
-            disabled={isProcessed}
+            disabled={isAccepted} // Only disable for accepted responses
             className={`w-4 h-4 rounded border-2 border-gray-300 text-blue-600 focus:ring-blue-500 ${
-              isProcessed ? "opacity-50 cursor-not-allowed" : ""
+              isAccepted
+                ? "opacity-50 cursor-not-allowed bg-gray-100 dark:bg-gray-700"
+                : ""
             }`}
           />
           <div className="flex items-center space-x-3">
@@ -523,28 +525,27 @@ function MobileResponseCard({
           <div className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">
             Reputation
           </div>
-          <span
-            className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold ${
-              response.reputationScore
-                ? response.reputationScore >= 80
-                  ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300"
-                  : response.reputationScore >= 60
-                  ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300"
-                  : "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300"
-                : "bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400"
-            }`}
-          >
-            {response.reputationScore ?? "N/A"}
-            {response.reputationScore && (
-              <svg
-                className="w-3 h-3 ml-1"
-                fill="currentColor"
-                viewBox="0 0 20 20"
+          {(() => {
+            const totalRep = response.totalUserReputation ?? 0;
+            const displayRep = totalRep >= 100 ? "100+" : totalRep.toString();
+            const tier = getReputationTier(totalRep);
+
+            return (
+              <span
+                className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold ${tier.colorClass}`}
+                title={`Total Reputation: ${totalRep} (${tier.tier})`}
               >
-                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
-              </svg>
-            )}
-          </span>
+                {displayRep}
+                <svg
+                  className="w-3 h-3 ml-1"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                </svg>
+              </span>
+            );
+          })()}
         </div>
 
         {/* Submitted Date */}
@@ -599,4 +600,55 @@ function MobileResponseCard({
       </button>
     </div>
   );
+}
+
+// Reputation tier utility function
+function getReputationTier(reputation: number): {
+  tier: string;
+  colorClass: string;
+  minReputation: number;
+} {
+  if (reputation >= 100) {
+    return {
+      tier: "Expert",
+      colorClass:
+        "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300",
+      minReputation: 100,
+    };
+  } else if (reputation >= 50) {
+    return {
+      tier: "Advanced",
+      colorClass:
+        "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300",
+      minReputation: 50,
+    };
+  } else if (reputation >= 20) {
+    return {
+      tier: "Intermediate",
+      colorClass:
+        "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300",
+      minReputation: 20,
+    };
+  } else if (reputation >= 5) {
+    return {
+      tier: "Beginner",
+      colorClass:
+        "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300",
+      minReputation: 5,
+    };
+  } else if (reputation >= 0) {
+    return {
+      tier: "Novice",
+      colorClass:
+        "bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400",
+      minReputation: 0,
+    };
+  } else {
+    return {
+      tier: "Probation",
+      colorClass:
+        "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300",
+      minReputation: -Infinity,
+    };
+  }
 }

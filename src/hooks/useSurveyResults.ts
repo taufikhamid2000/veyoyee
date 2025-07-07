@@ -91,10 +91,31 @@ export function useSurveyResults({
   };
 
   const handleSelectAll = () => {
-    if (selectedRows.length === results.length) {
-      setSelectedRows([]);
+    // Only select non-accepted responses (pending and rejected)
+    const selectableResults = results.filter((r) => r.status !== "accepted");
+    const selectableIds = selectableResults.map((r) => r.id);
+
+    // Check if all selectable responses are already selected
+    const allSelectableSelected =
+      selectableIds.length > 0 &&
+      selectableIds.every((id) => selectedRows.includes(id));
+
+    if (allSelectableSelected) {
+      // Deselect all selectable responses
+      setSelectedRows((prev) =>
+        prev.filter((id) => !selectableIds.includes(id))
+      );
     } else {
-      setSelectedRows(results.map((r) => r.id));
+      // Select all selectable responses (keeping any existing selections)
+      setSelectedRows((prev) => {
+        const newSelected = [...prev];
+        selectableIds.forEach((id) => {
+          if (!newSelected.includes(id)) {
+            newSelected.push(id);
+          }
+        });
+        return newSelected;
+      });
     }
   };
 
@@ -115,7 +136,15 @@ export function useSurveyResults({
     filteredResults: sortedResults,
     paginatedResults,
     totalPages,
-    isAllSelected: selectedRows.length === results.length && results.length > 0,
+    // isAllSelected should only consider non-accepted responses
+    isAllSelected: (() => {
+      const selectableResults = results.filter((r) => r.status !== "accepted");
+      const selectableIds = selectableResults.map((r) => r.id);
+      return (
+        selectableIds.length > 0 &&
+        selectableIds.every((id) => selectedRows.includes(id))
+      );
+    })(),
 
     // Handlers
     handleSearchChange,
