@@ -10,6 +10,8 @@ import ResultsTable from "@/components/survey-results/ResultsTable";
 import Pagination from "@/components/survey-results/Pagination";
 import ResponseModal from "@/components/survey-results/ResponseModal";
 import { FormattedSurvey } from "@/lib/services/survey-service";
+import { SurveyResponseService } from "@/lib/services/survey/survey-response-service";
+import { useRouter } from "next/navigation";
 
 interface SurveyResultsClientProps {
   survey: FormattedSurvey;
@@ -24,6 +26,8 @@ export default function SurveyResultsClient({
 }: SurveyResultsClientProps) {
   const [selectedResponse, setSelectedResponse] = useState<any | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
   const questions = survey?.questions || [];
 
@@ -43,10 +47,20 @@ export default function SurveyResultsClient({
     handleRowSelect,
     handleSelectAll,
     handlePageChange,
+    setSelectedRows,
   } = useSurveyResults({ results: responses, pageSize: 10 });
 
   // If there are no questions, show answers as JSON for debugging
   const showRawAnswers = questions.length === 0 && responses.length > 0;
+
+  // Get selected responses with status for BulkActions
+  const selectedResponses = selectedRows.map((id) => {
+    const response = responses.find((r) => r.id === id);
+    return {
+      id,
+      status: response?.status || "pending",
+    };
+  });
 
   // Event handlers
   const handleViewResponse = (response: any) => {
@@ -59,37 +73,166 @@ export default function SurveyResultsClient({
     setSelectedResponse(null);
   };
 
-  const handleAcceptSelected = () => {
-    // TODO: Implement bulk accept logic
-    alert(`Accepted: ${selectedRows.join(", ")}`);
+  const handleAcceptSelected = async () => {
+    if (selectedRows.length === 0) return;
+
+    setIsLoading(true);
+    try {
+      const result = await SurveyResponseService.bulkAcceptResponses(
+        selectedRows
+      );
+      if (result.success) {
+        // Refresh the page to update the data
+        router.refresh();
+      } else {
+        console.error("Failed to accept responses:", result.error);
+        alert("Failed to accept responses. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error accepting responses:", error);
+      alert("An error occurred while accepting responses.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleRejectSelected = () => {
-    // TODO: Implement bulk reject logic
-    alert(`Rejected: ${selectedRows.join(", ")}`);
+  const handleRejectSelected = async () => {
+    if (selectedRows.length === 0) return;
+
+    setIsLoading(true);
+    try {
+      console.log("Attempting to bulk reject:", selectedRows);
+      const result = await SurveyResponseService.bulkRejectResponses(
+        selectedRows
+      );
+      console.log("Bulk reject service result:", result);
+
+      if (result.success) {
+        // Refresh the page to update the data
+        router.refresh();
+      } else {
+        console.error("Failed to reject responses:", result.error);
+        alert(
+          `Failed to reject responses. Error: ${JSON.stringify(result.error)}`
+        );
+      }
+    } catch (error) {
+      console.error("Error rejecting responses:", error);
+      alert(`An error occurred while rejecting responses: ${error}`);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleDeleteSelected = () => {
-    // TODO: Implement bulk delete logic
-    alert(`Deleted: ${selectedRows.join(", ")}`);
+  const handleDeleteSelected = async () => {
+    if (selectedRows.length === 0) return;
+
+    if (
+      !confirm(
+        `Are you sure you want to delete ${selectedRows.length} response(s)? This action cannot be undone.`
+      )
+    ) {
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const result = await SurveyResponseService.bulkSoftDeleteResponses(
+        selectedRows
+      );
+      if (result.success) {
+        // Refresh the page to update the data
+        router.refresh();
+      } else {
+        console.error("Failed to delete responses:", result.error);
+        alert("Failed to delete responses. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error deleting responses:", error);
+      alert("An error occurred while deleting responses.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleAcceptResponse = () => {
-    // TODO: Implement accept logic
-    alert("Accepted! (Implement logic)");
-    handleCloseModal();
+  const handleAcceptResponse = async () => {
+    if (!selectedResponse) return;
+
+    setIsLoading(true);
+    try {
+      const result = await SurveyResponseService.acceptResponse(
+        selectedResponse.id
+      );
+      if (result.success) {
+        handleCloseModal();
+        // Refresh the page to update the data
+        router.refresh();
+      } else {
+        console.error("Failed to accept response:", result.error);
+        alert("Failed to accept response. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error accepting response:", error);
+      alert("An error occurred while accepting response.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleRejectResponse = () => {
-    // TODO: Implement reject logic
-    alert("Rejected! (Implement logic)");
-    handleCloseModal();
+  const handleRejectResponse = async () => {
+    if (!selectedResponse) return;
+
+    setIsLoading(true);
+    try {
+      const result = await SurveyResponseService.rejectResponse(
+        selectedResponse.id
+      );
+      if (result.success) {
+        handleCloseModal();
+        // Refresh the page to update the data
+        router.refresh();
+      } else {
+        console.error("Failed to reject response:", result.error);
+        alert("Failed to reject response. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error rejecting response:", error);
+      alert("An error occurred while rejecting response.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleDeleteResponse = () => {
-    // TODO: Implement delete logic
-    alert("Deleted! (Implement logic)");
-    handleCloseModal();
+  const handleDeleteResponse = async () => {
+    if (!selectedResponse) return;
+
+    if (
+      !confirm(
+        "Are you sure you want to delete this response? This action cannot be undone."
+      )
+    ) {
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const result = await SurveyResponseService.softDeleteResponse(
+        selectedResponse.id
+      );
+      if (result.success) {
+        handleCloseModal();
+        // Refresh the page to update the data
+        router.refresh();
+      } else {
+        console.error("Failed to delete response:", result.error);
+        alert("Failed to delete response. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error deleting response:", error);
+      alert("An error occurred while deleting response.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   // CSV export helper
@@ -511,9 +654,11 @@ export default function SurveyResultsClient({
 
               <BulkActions
                 selectedRows={selectedRows}
+                selectedResponses={selectedResponses}
                 onAcceptSelected={handleAcceptSelected}
                 onRejectSelected={handleRejectSelected}
                 onDeleteSelected={handleDeleteSelected}
+                setSelectedRows={setSelectedRows}
               />
             </div>
 
@@ -548,6 +693,7 @@ export default function SurveyResultsClient({
               onAccept={handleAcceptResponse}
               onReject={handleRejectResponse}
               onDelete={handleDeleteResponse}
+              isLoading={isLoading}
             />
           </div>
         )}

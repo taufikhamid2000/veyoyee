@@ -185,6 +185,7 @@ export class SurveyResponseService {
         .from("individual_responses")
         .select("*")
         .eq("survey_id", surveyId)
+        .eq("is_deleted", false) // Exclude soft deleted responses
         .order("started_at", { ascending: false });
 
       if (error) {
@@ -208,13 +209,14 @@ export class SurveyResponseService {
     const supabase = supabaseClient || getVeyoyeeClient();
 
     try {
-      // Simple direct query
+      // Simple direct query - exclude soft deleted responses
       const { data: responses, error } = await supabase
         .schema("veyoyee")
         .from("individual_responses")
         .select("*")
         .eq("survey_id", surveyId)
         .eq("is_complete", true)
+        .eq("is_deleted", false) // Exclude soft deleted responses
         .order("completed_at", { ascending: false });
 
       if (error) {
@@ -344,6 +346,7 @@ export class SurveyResponseService {
         .eq("survey_id", surveyId)
         .eq("respondent_id", respondentId)
         .eq("is_complete", true) // Only check for completed responses
+        .eq("is_deleted", false) // Exclude soft deleted responses
         .limit(1);
 
       if (error) {
@@ -371,7 +374,8 @@ export class SurveyResponseService {
         .from("individual_responses")
         .select("survey_id")
         .eq("respondent_id", respondentId)
-        .eq("is_complete", true); // Only get completed responses
+        .eq("is_complete", true) // Only get completed responses
+        .eq("is_deleted", false); // Exclude soft deleted responses
 
       if (error) {
         throw error;
@@ -398,7 +402,8 @@ export class SurveyResponseService {
         .from("individual_responses")
         .select("survey_id")
         .eq("respondent_id", respondentId)
-        .eq("is_complete", true); // Only get completed responses
+        .eq("is_complete", true) // Only get completed responses
+        .eq("is_deleted", false); // Exclude soft deleted responses
 
       if (error) {
         throw error;
@@ -489,6 +494,60 @@ export class SurveyResponseService {
       return { success: true };
     } catch (error) {
       console.error("Error deleting response:", error);
+      return { success: false, error };
+    }
+  }
+
+  /**
+   * Soft delete a survey response (keeps reputation history)
+   */
+  static async softDeleteResponse(
+    responseId: string,
+    supabaseClient?: any
+  ): Promise<ServiceResponse<void>> {
+    const supabase = supabaseClient || getVeyoyeeClient();
+
+    try {
+      const { error } = await supabase
+        .schema("veyoyee")
+        .from("individual_responses")
+        .update({ is_deleted: true })
+        .eq("id", responseId);
+
+      if (error) {
+        throw error;
+      }
+
+      return { success: true };
+    } catch (error) {
+      console.error("Error soft deleting response:", error);
+      return { success: false, error };
+    }
+  }
+
+  /**
+   * Restore a soft deleted survey response
+   */
+  static async restoreResponse(
+    responseId: string,
+    supabaseClient?: any
+  ): Promise<ServiceResponse<void>> {
+    const supabase = supabaseClient || getVeyoyeeClient();
+
+    try {
+      const { error } = await supabase
+        .schema("veyoyee")
+        .from("individual_responses")
+        .update({ is_deleted: false })
+        .eq("id", responseId);
+
+      if (error) {
+        throw error;
+      }
+
+      return { success: true };
+    } catch (error) {
+      console.error("Error restoring response:", error);
       return { success: false, error };
     }
   }
@@ -728,6 +787,93 @@ export class SurveyResponseService {
         color: "text-red-600",
         minReputation: -Infinity,
       };
+    }
+  }
+
+  /**
+   * Bulk accept multiple survey responses
+   */
+  static async bulkAcceptResponses(
+    responseIds: string[],
+    supabaseClient?: any
+  ): Promise<ServiceResponse<void>> {
+    const supabase = supabaseClient || getVeyoyeeClient();
+
+    try {
+      const { error } = await supabase
+        .schema("veyoyee")
+        .from("individual_responses")
+        .update({ status: "accepted" })
+        .in("id", responseIds);
+
+      if (error) {
+        throw error;
+      }
+
+      return { success: true };
+    } catch (error) {
+      console.error("Error bulk accepting responses:", error);
+      return { success: false, error };
+    }
+  }
+
+  /**
+   * Bulk reject multiple survey responses
+   */
+  static async bulkRejectResponses(
+    responseIds: string[],
+    supabaseClient?: any
+  ): Promise<ServiceResponse<void>> {
+    const supabase = supabaseClient || getVeyoyeeClient();
+
+    try {
+      console.log("Bulk rejecting responses:", responseIds);
+
+      const { data, error } = await supabase
+        .schema("veyoyee")
+        .from("individual_responses")
+        .update({ status: "rejected" })
+        .in("id", responseIds)
+        .select();
+
+      console.log("Bulk reject result:", { data, error });
+
+      if (error) {
+        console.error("Database error:", error);
+        throw error;
+      }
+
+      return { success: true };
+    } catch (error) {
+      console.error("Error bulk rejecting responses:", error);
+      return { success: false, error };
+    }
+  }
+
+  /**
+   * Bulk soft delete multiple survey responses
+   */
+  static async bulkSoftDeleteResponses(
+    responseIds: string[],
+    supabaseClient?: any
+  ): Promise<ServiceResponse<void>> {
+    const supabase = supabaseClient || getVeyoyeeClient();
+
+    try {
+      const { error } = await supabase
+        .schema("veyoyee")
+        .from("individual_responses")
+        .update({ is_deleted: true })
+        .in("id", responseIds);
+
+      if (error) {
+        throw error;
+      }
+
+      return { success: true };
+    } catch (error) {
+      console.error("Error bulk soft deleting responses:", error);
+      return { success: false, error };
     }
   }
 }
