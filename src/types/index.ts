@@ -43,7 +43,6 @@ export interface VeyoyeeUser {
   display_name?: string;
   email?: string;
   total_reputation: number;
-  surveys_completed: number;
   surveys_created: number;
   responses_accepted: number;
   responses_rejected: number;
@@ -60,7 +59,6 @@ export interface UserReputationStats {
   rank: number;
   responsesAccepted: number;
   responsesRejected: number;
-  surveysCompleted: number;
   surveysCreated: number;
 }
 
@@ -70,7 +68,6 @@ export interface LeaderboardEntry {
   display_name?: string;
   total_reputation: number;
   responses_accepted: number;
-  surveys_completed: number;
   surveys_created: number;
 }
 

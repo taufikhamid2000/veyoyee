@@ -639,7 +639,7 @@ export class SurveyResponseService {
         .schema("veyoyee")
         .from("users")
         .select(
-          "id, username, display_name, total_reputation, responses_accepted, surveys_completed, surveys_created"
+          "id, username, display_name, total_reputation, responses_accepted, surveys_created"
         )
         .order("total_reputation", { ascending: false })
         .limit(limit);
@@ -667,7 +667,6 @@ export class SurveyResponseService {
       rank: number;
       responsesAccepted: number;
       responsesRejected: number;
-      surveysCompleted: number;
       surveysCreated: number;
     }>
   > {
@@ -679,7 +678,7 @@ export class SurveyResponseService {
         .schema("veyoyee")
         .from("users")
         .select(
-          "total_reputation, responses_accepted, responses_rejected, surveys_completed, surveys_created"
+          "total_reputation, responses_accepted, responses_rejected, surveys_created"
         )
         .eq("id", userId)
         .single();
@@ -706,7 +705,6 @@ export class SurveyResponseService {
           rank: (rank || 0) + 1, // Add 1 because rank is 0-indexed
           responsesAccepted: userStats.responses_accepted,
           responsesRejected: userStats.responses_rejected,
-          surveysCompleted: userStats.surveys_completed,
           surveysCreated: userStats.surveys_created,
         },
       };

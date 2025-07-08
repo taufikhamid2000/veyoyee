@@ -238,43 +238,6 @@ export default function SurveyResultsClient({
     }
   };
 
-  const handleReopenSurvey = async () => {
-    if (survey.status !== "closed") {
-      alert("Only closed surveys can be reopened.");
-      return;
-    }
-
-    if (
-      !confirm(
-        "Are you sure you want to reopen this survey? This will:\n\n" +
-          "• Set the survey status back to active\n" +
-          "• Allow new responses to be submitted\n" +
-          "• Deleted responses will remain deleted unless explicitly restored\n\n" +
-          "Do you want to continue?"
-      )
-    ) {
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      const result = await SurveyService.reopenSurvey(surveyId);
-      if (result.success) {
-        alert("Survey has been reopened successfully.");
-        // Refresh the page to update the data
-        router.refresh();
-      } else {
-        console.error("Failed to reopen survey:", result.error);
-        alert("Failed to reopen survey. Please try again.");
-      }
-    } catch (error) {
-      console.error("Error reopening survey:", error);
-      alert("An error occurred while reopening the survey.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   const handleAcceptResponse = async () => {
     if (!selectedResponse) return;
 
@@ -613,48 +576,44 @@ export default function SurveyResultsClient({
 
             {/* Quick Actions */}
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-              {survey.status === "draft" && (
-                <a
-                  href={`/surveyor/edit/${surveyId}`}
-                  className="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
+              <a
+                href={`/surveyor/edit/${surveyId}`}
+                className="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
+              >
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
                 >
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                    />
-                  </svg>
-                  Edit Survey
-                </a>
-              )}
-              {survey.status === "closed" && (
-                <a
-                  href={`/surveyor/analysis/${surveyId}`}
-                  className="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                  />
+                </svg>
+                Edit Survey
+              </a>
+              <a
+                href={`/surveyor/analysis/${surveyId}`}
+                className="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
+              >
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
                 >
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-                    />
-                  </svg>
-                  View Analysis
-                </a>
-              )}
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+                  />
+                </svg>
+                View Analysis
+              </a>
 
               {/* End Survey Button - only show if survey is active */}
               {survey.status === "active" && (
@@ -683,30 +642,6 @@ export default function SurveyResultsClient({
                     />
                   </svg>
                   {isLoading ? "Ending..." : "End Survey"}
-                </button>
-              )}
-
-              {/* Reopen Survey Button - only show if survey is closed */}
-              {survey.status === "closed" && (
-                <button
-                  onClick={handleReopenSurvey}
-                  disabled={isLoading}
-                  className="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 disabled:bg-green-400 disabled:cursor-not-allowed rounded-lg transition-colors"
-                >
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                    />
-                  </svg>
-                  {isLoading ? "Reopening..." : "Reopen Survey"}
                 </button>
               )}
             </div>
@@ -857,27 +792,25 @@ export default function SurveyResultsClient({
                 will appear here for review and analysis.
               </p>
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                {survey.status === "draft" && (
-                  <a
-                    href={`/surveyor/edit/${surveyId}`}
-                    className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
+                <a
+                  href={`/surveyor/edit/${surveyId}`}
+                  className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
+                >
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
                   >
-                    <svg
-                      className="w-4 h-4"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                      />
-                    </svg>
-                    Edit Survey
-                  </a>
-                )}
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                    />
+                  </svg>
+                  Edit Survey
+                </a>
                 <button
                   onClick={() =>
                     navigator.clipboard.writeText(
@@ -955,7 +888,6 @@ export default function SurveyResultsClient({
                 resultsCount={responses.length}
                 hideDeleted={hideDeleted}
                 onHideDeletedChange={handleHideDeletedChange}
-                surveyStatus={survey.status}
               />
 
               <BulkActions

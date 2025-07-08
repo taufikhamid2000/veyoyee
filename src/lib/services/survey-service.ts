@@ -177,12 +177,6 @@ export class SurveyService {
   ) {
     return SurveyCoreService.endSurveyEarly(...args);
   }
-
-  static async reopenSurvey(
-    ...args: Parameters<typeof SurveyCoreService.reopenSurvey>
-  ) {
-    return SurveyCoreService.reopenSurvey(...args);
-  }
 }
 
 // Also export the formatting functions for backward compatibility
