@@ -109,6 +109,8 @@ export class SurveyQuestionService {
     surveyId: string
   ): Promise<ServiceResponse<QuestionEdit[]>> {
     try {
+      console.log(`Getting questions for survey: ${surveyId}`);
+
       // Get the questions
       const { data: questions, error: questionsError } = await supabase
         .schema("veyoyee") // Set schema for this operation
@@ -118,8 +120,13 @@ export class SurveyQuestionService {
         .order("display_order", { ascending: true });
 
       if (questionsError) {
+        console.error("Error fetching questions:", questionsError);
         throw questionsError;
       }
+
+      console.log(
+        `Found ${questions?.length || 0} questions for survey ${surveyId}`
+      );
 
       // Get options for multiple choice and checkbox questions
       const multiChoiceQuestions = questions.filter(
@@ -127,13 +134,24 @@ export class SurveyQuestionService {
           q.type === "multipleChoice" || q.type === "checkboxList"
       );
 
+      console.log(
+        `Found ${multiChoiceQuestions.length} multiple choice/checkbox questions`
+      );
+
       const questionIds = multiChoiceQuestions.map((q: DbQuestion) => q.id);
 
       // If there are no multiple choice questions, return what we have
       if (questionIds.length === 0) {
+        console.log(
+          "No multiple choice questions found, formatting questions without options"
+        );
         const formattedQuestions = formatQuestionsForClient(questions);
         return { success: true, data: formattedQuestions };
       }
+
+      console.log(
+        `Fetching options for question IDs: ${questionIds.join(", ")}`
+      );
 
       // Get options for each question
       const { data: options, error: optionsError } = await supabase
@@ -144,11 +162,20 @@ export class SurveyQuestionService {
         .order("display_order", { ascending: true });
 
       if (optionsError) {
+        console.error("Error fetching options:", optionsError);
         throw optionsError;
       }
 
+      console.log(
+        `Found ${options?.length || 0} options for survey ${surveyId}`
+      );
+
       // Format the data
       const formattedQuestions = formatQuestionsForClient(questions, options);
+
+      console.log(
+        `Successfully formatted ${formattedQuestions.length} questions for survey ${surveyId}`
+      );
 
       return { success: true, data: formattedQuestions };
     } catch (error) {
