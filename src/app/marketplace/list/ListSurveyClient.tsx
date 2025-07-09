@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
+import { createClient } from "@/lib/supabase/client";
 
 interface ClosedSurvey {
   id: string;
@@ -30,11 +31,56 @@ export default function ListSurveyPage({
   const [submitted, setSubmitted] = useState(false);
   const [showClosedSurveys, setShowClosedSurveys] = useState(false);
   const [selectedSurveyId, setSelectedSurveyId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const supabase = createClient();
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    setLoading(true);
+    setError(null);
+    if (!selectedSurveyId) {
+      setError("Please select a closed survey to list.");
+      setLoading(false);
+      return;
+    }
+    // Get current user
+    const { data: userData, error: userError } = await supabase.auth.getUser();
+    if (userError || !userData?.user?.id) {
+      setError("Could not get current user. Please sign in again.");
+      setLoading(false);
+      return;
+    }
+    // Find the selected survey for required fields
+    const selectedSurvey = closedSurveys.find((s) => s.id === selectedSurveyId);
+    if (!selectedSurvey) {
+      setError("Could not find selected survey data.");
+      setLoading(false);
+      return;
+    }
+    // Prepare the row to insert (all required NOT NULL fields)
+    const rowToInsert = {
+      id: selectedSurvey.id, // Use survey id as marketplace id (or generate a new one if needed)
+      survey_id: selectedSurvey.id,
+      title: selectedSurvey.title,
+      description: selectedSurvey.description,
+      sample_size: selectedSurvey.reward_amount || 0, // You may want to use a real sample_size field if available
+      price,
+      owner: userData.user.id,
+      // is_transferable and last_updated will use defaults
+    };
+    // Insert into marketplace table
+    const { error: insertError } = await supabase
+      .schema("veyoyee")
+      .from("marketplace")
+      .insert([rowToInsert]);
+    if (insertError) {
+      setError(insertError.message);
+      setLoading(false);
+      return;
+    }
     setSubmitted(true);
-    // Here you would send the data to your backend, including selectedSurveyId
+    setLoading(false);
   }
 
   // Prefill form from closed survey
@@ -56,7 +102,7 @@ export default function ListSurveyPage({
         </p>
         {submitted ? (
           <div className="bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200 rounded p-6 text-center font-semibold">
-            Your closed survey has been listed! (Demo only)
+            Your closed survey has been listed!
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-5">
@@ -173,12 +219,17 @@ export default function ListSurveyPage({
                 Set to 0 for free/open access
               </span>
             </div>
+            {error && (
+              <div className="text-red-600 text-center text-sm font-semibold">
+                {error}
+              </div>
+            )}
             <button
               type="submit"
               className="w-full py-2 px-4 bg-blue-600 text-white rounded font-semibold hover:bg-blue-700 transition"
-              disabled={!selectedSurveyId}
+              disabled={!selectedSurveyId || loading}
             >
-              List Survey
+              {loading ? "Listing..." : "List Survey"}
             </button>
           </form>
         )}

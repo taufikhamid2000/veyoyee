@@ -29,3 +29,17 @@ CREATE POLICY marketplace_owner_write ON veyoyee.marketplace
 -- 5. Grant permissions
 GRANT SELECT ON veyoyee.marketplace TO anon, authenticated, service_role;
 GRANT INSERT, UPDATE, DELETE ON veyoyee.marketplace TO authenticated, service_role;
+
+-- 6. RLS Policy: Allow insert only if the owner matches the current user
+CREATE POLICY marketplace_insert_owner ON veyoyee.marketplace
+    FOR INSERT
+    WITH CHECK (auth.uid()::text = owner);
+
+-- 7. RLS Policy: Allow update/delete only if the owner matches the current user
+CREATE POLICY marketplace_update_owner ON veyoyee.marketplace
+    FOR UPDATE
+    USING (auth.uid()::text = owner);
+
+CREATE POLICY marketplace_delete_owner ON veyoyee.marketplace
+    FOR DELETE
+    USING (auth.uid()::text = owner);

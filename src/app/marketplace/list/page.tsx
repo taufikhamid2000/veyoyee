@@ -27,8 +27,28 @@ export default async function ListSurveyPageWrapper() {
     redirect("/auth/signin");
   }
 
-  // Fetch closed surveys for the current user, including all required fields
-  const { data: surveys, error: surveyError } = await supabase
+  // 1. Fetch all listed survey_ids from marketplace
+  const { data: listings, error: listingsError } = await supabase
+    .schema("veyoyee")
+    .from("marketplace")
+    .select("survey_id");
+
+  if (listingsError) {
+    console.error(
+      "Error fetching marketplace listings:",
+      listingsError.message
+    );
+    return (
+      <div className="text-red-600 text-center mt-8">
+        Failed to load marketplace listings. Please try again later.
+      </div>
+    );
+  }
+
+  const listedIds = (listings ?? []).map((l) => l.survey_id).filter(Boolean);
+
+  // 2. Fetch closed surveys for the current user, excluding already listed ones
+  let surveyQuery = supabase
     .schema("veyoyee")
     .from("surveys")
     .select(
@@ -49,6 +69,12 @@ export default async function ListSurveyPageWrapper() {
     )
     .eq("created_by", data.user.id)
     .eq("status", "closed");
+
+  if (listedIds.length > 0) {
+    surveyQuery = surveyQuery.not("id", "in", `(${listedIds.join(",")})`);
+  }
+
+  const { data: surveys, error: surveyError } = await surveyQuery;
 
   if (surveyError) {
     console.error("Error fetching closed surveys:", surveyError.message);
