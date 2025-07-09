@@ -2,6 +2,22 @@ import { createServerClient } from "@/lib/supabase/server";
 import ListSurveyPage from "./ListSurveyClient";
 import { redirect } from "next/navigation";
 
+// Define a type for the survey row
+interface SurveyRow {
+  id: string;
+  title: string;
+  description: string;
+  price: number;
+  type: string;
+  start_date: string | null;
+  end_date: string | null;
+  reward_amount: number | null;
+  created_at: string;
+  updated_at: string;
+  created_by: string;
+  owned_by: string;
+}
+
 export default async function ListSurveyPageWrapper() {
   // Server-side auth check
   const supabase = await createServerClient();
@@ -11,11 +27,26 @@ export default async function ListSurveyPageWrapper() {
     redirect("/auth/signin");
   }
 
-  // Fetch closed surveys for the current user
+  // Fetch closed surveys for the current user, including all required fields
   const { data: surveys, error: surveyError } = await supabase
     .schema("veyoyee")
     .from("surveys")
-    .select("id, title, description, price, status, created_by")
+    .select(
+      [
+        "id",
+        "title",
+        "description",
+        "price",
+        "type",
+        "start_date",
+        "end_date",
+        "reward_amount",
+        "created_at",
+        "updated_at",
+        "created_by",
+        "owned_by",
+      ].join(", ")
+    )
     .eq("created_by", data.user.id)
     .eq("status", "closed");
 
@@ -29,12 +60,32 @@ export default async function ListSurveyPageWrapper() {
   }
 
   const closedSurveys = Array.isArray(surveys)
-    ? surveys.map((s) => ({
-        id: s.id,
-        title: s.title,
-        description: s.description,
-        price: s.price ?? 0,
-      }))
+    ? surveys
+        .filter(
+          (s) =>
+            s &&
+            typeof s === "object" &&
+            !("error" in s) &&
+            "id" in s &&
+            "title" in s
+        )
+        .map((s) => {
+          const row = s as SurveyRow;
+          return {
+            id: row.id,
+            title: row.title,
+            description: row.description,
+            price: row.price ?? 0,
+            type: row.type,
+            start_date: row.start_date,
+            end_date: row.end_date,
+            reward_amount: row.reward_amount,
+            created_at: row.created_at,
+            updated_at: row.updated_at,
+            created_by: row.created_by,
+            owned_by: row.owned_by,
+          };
+        })
     : [];
 
   return <ListSurveyPage closedSurveys={closedSurveys} />;
