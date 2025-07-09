@@ -238,6 +238,41 @@ export default function SurveyResultsClient({
     }
   };
 
+  // Add logic to reopen a closed survey
+  const handleReopenSurvey = async () => {
+    if (survey.status !== "closed") {
+      alert("Survey is not closed.");
+      return;
+    }
+    if (
+      !confirm(
+        "Are you sure you want to reopen this survey? It will be set to active and can accept new responses."
+      )
+    ) {
+      return;
+    }
+    setIsLoading(true);
+    try {
+      // Use SurveyCoreService to reopen the survey
+      const { SurveyCoreService } = await import(
+        "@/lib/services/survey/survey-core-service"
+      );
+      const result = await SurveyCoreService.reopenSurvey(surveyId);
+      if (result.success) {
+        alert("Survey has been reopened and is now active.");
+        router.refresh();
+      } else {
+        console.error("Failed to reopen survey:", result.error);
+        alert("Failed to reopen survey. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error reopening survey:", error);
+      alert("An error occurred while reopening the survey.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleAcceptResponse = async () => {
     if (!selectedResponse) return;
 
@@ -643,7 +678,30 @@ export default function SurveyResultsClient({
                       d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"
                     />
                   </svg>
-                  {isLoading ? "Ending..." : "End Survey"}
+                  {isLoading ? "Ending..." : "Close Survey"}
+                </button>
+              )}
+              {/* Reopen Survey Button - only show if survey is closed */}
+              {survey.status === "closed" && (
+                <button
+                  onClick={handleReopenSurvey}
+                  disabled={isLoading}
+                  className="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 disabled:bg-green-400 disabled:cursor-not-allowed rounded-lg transition-colors"
+                >
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 4v16m8-8H4"
+                    />
+                  </svg>
+                  {isLoading ? "Reopening..." : "Reopen Survey"}
                 </button>
               )}
             </div>

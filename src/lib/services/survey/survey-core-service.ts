@@ -527,4 +527,51 @@ export class SurveyCoreService {
       return { success: false, error };
     }
   }
+
+  /**
+   * Reopen a closed survey (set status back to active)
+   */
+  static async reopenSurvey(
+    surveyId: string,
+    supabaseClient?: any
+  ): Promise<ServiceResponse<void>> {
+    const supabase = supabaseClient || getVeyoyeeClient();
+    try {
+      // Get the current user
+      const {
+        data: { user },
+        error: userError,
+      } = await supabase.auth.getUser();
+      if (userError || !user) {
+        throw new Error("User not authenticated");
+      }
+      // 1. Verify the user owns this survey
+      const { data: survey, error: surveyError } = await supabase
+        .schema("veyoyee")
+        .from("surveys")
+        .select("id, created_by, status")
+        .eq("id", surveyId)
+        .eq("created_by", user.id)
+        .single();
+      if (surveyError || !survey) {
+        throw new Error("Survey not found or access denied");
+      }
+      if (survey.status !== "closed") {
+        throw new Error("Survey is not closed");
+      }
+      // 2. Set status back to active
+      const { error: updateError } = await supabase
+        .schema("veyoyee")
+        .from("surveys")
+        .update({ status: "active" })
+        .eq("id", surveyId);
+      if (updateError) {
+        throw updateError;
+      }
+      return { success: true };
+    } catch (error) {
+      console.error("Error reopening survey:", error);
+      return { success: false, error };
+    }
+  }
 }
