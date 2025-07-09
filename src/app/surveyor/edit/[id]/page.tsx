@@ -1,21 +1,27 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, use } from "react";
 import { useRouter } from "next/navigation";
 import { SurveyCoreService } from "@/lib/services/survey";
 import { getVeyoyeeClient } from "@/lib/supabase/veyoyee-client";
 import SurveyForm from "../../SurveyForm";
 import type { SurveyEdit } from "@/data/surveyor-data";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export default function EditSurveyPage({ params }: any) {
-  const { id } = params;
+interface PageParams {
+  id: string;
+}
+
+export default function EditSurveyPage({
+  params,
+}: {
+  params: Promise<PageParams>;
+}) {
+  const unwrappedParams = use(params);
+  const { id } = unwrappedParams;
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [survey, setSurvey] = useState<SurveyEdit | null>(null);
-
-  console.log("Attempting to fetch survey with ID:", id);
 
   useEffect(() => {
     async function fetchSurvey() {
@@ -30,13 +36,10 @@ export default function EditSurveyPage({ params }: any) {
         } = await supabase.auth.getUser();
 
         if (userError || !user) {
-          console.error("User not authenticated:", userError);
           setError("You must be logged in to edit surveys.");
           setLoading(false);
           return;
         }
-
-        console.log("Current user:", user.id);
 
         // First, let's check if the survey exists at all
         const { data: surveyCheck, error: surveyCheckError } = await supabase
@@ -46,14 +49,7 @@ export default function EditSurveyPage({ params }: any) {
           .eq("id", id)
           .single();
 
-        console.log("Direct survey check:", {
-          exists: !!surveyCheck,
-          error: surveyCheckError,
-          survey: surveyCheck,
-        });
-
         if (surveyCheckError) {
-          console.error("Survey not found in database:", surveyCheckError);
           setError("Survey not found.");
           setLoading(false);
           return;
@@ -61,9 +57,6 @@ export default function EditSurveyPage({ params }: any) {
 
         // Check if the current user can edit this survey
         if (surveyCheck.created_by !== user.id) {
-          console.error("User does not have permission to edit this survey");
-          console.error("Survey created by:", surveyCheck.created_by);
-          console.error("Current user:", user.id);
           setError(
             "You don't have permission to edit this survey. Only the survey creator can edit it."
           );
@@ -72,25 +65,12 @@ export default function EditSurveyPage({ params }: any) {
         }
 
         // Fetch the survey using the core service
-        const {
-          success,
-          data: surveyData,
-          error: surveyError,
-        } = await SurveyCoreService.getSurveyById(id, supabase);
-
-        console.log("Survey fetch result:", {
-          success,
-          hasData: !!surveyData,
-          error: surveyError,
-        });
+        const { success, data: surveyData } =
+          await SurveyCoreService.getSurveyById(id, supabase);
 
         if (!success || !surveyData) {
-          console.error("Failed to fetch survey:", surveyError);
-          console.error("Survey ID that failed:", id);
-
           // If the survey exists but the service failed, try to create a minimal survey object
           if (surveyCheck) {
-            console.log("Creating fallback survey object from database record");
             const fallbackSurvey: SurveyEdit = {
               id: surveyCheck.id,
               title: surveyCheck.title,
@@ -116,8 +96,6 @@ export default function EditSurveyPage({ params }: any) {
           return;
         }
 
-        console.log("Successfully fetched survey:", surveyData.id);
-
         // Transform the survey data to match SurveyForm's expected format
         const initialSurvey: SurveyEdit = {
           id: surveyData.id,
@@ -136,9 +114,7 @@ export default function EditSurveyPage({ params }: any) {
 
         setSurvey(initialSurvey);
         setLoading(false);
-      } catch (error) {
-        console.error("Error in EditSurveyPage:", error);
-        console.error("Survey ID that caused error:", id);
+      } catch {
         setError("An error occurred while loading the survey.");
         setLoading(false);
       }
