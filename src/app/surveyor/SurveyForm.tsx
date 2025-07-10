@@ -7,6 +7,7 @@ import { createDefaultQuestion } from "../../components/forms/survey-builder/que
 import SurveyFormHeader from "../../components/forms/survey/SurveyFormHeader";
 import QuestionList from "../../components/forms/survey/QuestionList";
 import SurveyResponseForm from "../../components/forms/survey/SurveyResponseForm";
+import { UserRewardsService } from "../../lib/services/user-rewards-service";
 
 interface SurveyFormProps {
   initialSurvey?: SurveyEdit;
@@ -120,7 +121,7 @@ export default function SurveyForm({
   );
 
   // Initialize survey actions hook
-  const { createSurvey } = useSurveyActions();
+  const { createSurvey, updateSurvey } = useSurveyActions();
 
   // Warn the user if they try to leave the page with unsaved survey changes
   useEffect(() => {
@@ -172,6 +173,40 @@ export default function SurveyForm({
     }
 
     try {
+      // Check SCP before activating survey
+      const rewards = await UserRewardsService.getUserRewards();
+      if (!rewards || rewards.scpOwned < 1) {
+        alert(
+          "You don't have any SCP, answer at least 100 survey and claim your SCP"
+        );
+        return;
+      }
+
+      // Deduct 1 SCP
+      const supabase = (
+        await import("../../lib/supabase/veyoyee-client")
+      ).getVeyoyeeClient();
+      const {
+        data: { user },
+        error: userError,
+      } = await supabase.auth.getUser();
+      if (userError || !user) {
+        alert("User not authenticated");
+        return;
+      }
+      const { error: updateError } = await supabase
+        .schema("veyoyee")
+        .from("users")
+        .update({
+          scp_owned: rewards.scpOwned - 1,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", user.id);
+      if (updateError) {
+        alert("Failed to deduct SCP. Please try again.");
+        return;
+      }
+
       // Show loading UI
       alert("Creating your survey...");
 
@@ -187,8 +222,14 @@ export default function SurveyForm({
         questions,
       };
 
-      // Use our hook to create the survey
-      const result = await createSurvey(surveyData, "active");
+      let result;
+      if (initialSurvey?.id) {
+        // Update existing survey to active
+        result = await updateSurvey(initialSurvey.id, surveyData, "active");
+      } else {
+        // Create new active survey
+        result = await createSurvey(surveyData, "active");
+      }
 
       if (!result || !result.success) {
         const errorMsg =
@@ -202,7 +243,9 @@ export default function SurveyForm({
       alert(`Survey "${surveyTitle}" created successfully!`);
 
       // Redirect to dashboard or survey view
-      window.location.href = `/dashboard?created=${result.data?.surveyId}`;
+      window.location.href = `/dashboard?created=${
+        result.data?.surveyId || initialSurvey?.id
+      }`;
     } catch (err) {
       console.error("Error creating survey:", err);
       alert(
@@ -260,11 +303,6 @@ export default function SurveyForm({
             }
 
             try {
-              // Import dynamically to prevent loading on server
-              const { SurveyService } = await import(
-                "../../lib/services/survey-service"
-              );
-
               // Show loading
               alert("Saving draft...");
 
@@ -280,11 +318,18 @@ export default function SurveyForm({
                 questions,
               };
 
-              // Call service to save draft
-              const result = await SurveyService.createSurvey(
-                surveyData,
-                "draft"
-              );
+              let result;
+              if (initialSurvey?.id) {
+                // Update existing survey
+                result = await updateSurvey(
+                  initialSurvey.id,
+                  surveyData,
+                  "draft"
+                );
+              } else {
+                // Create new draft
+                result = await createSurvey(surveyData, "draft");
+              }
 
               if (result.success) {
                 // Show success message
@@ -293,7 +338,9 @@ export default function SurveyForm({
                 );
 
                 // Redirect to dashboard
-                window.location.href = `/dashboard?draft=${result.data?.surveyId}`;
+                window.location.href = `/dashboard?draft=${
+                  result.data?.surveyId || initialSurvey?.id
+                }`;
               } else {
                 // Show error message
                 console.error("Error saving draft:", result.error);

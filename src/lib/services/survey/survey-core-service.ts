@@ -57,6 +57,7 @@ export class SurveyCoreService {
             ? parseFloat(surveyData.rewardAmount)
             : null,
           created_by: user.id,
+          owned_by: user.id, // <-- Added this line
         })
         .select("id")
         .single();
@@ -158,6 +159,16 @@ export class SurveyCoreService {
     const supabase = getVeyoyeeClient();
 
     try {
+      // Get the current user
+      const {
+        data: { user },
+        error: userError,
+      } = await supabase.auth.getUser();
+
+      if (userError || !user) {
+        throw new Error("User not authenticated");
+      }
+
       // 1. Update the survey record
       const surveyUpdate: any = {
         title: surveyData.title,
@@ -169,6 +180,7 @@ export class SurveyCoreService {
         reward_amount: surveyData.rewardAmount
           ? parseFloat(surveyData.rewardAmount)
           : null,
+        owned_by: user.id, // <-- Added this line
       };
 
       // Update status if provided
