@@ -24,12 +24,16 @@ import MultivariateTab, {
 } from "@/components/analysis/MultivariateTab";
 import { jsPDF } from "jspdf/dist/jspdf.umd.min.js";
 import "./force-export-colors.css";
+import { useRouter } from "next/navigation";
+import { BarChart, Users, LineChart, Sigma, Layers3 } from "lucide-react";
 
 export default function SurveyAnalysisPage({ params }: any) {
   // Always call hooks unconditionally
   const resolvedParams = usePromise(
     typeof params.then === "function" ? params : Promise.resolve(params)
   ) as { id: string };
+
+  const router = useRouter();
 
   // Memoize everything, even if not used
   const id = resolvedParams.id;
@@ -90,6 +94,35 @@ export default function SurveyAnalysisPage({ params }: any) {
     "descriptives" | "correlation" | "anova" | "regression" | "multivariate"
   >("descriptives");
 
+  // Tab definitions with icons
+  const tabs = [
+    {
+      key: "descriptives",
+      label: "Descriptives",
+      icon: <BarChart className="w-5 h-5 inline-block mr-1" />,
+    },
+    {
+      key: "correlation",
+      label: "Correlation",
+      icon: <LineChart className="w-5 h-5 inline-block mr-1" />,
+    },
+    {
+      key: "anova",
+      label: "ANOVA/GLM",
+      icon: <Sigma className="w-5 h-5 inline-block mr-1" />,
+    },
+    {
+      key: "regression",
+      label: "Regression",
+      icon: <Layers3 className="w-5 h-5 inline-block mr-1" />,
+    },
+    {
+      key: "multivariate",
+      label: "Multivariate",
+      icon: <Users className="w-5 h-5 inline-block mr-1" />,
+    },
+  ];
+
   // Refs for each tab content
   const tabRefs = {
     descriptives: useRef<HTMLDivElement>(null),
@@ -105,107 +138,91 @@ export default function SurveyAnalysisPage({ params }: any) {
     setTTestValue((Math.random() * 0.1 + 0.01).toFixed(3));
   }, []);
 
-  // Early return after hooks
-  if (!survey) return notFound();
+  // If the survey doesn't exist, redirect to the first available mock survey
+  useEffect(() => {
+    if (!survey && mockSurveys.length > 0) {
+      router.replace(`/surveyor/analysis/${mockSurveys[0].id}`);
+    }
+  }, [survey, router]);
+
+  if (!survey) return null; // Prevent rendering until redirect
   if (survey.status === "draft") return notFound();
 
   return (
-    <div className="container mx-auto py-8 px-4 md:px-6">
-      <h1 className="text-2xl font-bold mb-6 text-gray-900 dark:text-white">
-        Survey Analysis: {survey.title}
+    <div className="container mx-auto py-8 px-2 md:px-6">
+      <h1 className="text-3xl font-extrabold mb-8 text-gray-900 dark:text-white tracking-tight">
+        Survey Analysis: <span className="text-blue-600">{survey.title}</span>
       </h1>
-      {/* Tabs */}
-      <div className="mb-6 overflow-x-auto">
-        <div className="flex gap-2 min-w-max w-fit">
-          <button
-            className={`px-4 py-2 rounded-t font-semibold border-b-2 transition-colors ${
-              activeTab === "descriptives"
-                ? "border-blue-600 text-blue-700 bg-white"
-                : "border-transparent text-gray-500 bg-gray-100 hover:bg-gray-200"
-            }`}
-            onClick={() => setActiveTab("descriptives")}
-          >
-            Descriptives & Exploration
-          </button>
-          <button
-            className={`px-4 py-2 rounded-t font-semibold border-b-2 transition-colors ${
-              activeTab === "correlation"
-                ? "border-blue-600 text-blue-700 bg-white"
-                : "border-transparent text-gray-500 bg-gray-100 hover:bg-gray-200"
-            }`}
-            onClick={() => setActiveTab("correlation")}
-          >
-            Correlation & Association
-          </button>
-          <button
-            className={`px-4 py-2 rounded-t font-semibold border-b-2 transition-colors ${
-              activeTab === "anova"
-                ? "border-blue-600 text-blue-700 bg-white"
-                : "border-transparent text-gray-500 bg-gray-100 hover:bg-gray-200"
-            }`}
-            onClick={() => setActiveTab("anova")}
-          >
-            ANOVA/GLM Family
-          </button>
-          <button
-            className={`px-4 py-2 rounded-t font-semibold border-b-2 transition-colors ${
-              activeTab === "regression"
-                ? "border-blue-600 text-blue-700 bg-white"
-                : "border-transparent text-gray-500 bg-gray-100 hover:bg-gray-200"
-            }`}
-            onClick={() => setActiveTab("regression")}
-          >
-            Regression & Predictive Models
-          </button>
-          <button
-            className={`px-4 py-2 rounded-t font-semibold border-b-2 transition-colors ${
-              activeTab === "multivariate"
-                ? "border-blue-600 text-blue-700 bg-white"
-                : "border-transparent text-gray-500 bg-gray-100 hover:bg-gray-200"
-            }`}
-            onClick={() => setActiveTab("multivariate")}
-          >
-            Multivariate & Data Reduction
-          </button>
+      {/* Modern Tab Bar */}
+      <div className="mb-8 flex justify-center">
+        <div className="flex gap-2 bg-white dark:bg-gray-900 rounded-xl shadow p-2 border border-gray-200 dark:border-gray-700">
+          {tabs.map((tab) => (
+            <button
+              key={tab.key}
+              className={`flex items-center gap-1 px-4 py-2 rounded-lg font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400
+                ${
+                  activeTab === tab.key
+                    ? "bg-blue-50 dark:bg-blue-900 text-blue-700 dark:text-blue-200 shadow"
+                    : "text-gray-500 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                }
+              `}
+              onClick={() => setActiveTab(tab.key as typeof activeTab)}
+            >
+              {tab.icon}
+              {tab.label}
+            </button>
+          ))}
         </div>
       </div>
-      {/* Tab content */}
-      <div
-        style={{ display: activeTab === "descriptives" ? "block" : "none" }}
-        ref={tabRefs.descriptives}
-      >
-        <DescriptivesTab
-          numRespondents={numRespondents}
-          avgAge={avgAge}
-          genderCounts={genderCounts}
-          mockTTest={() => tTestValue}
-          barChartData={barChartData}
-          questions={questions}
-        />
-      </div>
-      <div
-        style={{ display: activeTab === "correlation" ? "block" : "none" }}
-        ref={tabRefs.correlation}
-      >
-        {activeTab === "correlation" && <CorrelationTab />}
-      </div>
-      <div
-        style={{ display: activeTab === "anova" ? "block" : "none" }}
-        ref={tabRefs.anova}
-      >
-        {activeTab === "anova" && <AnovaGlmTab />}
-      </div>
-      <div
-        style={{ display: activeTab === "regression" ? "block" : "none" }}
-        ref={tabRefs.regression}
-      >
-        {activeTab === "regression" && <RegressionTab />}
-      </div>
-      <div
-        style={{ display: activeTab === "multivariate" ? "block" : "none" }}
-        ref={tabRefs.multivariate}
-      >
-        {activeTab === "multivariate" && <MultivariateTab />}
+      {/* Tab content in cards */}
+      <div className="max-w-4xl mx-auto">
+        <div
+          style={{ display: activeTab === "descriptives" ? "block" : "none" }}
+          ref={tabRefs.descriptives}
+        >
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 mb-8 border border-gray-100 dark:border-gray-700">
+            <DescriptivesTab
+              numRespondents={numRespondents}
+              avgAge={avgAge}
+              genderCounts={genderCounts}
+              mockTTest={() => tTestValue}
+              barChartData={barChartData}
+              questions={questions}
+            />
+          </div>
+        </div>
+        <div
+          style={{ display: activeTab === "correlation" ? "block" : "none" }}
+          ref={tabRefs.correlation}
+        >
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 mb-8 border border-gray-100 dark:border-gray-700">
+            {activeTab === "correlation" && <CorrelationTab />}
+          </div>
+        </div>
+        <div
+          style={{ display: activeTab === "anova" ? "block" : "none" }}
+          ref={tabRefs.anova}
+        >
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 mb-8 border border-gray-100 dark:border-gray-700">
+            {activeTab === "anova" && <AnovaGlmTab />}
+          </div>
+        </div>
+        <div
+          style={{ display: activeTab === "regression" ? "block" : "none" }}
+          ref={tabRefs.regression}
+        >
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 mb-8 border border-gray-100 dark:border-gray-700">
+            {activeTab === "regression" && <RegressionTab />}
+          </div>
+        </div>
+        <div
+          style={{ display: activeTab === "multivariate" ? "block" : "none" }}
+          ref={tabRefs.multivariate}
+        >
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 mb-8 border border-gray-100 dark:border-gray-700">
+            {activeTab === "multivariate" && <MultivariateTab />}
+          </div>
+        </div>
       </div>
       {/* Export as PDF section */}
       <div className="mt-8 bg-white border border-gray-200 rounded p-4">
