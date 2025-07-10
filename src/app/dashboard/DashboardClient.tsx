@@ -55,20 +55,20 @@ export default function DashboardClient({
         );
 
   return (
-    <div className="container mx-auto py-8 px-4 md:px-6">
+    <div className="container mx-auto py-8 px-2 sm:px-4 md:px-6">
       {/* Dashboard Header with Welcome and Quick Stats */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8 gap-4 md:gap-0">
         <div>
           <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-500 to-indigo-500 bg-clip-text text-transparent">
             Welcome, {userProfile?.first_name || "Researcher"}!
           </h1>
-          <p className="text-gray-900 dark:text-gray-400 mt-1">
+          <p className="text-gray-900 dark:text-gray-400 mt-1 text-base sm:text-lg">
             Manage your surveys and analyze responses all in one place.
           </p>
         </div>
-        <div className="mt-4 md:mt-0">
+        <div className="mt-2 md:mt-0">
           <Link href="/surveyor">
-            <button className="px-5 py-2.5 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg hover:from-blue-600 hover:to-indigo-700 transition-all shadow-md hover:shadow-lg flex items-center gap-2">
+            <button className="px-5 py-3 text-base sm:text-lg bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg hover:from-blue-600 hover:to-indigo-700 transition-all shadow-md hover:shadow-lg flex items-center gap-2 w-full md:w-auto">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
@@ -89,8 +89,8 @@ export default function DashboardClient({
         </div>
       </div>
 
-      {/* Quick Stats Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+      {/* Stats Grid: 2x2 on mobile, 1x4 on desktop */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
         <SurveyStatsCard
           title="Active Surveys"
           value={activeSurveys}
@@ -101,7 +101,6 @@ export default function DashboardClient({
               viewBox="0 0 24 24"
               strokeWidth={2}
               stroke="currentColor"
-              className="w-5 h-5 text-blue-600 dark:text-blue-400"
             >
               <path
                 strokeLinecap="round"
@@ -140,7 +139,6 @@ export default function DashboardClient({
               viewBox="0 0 24 24"
               strokeWidth={2}
               stroke="currentColor"
-              className="w-5 h-5 text-purple-600 dark:text-purple-400"
             >
               <path
                 strokeLinecap="round"
@@ -179,7 +177,6 @@ export default function DashboardClient({
               viewBox="0 0 24 24"
               strokeWidth={2}
               stroke="currentColor"
-              className="w-5 h-5 text-green-600 dark:text-green-400"
             >
               <path
                 strokeLinecap="round"
@@ -201,13 +198,12 @@ export default function DashboardClient({
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  d="m19.5 4.5-15 15m0 0h11.25m-11.25 0V8.25"
+                  d="m4.5 19.5 15-15m0 0H8.25m11.25 0v11.25"
                 />
               </svg>
-              Down 3% from last month
+              +2% this week
             </>
           }
-          trendColor="text-red-600 dark:text-red-400"
         />
         <SurveyStatsCard
           title="Draft Surveys"
@@ -219,12 +215,11 @@ export default function DashboardClient({
               viewBox="0 0 24 24"
               strokeWidth={2}
               stroke="currentColor"
-              className="w-5 h-5 text-amber-600 dark:text-amber-400"
             >
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"
+                d="M16.862 4.487l1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10"
               />
             </svg>
           }
@@ -234,45 +229,64 @@ export default function DashboardClient({
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
                 viewBox="0 0 24 24"
-                strokeWidth={1.5}
+                strokeWidth={2}
                 stroke="currentColor"
                 className="w-4 h-4 mr-1"
               >
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  d="M8.25 4.5l7.5 7.5-7.5 7.5"
+                  d="m4.5 19.5 15-15m0 0H8.25m11.25 0v11.25"
                 />
               </svg>
-              Complete this draft
+              1 new draft
             </>
           }
-          trendColor="text-blue-600 dark:text-blue-400"
         />
       </div>
 
-      {/* Survey Management Tabs */}
-      <SurveyTabs activeTab={activeTab} onTabChange={setActiveTab} />
-
-      {/* Survey Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-        {filteredSurveys.map((survey) => (
-          <SurveyCard
-            key={survey.id}
-            {...survey}
-            isOwner={userProfile?.id === survey.createdBy}
-          />
-        ))}
-        <CreateSurveyCard />
+      {/* Survey Tabs - add horizontal scroll on mobile */}
+      <div className="mb-6 border-b border-gray-200 dark:border-gray-700 overflow-x-auto">
+        <ul className="flex flex-nowrap -mb-px min-w-max">
+          {Object.keys(tabToStatus).map((tab) => (
+            <li className="mr-2" key={tab}>
+              <button
+                className={`inline-block p-3 sm:p-4 border-b-2 font-medium transition-colors text-base sm:text-lg min-w-[120px] text-center whitespace-nowrap
+                  ${
+                    activeTab === tab
+                      ? "border-blue-600 text-blue-600 dark:text-blue-400 dark:border-blue-400"
+                      : "border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
+                  }`}
+                onClick={() => setActiveTab(tab)}
+              >
+                {tab}
+              </button>
+            </li>
+          ))}
+        </ul>
       </div>
 
-      {/* Recent Activity Section */}
-      <h2 className="text-xl font-semibold mb-4">Recent Activity</h2>
-      <RecentActivityTable activities={activities} />
+      {/* Survey Cards - stack vertically on mobile */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-8">
+        {filteredSurveys.length === 0 ? (
+          <div className="col-span-full text-center text-gray-500 dark:text-gray-400 py-8">
+            No surveys found.
+          </div>
+        ) : (
+          filteredSurveys.map((survey) => (
+            <SurveyCard key={survey.id} {...survey} isOwner={true} />
+          ))
+        )}
+      </div>
 
-      {/* Debug Session (dev only) */}
+      {/* Recent Activity Table - add horizontal scroll on mobile */}
+      <div className="mb-8">
+        <RecentActivityTable activities={activities} />
+      </div>
+
+      {/* Debug session info (dev only) */}
       {debugSession && (
-        <pre className="mt-8 p-4 bg-gray-100 dark:bg-gray-900 rounded text-xs overflow-x-auto text-gray-900 dark:text-white">
+        <pre className="bg-gray-100 dark:bg-gray-900 rounded p-4 text-xs overflow-x-auto">
           {JSON.stringify(debugSession, null, 2)}
         </pre>
       )}

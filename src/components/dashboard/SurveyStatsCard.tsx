@@ -14,24 +14,23 @@ export default function SurveyStatsCard({
   value,
   icon,
   trend,
-  trendColor = "text-green-600 dark:text-green-400",
-  className = "",
 }: SurveyStatsCardProps) {
   return (
-    <div
-      className={`bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow ${className}`}
-    >
-      <div className="flex items-center justify-between">
-        <h3 className="text-gray-500 dark:text-gray-100 text-sm font-medium">
-          {title}
-        </h3>
-        <span className="p-2 rounded-lg">{icon}</span>
+    <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm px-4 py-3 flex items-center gap-3 min-h-[64px]">
+      <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-md bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30">
+        {icon && React.cloneElement(icon, { className: "w-4 h-4" })}
       </div>
-      <p className="mt-2 text-3xl font-bold text-gray-100 dark:text-white">
-        {value}
-      </p>
+      <div className="flex-1 min-w-0">
+        <div className="text-xs font-medium text-gray-500 dark:text-gray-400 truncate">
+          {title}
+        </div>
+        <div className="text-lg font-bold text-gray-900 dark:text-white truncate">
+          {value}
+        </div>
+      </div>
+      {/* Optionally show trend text on md+ screens only, and smaller */}
       {trend && (
-        <div className={`mt-2 flex items-center text-xs ${trendColor}`}>
+        <div className="hidden md:block text-xs text-gray-400 dark:text-gray-500 ml-2 whitespace-nowrap">
           {trend}
         </div>
       )}
