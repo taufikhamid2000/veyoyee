@@ -18,7 +18,7 @@ export default function SurveyStatsCard({
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm px-4 py-3 flex items-center gap-3 min-h-[64px]">
       <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-md bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30">
-        {icon && React.cloneElement(icon, { className: "w-4 h-4" })}
+        {icon}
       </div>
       <div className="flex-1 min-w-0">
         <div className="text-xs font-medium text-gray-500 dark:text-gray-400 truncate">

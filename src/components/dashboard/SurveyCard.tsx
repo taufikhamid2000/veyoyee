@@ -1,5 +1,6 @@
 import React, { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { useSurveyActions } from "@/hooks/useSurveyActions";
 
 interface SurveyCardProps {
   id: string;
@@ -25,6 +26,7 @@ export default function SurveyCard({
   const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const { deleteSurvey } = useSurveyActions();
 
   // Close menu on outside click
   React.useEffect(() => {
@@ -47,10 +49,29 @@ export default function SurveyCard({
     alert("Share message copied to clipboard!");
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     setMenuOpen(false);
-    // TODO: Implement delete logic (e.g., confirmation dialog, API call)
-    alert("Delete survey (not implemented)");
+    if (status !== "draft") return;
+    if (
+      !window.confirm(
+        "Are you sure you want to delete this draft survey? This action cannot be undone."
+      )
+    ) {
+      return;
+    }
+    try {
+      await deleteSurvey(id);
+      // Option 1: Refresh the page
+      router.refresh();
+      // Option 2: Remove the card from UI (if using state in parent)
+      // (not implemented here)
+    } catch (err) {
+      alert(
+        err instanceof Error
+          ? err.message
+          : "Failed to delete survey. Please try again."
+      );
+    }
   };
 
   return (
