@@ -115,7 +115,7 @@ export default function Navigation() {
                   : ""
               }`}
             >
-              Respondents
+              Leaderboard
             </Link>
             <Link
               href="/claim"
