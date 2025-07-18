@@ -8,11 +8,15 @@ import SurveyFormHeader from "../../components/forms/survey/SurveyFormHeader";
 import QuestionList from "../../components/forms/survey/QuestionList";
 import SurveyResponseForm from "../../components/forms/survey/SurveyResponseForm";
 import { UserRewardsService } from "../../lib/services/user-rewards-service";
+import { useSupabaseAuth } from "../../hooks/useSupabaseAuth";
+import AuthModal from "../../components/ui/auth-modal";
 
 interface SurveyFormProps {
   initialSurvey?: SurveyEdit;
   mode?: "edit" | "answer";
 }
+
+const LOCAL_DRAFT_KEY = "veyoyee-survey-draft";
 
 export default function SurveyForm({
   initialSurvey,
@@ -122,6 +126,65 @@ export default function SurveyForm({
 
   // Initialize survey actions hook
   const { createSurvey, updateSurvey } = useSurveyActions();
+  const { user } = useSupabaseAuth();
+  const [showAuthModal, setShowAuthModal] = useState(false);
+
+  // Restore draft from localStorage for guests
+  useEffect(() => {
+    if (!user && !initialSurvey) {
+      const savedDraft = localStorage.getItem(LOCAL_DRAFT_KEY);
+      if (savedDraft) {
+        try {
+          const draft = JSON.parse(savedDraft);
+          if (draft) {
+            setSurveyTitle(draft.surveyTitle || "");
+            setQuestions(draft.questions || []);
+            setMinRespondents(draft.minRespondents);
+            setMaxRespondents(draft.maxRespondents);
+            setStartDate(draft.startDate || "");
+            setEndDate(draft.endDate || "");
+            setSurveyType(draft.surveyType || "academia");
+            setRewardAmount(draft.rewardAmount || "");
+            setShowReward(Boolean(draft.rewardAmount));
+          }
+        } catch {}
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
+
+  // Save draft to localStorage on change for guests
+  useEffect(() => {
+    if (!user) {
+      const draft = {
+        surveyTitle,
+        questions,
+        minRespondents,
+        maxRespondents,
+        startDate,
+        endDate,
+        surveyType,
+        rewardAmount,
+      };
+      localStorage.setItem(LOCAL_DRAFT_KEY, JSON.stringify(draft));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    surveyTitle,
+    questions,
+    minRespondents,
+    maxRespondents,
+    startDate,
+    endDate,
+    surveyType,
+    rewardAmount,
+    user,
+  ]);
+
+  // Clear draft from localStorage after successful save/submit
+  const clearLocalDraft = () => {
+    localStorage.removeItem(LOCAL_DRAFT_KEY);
+  };
 
   // Warn the user if they try to leave the page with unsaved survey changes
   useEffect(() => {
@@ -153,6 +216,10 @@ export default function SurveyForm({
   // Form submission handler
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (!user) {
+      setShowAuthModal(true);
+      return;
+    }
 
     // Basic validation
     const MIN_QUESTIONS = 3;
@@ -241,7 +308,8 @@ export default function SurveyForm({
 
       // Show success message
       alert(`Survey "${surveyTitle}" created successfully!`);
-
+      // Clear local draft after successful submit
+      clearLocalDraft();
       // Redirect to dashboard or survey view
       window.location.href = `/dashboard?created=${
         result.data?.surveyId || initialSurvey?.id
@@ -263,144 +331,155 @@ export default function SurveyForm({
   }
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="bg-gray-100 dark:bg-gray-800 p-6 rounded-lg mt-8"
-    >
-      {/* Survey metadata section */}
-      <SurveyFormHeader
-        surveyTitle={surveyTitle}
-        setSurveyTitle={setSurveyTitle}
-        surveyType={surveyType}
-        setSurveyType={setSurveyType}
-        minRespondents={minRespondents}
-        setMinRespondents={setMinRespondents}
-        maxRespondents={maxRespondents}
-        setMaxRespondents={setMaxRespondents}
-        startDate={startDate}
-        setStartDate={setStartDate}
-        endDate={endDate}
-        setQuestions={setQuestions}
-        setEndDate={setEndDate}
-        rewardAmount={rewardAmount}
-        setRewardAmount={setRewardAmount}
-        showReward={showReward}
-        setShowReward={setShowReward}
+    <>
+      <AuthModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
       />
+      <form
+        onSubmit={handleSubmit}
+        className="bg-gray-100 dark:bg-gray-800 p-6 rounded-lg mt-8"
+      >
+        {/* Survey metadata section */}
+        <SurveyFormHeader
+          surveyTitle={surveyTitle}
+          setSurveyTitle={setSurveyTitle}
+          surveyType={surveyType}
+          setSurveyType={setSurveyType}
+          minRespondents={minRespondents}
+          setMinRespondents={setMinRespondents}
+          maxRespondents={maxRespondents}
+          setMaxRespondents={setMaxRespondents}
+          startDate={startDate}
+          setStartDate={setStartDate}
+          endDate={endDate}
+          setQuestions={setQuestions}
+          setEndDate={setEndDate}
+          rewardAmount={rewardAmount}
+          setRewardAmount={setRewardAmount}
+          showReward={showReward}
+          setShowReward={setShowReward}
+        />
 
-      {/* Questions section */}
-      <QuestionList questions={questions} setQuestions={setQuestions} />
+        {/* Questions section */}
+        <QuestionList questions={questions} setQuestions={setQuestions} />
 
-      {/* Action buttons */}
-      <div className="flex gap-4 mt-6">
-        <button
-          type="button"
-          onClick={async () => {
-            // Save as draft logic
-            if (surveyTitle === "") {
-              alert("Please provide a survey title before saving as draft.");
-              return;
-            }
-
-            try {
-              // Show loading
-              alert("Saving draft...");
-
-              // Create survey data object
-              const surveyData = {
-                title: surveyTitle,
-                type: surveyType,
-                minRespondents,
-                maxRespondents,
-                startDate,
-                endDate,
-                rewardAmount,
-                questions,
-              };
-
-              let result;
-              if (initialSurvey?.id) {
-                // Update existing survey
-                result = await updateSurvey(
-                  initialSurvey.id,
-                  surveyData,
-                  "draft"
-                );
-              } else {
-                // Create new draft
-                result = await createSurvey(surveyData, "draft");
+        {/* Action buttons */}
+        <div className="flex gap-4 mt-6">
+          <button
+            type="button"
+            onClick={async () => {
+              if (!user) {
+                setShowAuthModal(true);
+                return;
+              }
+              // Save as draft logic
+              if (surveyTitle === "") {
+                alert("Please provide a survey title before saving as draft.");
+                return;
               }
 
-              if (result.success) {
-                // Show success message
-                alert(
-                  `Draft "${surveyTitle}" saved successfully! You can continue editing later.`
-                );
+              try {
+                // Show loading
+                alert("Saving draft...");
 
-                // Redirect to dashboard
-                window.location.href = `/dashboard?draft=${
-                  result.data?.surveyId || initialSurvey?.id
-                }`;
-              } else {
-                // Show error message
-                console.error("Error saving draft:", result.error);
+                // Create survey data object
+                const surveyData = {
+                  title: surveyTitle,
+                  type: surveyType,
+                  minRespondents,
+                  maxRespondents,
+                  startDate,
+                  endDate,
+                  rewardAmount,
+                  questions,
+                };
+
+                let result;
+                if (initialSurvey?.id) {
+                  // Update existing survey
+                  result = await updateSurvey(
+                    initialSurvey.id,
+                    surveyData,
+                    "draft"
+                  );
+                } else {
+                  // Create new draft
+                  result = await createSurvey(surveyData, "draft");
+                }
+
+                if (result.success) {
+                  // Show success message
+                  alert(
+                    `Draft "${surveyTitle}" saved successfully! You can continue editing later.`
+                  );
+                  // Clear local draft after successful save
+                  clearLocalDraft();
+                  // Redirect to dashboard
+                  window.location.href = `/dashboard?draft=${
+                    result.data?.surveyId || initialSurvey?.id
+                  }`;
+                } else {
+                  // Show error message
+                  console.error("Error saving draft:", result.error);
+                  alert(
+                    `Failed to save draft: ${
+                      result.error instanceof Error
+                        ? result.error.message
+                        : "Unknown error"
+                    }`
+                  );
+                }
+              } catch (error) {
+                console.error("Error saving draft:", error);
                 alert(
-                  `Failed to save draft: ${
-                    result.error instanceof Error
-                      ? result.error.message
-                      : "Unknown error"
+                  `An unexpected error occurred: ${
+                    error instanceof Error ? error.message : "Unknown error"
                   }`
                 );
               }
-            } catch (error) {
-              console.error("Error saving draft:", error);
-              alert(
-                `An unexpected error occurred: ${
-                  error instanceof Error ? error.message : "Unknown error"
-                }`
-              );
-            }
-          }}
-          className="flex-1 px-4 py-2 rounded bg-blue-500 text-white font-semibold hover:bg-blue-600 transition flex items-center justify-center gap-2"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
+            }}
+            className="flex-1 px-4 py-2 rounded bg-blue-500 text-white font-semibold hover:bg-blue-600 transition flex items-center justify-center gap-2"
           >
-            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
-            <polyline points="17 21 17 13 7 13 7 21"></polyline>
-            <polyline points="7 3 7 8 15 8"></polyline>
-          </svg>
-          Save as Draft
-        </button>
-        <button
-          type="submit"
-          className="flex-1 px-4 py-2 rounded bg-green-600 text-white font-semibold hover:bg-green-700 transition flex items-center justify-center gap-2"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+              <polyline points="17 21 17 13 7 13 7 21"></polyline>
+              <polyline points="7 3 7 8 15 8"></polyline>
+            </svg>
+            Save as Draft
+          </button>
+          <button
+            type="submit"
+            className="flex-1 px-4 py-2 rounded bg-green-600 text-white font-semibold hover:bg-green-700 transition flex items-center justify-center gap-2"
           >
-            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-            <polyline points="22 4 12 14.01 9 11.01"></polyline>
-          </svg>
-          Create Survey
-        </button>
-      </div>
-    </form>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+              <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+            Create Survey
+          </button>
+        </div>
+      </form>
+    </>
   );
 }

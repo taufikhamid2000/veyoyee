@@ -8,8 +8,13 @@ import { useValidatedForm } from "@/hooks/useValidatedForm";
 import { signInSchema, type SignInFormData } from "@/lib/validations";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/useToast";
+import React from "react";
 
-export default function SignInForm() {
+interface SignInFormProps {
+  onSuccess?: () => void;
+}
+
+export default function SignInForm({ onSuccess }: SignInFormProps) {
   const router = useRouter();
   const { toast } = useToast();
 
@@ -54,7 +59,11 @@ export default function SignInForm() {
       if (response.data?.user) {
         console.log("Sign-in successful for user:", response.data.user.email);
         toast.success("Welcome back!", "You have been signed in successfully.");
-        router.push("/dashboard");
+        if (onSuccess) {
+          onSuccess();
+        } else {
+          router.push("/dashboard");
+        }
       }
     },
   });

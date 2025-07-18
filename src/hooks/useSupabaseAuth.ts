@@ -48,10 +48,6 @@ export function useSupabaseAuth() {
       } else {
         setUser(null);
         router.refresh(); // Update any server components
-
-        if (event === "SIGNED_OUT") {
-          router.replace("/auth/signin");
-        }
       }
     });
 

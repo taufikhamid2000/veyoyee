@@ -316,9 +316,12 @@ export default function Home() {
               incentives. Create surveys, reward participants, and get better
               data—all in one place.
             </p>
-            <button className="bg-blue-400 hover:bg-blue-500 text-white px-8 py-3 rounded-lg font-semibold shadow transition text-base md:text-lg transform hover:scale-105">
+            <a
+              href="/surveyor"
+              className="bg-blue-400 hover:bg-blue-500 text-white px-8 py-3 rounded-lg font-semibold shadow transition text-base md:text-lg transform hover:scale-105 inline-block text-center"
+            >
               Start Your First Survey
-            </button>
+            </a>
           </div>
         </div>
       </section>
