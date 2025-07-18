@@ -311,7 +311,7 @@ export default function Home() {
             <h1 className="text-4xl md:text-6xl font-bold mb-6 text-white tracking-tight">
               Research That Rewards Everyone
             </h1>
-            <p className="text-lg md:text-2xl text-blue-100 mb-10 max-w-2xl">
+            <p className="text-lg md:text-2xl text-blue-100 md:text-[#111827] mb-10 max-w-2xl">
               Veyoyee connects researchers with quality respondents through fair
               incentives. Create surveys, reward participants, and get better
               data—all in one place.
