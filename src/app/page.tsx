@@ -2,27 +2,12 @@
 
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import React from "react";
-import { useSupabaseAuth } from "@/hooks/useSupabaseAuth";
+import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-
-// Placeholder illustration component
-const HeroIllustration = () => (
-  <div className="w-full flex justify-center mb-8">
-    <Image
-      src="/assets/ChatGPT Image Jul 16, 2025, 03_18_06 PM.png"
-      alt="Researchers collaborating illustration"
-      width={480}
-      height={320}
-      className="object-contain w-full max-w-[480px] h-auto"
-      priority
-    />
-  </div>
-);
 
 // Comparison Table
 const ComparisonTable = () => (
-  <div className="overflow-x-auto mt-8">
+  <div className="overflow-x-auto mt-8 mb-0 pb-0">
     <table className="min-w-full text-sm text-left text-gray-300 border border-gray-700 rounded-xl overflow-hidden">
       <thead className="bg-blue-900 text-blue-200">
         <tr>
@@ -195,8 +180,51 @@ const StepCard = ({
   </div>
 );
 
+// Mouse-following blob effect
+const MouseBlobEffect = () => {
+  const [pos, setPos] = useState({ x: 0.5, y: 0.5 });
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!ref.current) return;
+      const rect = ref.current.getBoundingClientRect();
+      const x = (e.clientX - rect.left) / rect.width;
+      const y = (e.clientY - rect.top) / rect.height;
+      setPos({ x, y });
+    };
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => window.removeEventListener("mousemove", handleMouseMove);
+  }, []);
+
+  return (
+    <div ref={ref} className="absolute inset-0 -z-10 pointer-events-none">
+      <svg
+        width="100%"
+        height="100%"
+        className="w-full h-full"
+        style={{ position: "absolute", top: 0, left: 0 }}
+      >
+        <defs>
+          <radialGradient id="blob-gradient" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor="#60a5fa" stopOpacity="0.7" />
+            <stop offset="100%" stopColor="#818cf8" stopOpacity="0.2" />
+          </radialGradient>
+        </defs>
+        <ellipse
+          cx={`${pos.x * 100}%`}
+          cy={`${pos.y * 100}%`}
+          rx="340"
+          ry="220"
+          fill="url(#blob-gradient)"
+          filter="blur(60px)"
+        />
+      </svg>
+    </div>
+  );
+};
+
 export default function Home() {
-  const { user } = useSupabaseAuth();
   // Icon components
   const CheckIcon = () => (
     <svg
@@ -265,73 +293,38 @@ export default function Home() {
 
   return (
     <div className="flex flex-col items-center justify-center w-full">
-      {/* Hero Section */}
-      <div className="w-full bg-gradient-to-br from-blue-950 to-indigo-950 py-[80px] md:py-[140px]">
-        <div className="max-w-6xl mx-auto px-4 flex flex-col md:flex-row items-center md:items-center gap-8 md:gap-12">
-          {/* Illustration left, content right on desktop */}
-          <div className="w-full md:w-1/2 flex justify-center md:justify-start">
-            <HeroIllustration />
+      {/* Minimalistic Hero Section with Mouse Effect */}
+      <section className="relative min-h-[60vh] py-20 md:py-32 w-full overflow-hidden">
+        <MouseBlobEffect />
+        <div className="max-w-6xl mx-auto px-4 md:px-8 flex flex-col md:flex-row items-center justify-center gap-0 md:gap-x-12">
+          <div className="w-full md:w-1/2 flex justify-center md:justify-end mb-8 md:mb-0 self-center md:pr-8">
+            <Image
+              src="/assets/ChatGPT Image Jul 16, 2025, 03_18_06 PM.png"
+              alt="Researchers collaborating illustration"
+              width={480}
+              height={320}
+              className="object-contain w-full max-w-[480px] h-auto"
+              priority
+            />
           </div>
-          <div className="w-full md:w-1/2 flex flex-col items-center md:items-start text-center md:text-left">
-            <h1 className="text-4xl md:text-6xl font-extrabold mb-6 md:mb-8 leading-tight text-blue-200">
-              Not Just Another Survey Platform
+          <div className="w-full md:w-1/2 flex flex-col items-center md:items-start text-center md:text-left self-center md:pl-8 max-w-xl">
+            <h1 className="text-4xl md:text-6xl font-bold mb-6 text-white tracking-tight">
+              Research That Rewards Everyone
             </h1>
-            <p className="text-base md:text-lg text-white mb-6 md:mb-8 max-w-3xl font-medium leading-relaxed">
-              Veyoyee is the first platform built for academic, nonprofit, and
-              commercial researchers who care about quality, ethics, and real
-              impact. Get real responses, real rewards, and real
-              results—protected from bots and AI.
+            <p className="text-lg md:text-2xl text-blue-100 mb-10 max-w-2xl">
+              Veyoyee connects researchers with quality respondents through fair
+              incentives. Create surveys, reward participants, and get better
+              data—all in one place.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 md:gap-6 w-full md:w-auto justify-center md:justify-start mb-6">
-              {user ? (
-                <Link
-                  href="/dashboard"
-                  className="transform transition-transform duration-300 hover:scale-105"
-                >
-                  <Button
-                    variant="primary"
-                    size="lg"
-                    className="w-full sm:w-auto px-8 py-4 text-base md:text-lg font-medium shadow-lg bg-blue-600 hover:bg-blue-700 text-white"
-                  >
-                    Go to Dashboard
-                  </Button>
-                </Link>
-              ) : (
-                <Link
-                  href="/auth/signup"
-                  className="transform transition-transform duration-300 hover:scale-105"
-                >
-                  <Button
-                    variant="primary"
-                    size="lg"
-                    className="w-full sm:w-auto px-8 py-4 text-base md:text-lg font-medium shadow-lg bg-blue-600 hover:bg-blue-700 text-white"
-                  >
-                    Start Your First Survey
-                  </Button>
-                </Link>
-              )}
-            </div>
-            {/* Trusted by bar (placeholder logos) */}
-            <div className="flex flex-wrap justify-center md:justify-start items-center gap-4 md:gap-6 mt-2 opacity-80">
-              <span className="text-blue-300 font-semibold text-xs md:text-sm">
-                Trusted by researchers at
-              </span>
-              <span className="bg-white/10 px-3 py-1 rounded-lg text-blue-100 font-bold text-xs md:text-base">
-                University A
-              </span>
-              <span className="bg-white/10 px-3 py-1 rounded-lg text-blue-100 font-bold text-xs md:text-base">
-                Nonprofit B
-              </span>
-              <span className="bg-white/10 px-3 py-1 rounded-lg text-blue-100 font-bold text-xs md:text-base">
-                Company C
-              </span>
-            </div>
+            <button className="bg-blue-400 hover:bg-blue-500 text-white px-8 py-3 rounded-lg font-semibold shadow transition text-base md:text-lg transform hover:scale-105">
+              Start Your First Survey
+            </button>
           </div>
         </div>
-      </div>
+      </section>
 
       {/* Why Veyoyee is Different */}
-      <div className="w-full bg-gray-900 py-[40px] md:py-[100px] mt-[40px] md:mt-[100px] px-4 md:px-6">
+      <div className="w-full bg-gradient-to-b from-blue-950 to-indigo-950 py-[40px] md:py-[100px] px-4 md:px-6">
         <div className="max-w-5xl mx-auto">
           <div className="flex flex-col items-center">
             <span className="inline-block px-3 md:px-4 py-0.5 rounded-full bg-blue-900 text-blue-300 font-medium text-xs md:text-sm mb-4 md:mb-6">
@@ -341,7 +334,7 @@ export default function Home() {
               Why Veyoyee is Different
             </h2>
           </div>
-          <p className="text-base md:text-lg text-gray-300 max-w-3xl mx-auto text-center mb-6 md:mb-8 leading-relaxed">
+          <p className="text-base md:text-lg text-gray-300 max-w-3xl mx-auto text-center leading-relaxed">
             We’re not just another survey swap. Veyoyee is built for research
             that matters—combining academic rigor, commercial flexibility, and
             next-generation protections.
@@ -351,7 +344,7 @@ export default function Home() {
       </div>
 
       {/* How It Works Section */}
-      <div className="w-full bg-gradient-to-br from-blue-950 to-gray-950 py-[40px] md:py-[100px] mt-[40px] md:mt-[100px] px-4 md:px-6 relative">
+      <div className="w-full bg-gradient-to-b from-indigo-950 to-blue-900 py-[40px] md:py-[100px] px-4 md:px-6 relative">
         <div className="max-w-6xl mx-auto">
           <div className="flex flex-col items-center mb-6 md:mb-8">
             <span className="inline-block px-3 md:px-4 py-0.5 rounded-full bg-blue-900 text-blue-300 font-medium text-xs md:text-sm mb-4 md:mb-6">
@@ -385,7 +378,7 @@ export default function Home() {
       </div>
 
       {/* Features Section */}
-      <div className="w-full bg-gradient-to-br from-gray-950 to-blue-950 py-[40px] md:py-[100px] px-4 md:px-6">
+      <div className="w-full bg-gradient-to-b from-blue-900 to-blue-950 py-[40px] md:py-[100px] px-4 md:px-6">
         <div className="max-w-6xl mx-auto">
           <div className="flex flex-col items-center mb-6 md:mb-8">
             <span className="inline-block px-3 md:px-4 py-0.5 rounded-full bg-blue-900 text-blue-300 font-medium text-xs md:text-sm mb-4 md:mb-6">
@@ -421,7 +414,7 @@ export default function Home() {
       </div>
 
       {/* Testimonials Section */}
-      <div className="w-full bg-gray-900 py-[40px] md:py-[100px] mt-[40px] md:mt-[100px] px-4 md:px-6">
+      <div className="w-full bg-gradient-to-b from-blue-950 to-indigo-950 py-[40px] md:py-[100px] px-4 md:px-6">
         <div className="max-w-5xl mx-auto">
           <div className="flex flex-col items-center mb-6 md:mb-10">
             <span className="inline-block px-3 md:px-4 py-0.5 rounded-full bg-blue-900 text-blue-300 font-medium text-xs md:text-sm mb-4 md:mb-6">
@@ -461,12 +454,12 @@ export default function Home() {
       </div>
 
       {/* FAQ Section */}
-      <div className="w-full bg-gradient-to-br from-blue-950 to-indigo-950 py-[40px] md:py-[100px] mt-[40px] md:mt-[100px] px-4 md:px-6">
+      <div className="w-full bg-gradient-to-b from-indigo-950 to-blue-900 py-[40px] md:py-[100px] px-4 md:px-6">
         <FAQ />
       </div>
 
       {/* Final CTA Section */}
-      <div className="w-full bg-gradient-to-r from-blue-600 to-indigo-700 dark:from-blue-800 dark:to-indigo-900 py-[80px] md:py-[140px] px-4 md:px-6 relative overflow-hidden">
+      <div className="w-full bg-gradient-to-b from-blue-900 to-blue-950 py-[80px] md:py-[140px] px-4 md:px-6 relative overflow-hidden">
         <div className="max-w-6xl mx-auto text-center relative z-10">
           <div className="flex flex-col items-center mb-6 md:mb-8">
             <span className="inline-block px-3 md:px-4 py-0.5 rounded-full bg-blue-900 text-blue-300 font-medium text-xs md:text-sm mb-4 md:mb-6">
