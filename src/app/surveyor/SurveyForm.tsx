@@ -404,58 +404,41 @@ export default function SurveyForm({
           setRewardAmount={setRewardAmount}
           showReward={showReward}
           setShowReward={setShowReward}
+          onImportJSON={importFromJSON}
         />
 
         {/* Questions section */}
         <QuestionList questions={questions} setQuestions={setQuestions} />
-        {/* Import/Export buttons */}
+        {/* Export button */}
         <div className="flex gap-4 mt-6 mb-4">
-          <button
-            type="button"
-            onClick={exportToJSON}
-            className="flex-1 px-4 py-2 rounded bg-gray-500 text-white font-semibold hover:bg-gray-600 transition flex items-center justify-center gap-2"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
+          <div className="flex-1 group relative">
+            <button
+              type="button"
+              onClick={exportToJSON}
+              className="w-full px-4 py-2 rounded bg-gray-500 text-white font-semibold hover:bg-gray-600 transition flex items-center justify-center gap-2"
             >
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-              <polyline points="7 10 12 15 17 10"></polyline>
-              <line x1="12" y1="15" x2="12" y2="3"></line>
-            </svg>
-            Export as JSON
-          </button>
-          <label className="flex-1 px-4 py-2 rounded bg-gray-500 text-white font-semibold hover:bg-gray-600 transition flex items-center justify-center gap-2 cursor-pointer">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-              <polyline points="17 8 12 3 7 8"></polyline>
-              <line x1="12" y1="3" x2="12" y2="15"></line>
-            </svg>
-            Import JSON
-            <input
-              type="file"
-              accept=".json"
-              onChange={importFromJSON}
-              className="hidden"
-            />
-          </label>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
+              Export as JSON
+            </button>
+            <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-64 p-3 bg-gray-800 text-white text-xs rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-opacity z-10 border-2 border-yellow-400">
+              Download your survey progress as a JSON file. Useful for backing
+              up your work or sharing with others.
+            </div>
+          </div>
         </div>
         {/* Action buttons */}
         <div className="flex gap-4 mt-6">
