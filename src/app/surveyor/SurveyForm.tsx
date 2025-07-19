@@ -381,181 +381,270 @@ export default function SurveyForm({
         isOpen={showAuthModal}
         onClose={() => setShowAuthModal(false)}
       />
-      <form
-        onSubmit={handleSubmit}
-        className="bg-gray-100 dark:bg-gray-800 p-6 rounded-lg mt-8"
-      >
-        {/* Survey metadata section */}
-        <SurveyFormHeader
-          surveyTitle={surveyTitle}
-          setSurveyTitle={setSurveyTitle}
-          surveyType={surveyType}
-          setSurveyType={setSurveyType}
-          minRespondents={minRespondents}
-          setMinRespondents={setMinRespondents}
-          maxRespondents={maxRespondents}
-          setMaxRespondents={setMaxRespondents}
-          startDate={startDate}
-          setStartDate={setStartDate}
-          endDate={endDate}
-          setQuestions={setQuestions}
-          setEndDate={setEndDate}
-          rewardAmount={rewardAmount}
-          setRewardAmount={setRewardAmount}
-          showReward={showReward}
-          setShowReward={setShowReward}
-          onImportJSON={importFromJSON}
-        />
 
-        {/* Questions section */}
-        <QuestionList questions={questions} setQuestions={setQuestions} />
-        {/* Export button */}
-        <div className="flex gap-4 mt-6 mb-4">
-          <div className="flex-1 group relative">
-            <button
-              type="button"
-              onClick={exportToJSON}
-              className="w-full px-4 py-2 rounded bg-gray-500 text-white font-semibold hover:bg-gray-600 transition flex items-center justify-center gap-2"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                <polyline points="7 10 12 15 17 10"></polyline>
-                <line x1="12" y1="15" x2="12" y2="3"></line>
-              </svg>
-              Export as JSON
-            </button>
-            <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-64 p-3 bg-gray-800 text-white text-xs rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-opacity z-10 border-2 border-yellow-400">
-              Download your survey progress as a JSON file. Useful for backing
-              up your work or sharing with others.
+      {/* Modern Header */}
+      <div className="mb-8">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+              {initialSurvey ? "Edit Survey" : "Create New Survey"}
+            </h1>
+            <p className="text-gray-600 dark:text-gray-400 mt-2">
+              {initialSurvey
+                ? "Update your survey details and questions below"
+                : "Design your survey with our intuitive builder"}
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="group relative">
+              <label className="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-200 flex items-center gap-2 shadow-sm cursor-pointer">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="17 8 12 3 7 8"></polyline>
+                  <line x1="12" y1="3" x2="12" y2="15"></line>
+                </svg>
+                Import JSON
+                <input
+                  type="file"
+                  accept=".json"
+                  onChange={importFromJSON}
+                  className="hidden"
+                />
+              </label>
+              <div className="absolute bottom-full right-0 mb-2 w-64 p-3 bg-gray-900 text-white text-xs rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-opacity z-10 border-2 border-yellow-400">
+                Load a previously exported JSON file to restore your survey
+                progress. Perfect for continuing work on another device.
+              </div>
             </div>
           </div>
         </div>
-        {/* Action buttons */}
-        <div className="flex gap-4 mt-6">
-          <button
-            type="button"
-            onClick={async () => {
-              if (!user) {
-                setShowAuthModal(true);
-                return;
-              }
-              // Save as draft logic
-              if (surveyTitle === "") {
-                alert("Please provide a survey title before saving as draft.");
-                return;
-              }
+      </div>
 
-              try {
-                // Show loading
-                alert("Saving draft...");
+      {/* Main Form Container */}
+      <div className="max-w-4xl mx-auto">
+        <form onSubmit={handleSubmit} className="space-y-8">
+          {/* Survey Setup Section */}
+          <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+            <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+                Survey Setup
+              </h2>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                Configure your survey&apos;s basic information and settings
+              </p>
+            </div>
+            <div className="p-6">
+              <SurveyFormHeader
+                surveyTitle={surveyTitle}
+                setSurveyTitle={setSurveyTitle}
+                surveyType={surveyType}
+                setSurveyType={setSurveyType}
+                minRespondents={minRespondents}
+                setMinRespondents={setMinRespondents}
+                maxRespondents={maxRespondents}
+                setMaxRespondents={setMaxRespondents}
+                startDate={startDate}
+                setStartDate={setStartDate}
+                endDate={endDate}
+                setQuestions={setQuestions}
+                setEndDate={setEndDate}
+                rewardAmount={rewardAmount}
+                setRewardAmount={setRewardAmount}
+                showReward={showReward}
+                setShowReward={setShowReward}
+              />
+            </div>
+          </div>
 
-                // Create survey data object
-                const surveyData = {
-                  title: surveyTitle,
-                  type: surveyType,
-                  minRespondents,
-                  maxRespondents,
-                  startDate,
-                  endDate,
-                  rewardAmount,
-                  questions,
-                };
+          {/* Questions Section */}
+          <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+            <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+                Survey Questions
+              </h2>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                Add and organize your survey questions
+              </p>
+            </div>
+            <div className="p-6">
+              <QuestionList questions={questions} setQuestions={setQuestions} />
+            </div>
+          </div>
 
-                let result;
-                if (initialSurvey?.id) {
-                  // Update existing survey
-                  result = await updateSurvey(
-                    initialSurvey.id,
-                    surveyData,
-                    "draft"
-                  );
-                } else {
-                  // Create new draft
-                  result = await createSurvey(surveyData, "draft");
-                }
+          {/* Action Buttons */}
+          <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+            <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex-1 group relative">
+                <button
+                  type="button"
+                  onClick={async () => {
+                    if (!user) {
+                      setShowAuthModal(true);
+                      return;
+                    }
+                    // Save as draft logic
+                    if (surveyTitle === "") {
+                      alert(
+                        "Please provide a survey title before saving as draft."
+                      );
+                      return;
+                    }
 
-                if (result.success) {
-                  // Show success message
-                  alert(
-                    `Draft "${surveyTitle}" saved successfully! You can continue editing later.`
-                  );
-                  // Clear local draft after successful save
-                  clearLocalDraft();
-                  // Redirect to dashboard
-                  window.location.href = `/dashboard?draft=${
-                    result.data?.surveyId || initialSurvey?.id
-                  }`;
-                } else {
-                  // Show error message
-                  console.error("Error saving draft:", result.error);
-                  alert(
-                    `Failed to save draft: ${
-                      result.error instanceof Error
-                        ? result.error.message
-                        : "Unknown error"
-                    }`
-                  );
-                }
-              } catch (error) {
-                console.error("Error saving draft:", error);
-                alert(
-                  `An unexpected error occurred: ${
-                    error instanceof Error ? error.message : "Unknown error"
-                  }`
-                );
-              }
-            }}
-            className="flex-1 px-4 py-2 rounded bg-blue-500 text-white font-semibold hover:bg-blue-600 transition flex items-center justify-center gap-2"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
-              <polyline points="17 21 17 13 7 13 7 21"></polyline>
-              <polyline points="7 3 7 8 15 8"></polyline>
-            </svg>
-            Save as Draft
-          </button>
-          <button
-            type="submit"
-            className="flex-1 px-4 py-2 rounded bg-green-600 text-white font-semibold hover:bg-green-700 transition flex items-center justify-center gap-2"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-              <polyline points="22 4 12 14.01 9 11.01"></polyline>
-            </svg>
-            Create Survey
-          </button>
-        </div>
-      </form>
+                    try {
+                      // Show loading
+                      alert("Saving draft...");
+
+                      // Create survey data object
+                      const surveyData = {
+                        title: surveyTitle,
+                        type: surveyType,
+                        minRespondents,
+                        maxRespondents,
+                        startDate,
+                        endDate,
+                        rewardAmount,
+                        questions,
+                      };
+
+                      let result;
+                      if (initialSurvey?.id) {
+                        // Update existing survey
+                        result = await updateSurvey(
+                          initialSurvey.id,
+                          surveyData,
+                          "draft"
+                        );
+                      } else {
+                        // Create new draft
+                        result = await createSurvey(surveyData, "draft");
+                      }
+
+                      if (result.success) {
+                        // Show success message
+                        alert(
+                          `Draft "${surveyTitle}" saved successfully! You can continue editing later.`
+                        );
+                        // Clear local draft after successful save
+                        clearLocalDraft();
+                        // Redirect to dashboard
+                        window.location.href = `/dashboard?draft=${
+                          result.data?.surveyId || initialSurvey?.id
+                        }`;
+                      } else {
+                        // Show error message
+                        console.error("Error saving draft:", result.error);
+                        alert(
+                          `Failed to save draft: ${
+                            result.error instanceof Error
+                              ? result.error.message
+                              : "Unknown error"
+                          }`
+                        );
+                      }
+                    } catch (error) {
+                      console.error("Error saving draft:", error);
+                      alert(
+                        `An unexpected error occurred: ${
+                          error instanceof Error
+                            ? error.message
+                            : "Unknown error"
+                        }`
+                      );
+                    }
+                  }}
+                  className="w-full px-6 py-3 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-lg font-medium hover:bg-gray-200 dark:hover:bg-gray-700 transition-all duration-200 flex items-center justify-center gap-2"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                    <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                    <polyline points="7 3 7 8 15 8"></polyline>
+                  </svg>
+                  Save as Draft
+                </button>
+                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-64 p-3 bg-gray-900 text-white text-xs rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-opacity z-10 border-2 border-yellow-400">
+                  Save your current progress as a draft. You can continue
+                  editing later without losing your work.
+                </div>
+              </div>
+              <div className="flex-1 group relative">
+                <button
+                  type="button"
+                  onClick={exportToJSON}
+                  className="w-full px-6 py-3 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 border border-green-300 dark:border-green-600 rounded-lg font-medium hover:bg-green-200 dark:hover:bg-green-800/50 transition-all duration-200 flex items-center justify-center gap-2"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="7 10 12 15 17 10"></polyline>
+                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                  </svg>
+                  Export JSON
+                </button>
+                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-64 p-3 bg-gray-900 text-white text-xs rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-opacity z-10 border-2 border-yellow-400">
+                  Download your survey progress as a JSON file. Useful for
+                  backing up your work or sharing with others.
+                </div>
+              </div>
+              <div className="flex-1 group relative">
+                <button
+                  type="submit"
+                  className="w-full px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-all duration-200 flex items-center justify-center gap-2 shadow-sm border-2 border-yellow-400"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                  </svg>
+                  Publish Survey
+                </button>
+                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-80 p-3 bg-gray-900 text-white text-xs rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-opacity z-10 border-2 border-yellow-400">
+                  One SCP will be deducted. Make sure the questions are correct
+                  because once the survey is published, there&apos;s no way to
+                  edit the survey.
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
     </>
   );
 }

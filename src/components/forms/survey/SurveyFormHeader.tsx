@@ -22,8 +22,6 @@ interface SurveyFormHeaderProps {
   setShowReward: (show: boolean) => void;
   // New props for question management
   setQuestions?: (questions: QuestionEdit[]) => void;
-  // Import JSON functionality
-  onImportJSON?: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
 export default function SurveyFormHeader({
@@ -44,7 +42,6 @@ export default function SurveyFormHeader({
   showReward,
   setShowReward,
   setQuestions,
-  onImportJSON,
 }: SurveyFormHeaderProps) {
   const [showTemplates, setShowTemplates] = useState(false);
   const [generatingQuestions, setGeneratingQuestions] = useState(false);
@@ -262,38 +259,6 @@ export default function SurveyFormHeader({
             className="flex-1 px-4 py-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400 dark:bg-gray-900 dark:text-white"
           />
           <div className="flex gap-2">
-            {/* Import JSON button */}
-            <div className="group relative">
-              <label className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded flex items-center gap-2 cursor-pointer">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                  <polyline points="17 8 12 3 7 8"></polyline>
-                  <line x1="12" y1="3" x2="12" y2="15"></line>
-                </svg>
-                Import JSON
-                <input
-                  type="file"
-                  accept=".json"
-                  onChange={onImportJSON}
-                  className="hidden"
-                />
-              </label>
-              <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-64 p-3 bg-gray-800 text-white text-xs rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-opacity z-10 border-2 border-yellow-400">
-                Load a previously exported JSON file to restore your survey
-                progress. Perfect for continuing work on another device.
-              </div>
-            </div>
-
             {/* Generate with templates button */}
             <button
               type="button"
