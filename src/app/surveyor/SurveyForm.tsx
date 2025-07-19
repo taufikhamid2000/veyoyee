@@ -10,13 +10,19 @@ import SurveyResponseForm from "../../components/forms/survey/SurveyResponseForm
 import { UserRewardsService } from "../../lib/services/user-rewards-service";
 import { useSupabaseAuth } from "../../hooks/useSupabaseAuth";
 import AuthModal from "../../components/ui/auth-modal";
+import {
+  exportSurveyToJSON,
+  importSurveyFromJSON,
+  saveDraftToLocalStorage,
+  loadDraftFromLocalStorage,
+  clearDraftFromLocalStorage,
+  type SurveyDraftData,
+} from "../../utils/survey-draft-utils";
 
 interface SurveyFormProps {
   initialSurvey?: SurveyEdit;
   mode?: "edit" | "answer";
 }
-
-const LOCAL_DRAFT_KEY = "veyoyee-survey-draft";
 
 export default function SurveyForm({
   initialSurvey,
@@ -132,22 +138,17 @@ export default function SurveyForm({
   // Restore draft from localStorage for guests
   useEffect(() => {
     if (!user && !initialSurvey) {
-      const savedDraft = localStorage.getItem(LOCAL_DRAFT_KEY);
+      const savedDraft = loadDraftFromLocalStorage();
       if (savedDraft) {
-        try {
-          const draft = JSON.parse(savedDraft);
-          if (draft) {
-            setSurveyTitle(draft.surveyTitle || "");
-            setQuestions(draft.questions || []);
-            setMinRespondents(draft.minRespondents);
-            setMaxRespondents(draft.maxRespondents);
-            setStartDate(draft.startDate || "");
-            setEndDate(draft.endDate || "");
-            setSurveyType(draft.surveyType || "academia");
-            setRewardAmount(draft.rewardAmount || "");
-            setShowReward(Boolean(draft.rewardAmount));
-          }
-        } catch {}
+        setSurveyTitle(savedDraft.surveyTitle || "");
+        setQuestions(savedDraft.questions || []);
+        setMinRespondents(savedDraft.minRespondents);
+        setMaxRespondents(savedDraft.maxRespondents);
+        setStartDate(savedDraft.startDate || "");
+        setEndDate(savedDraft.endDate || "");
+        setSurveyType(savedDraft.surveyType || "academia");
+        setRewardAmount(savedDraft.rewardAmount || "");
+        setShowReward(Boolean(savedDraft.rewardAmount));
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -156,7 +157,7 @@ export default function SurveyForm({
   // Save draft to localStorage on change for guests
   useEffect(() => {
     if (!user) {
-      const draft = {
+      const draft: SurveyDraftData = {
         surveyTitle,
         questions,
         minRespondents,
@@ -166,9 +167,8 @@ export default function SurveyForm({
         surveyType,
         rewardAmount,
       };
-      localStorage.setItem(LOCAL_DRAFT_KEY, JSON.stringify(draft));
+      saveDraftToLocalStorage(draft);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     surveyTitle,
     questions,
@@ -183,7 +183,52 @@ export default function SurveyForm({
 
   // Clear draft from localStorage after successful save/submit
   const clearLocalDraft = () => {
-    localStorage.removeItem(LOCAL_DRAFT_KEY);
+    clearDraftFromLocalStorage();
+  };
+
+  // Export survey data as JSON file
+  const exportToJSON = () => {
+    const surveyData: SurveyDraftData = {
+      surveyTitle,
+      questions,
+      minRespondents,
+      maxRespondents,
+      startDate,
+      endDate,
+      surveyType,
+      rewardAmount,
+    };
+    exportSurveyToJSON(surveyData);
+  };
+
+  // Import survey data from JSON file
+  const importFromJSON = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    importSurveyFromJSON(
+      file,
+      (surveyData) => {
+        // Restore the data
+        setSurveyTitle(surveyData.surveyTitle || "");
+        setQuestions(surveyData.questions || []);
+        setMinRespondents(surveyData.minRespondents);
+        setMaxRespondents(surveyData.maxRespondents);
+        setStartDate(surveyData.startDate || "");
+        setEndDate(surveyData.endDate || "");
+        setSurveyType(surveyData.surveyType || "academia");
+        setRewardAmount(surveyData.rewardAmount || "");
+        setShowReward(Boolean(surveyData.rewardAmount));
+
+        alert("Survey data imported successfully!");
+      },
+      (errorMessage) => {
+        alert(errorMessage);
+      }
+    );
+
+    // Reset the input
+    event.target.value = "";
   };
 
   // Warn the user if they try to leave the page with unsaved survey changes
@@ -363,7 +408,55 @@ export default function SurveyForm({
 
         {/* Questions section */}
         <QuestionList questions={questions} setQuestions={setQuestions} />
-
+        {/* Import/Export buttons */}
+        <div className="flex gap-4 mt-6 mb-4">
+          <button
+            type="button"
+            onClick={exportToJSON}
+            className="flex-1 px-4 py-2 rounded bg-gray-500 text-white font-semibold hover:bg-gray-600 transition flex items-center justify-center gap-2"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            Export as JSON
+          </button>
+          <label className="flex-1 px-4 py-2 rounded bg-gray-500 text-white font-semibold hover:bg-gray-600 transition flex items-center justify-center gap-2 cursor-pointer">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="17 8 12 3 7 8"></polyline>
+              <line x1="12" y1="3" x2="12" y2="15"></line>
+            </svg>
+            Import JSON
+            <input
+              type="file"
+              accept=".json"
+              onChange={importFromJSON}
+              className="hidden"
+            />
+          </label>
+        </div>
         {/* Action buttons */}
         <div className="flex gap-4 mt-6">
           <button
