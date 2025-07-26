@@ -108,9 +108,9 @@ export default function Navigation() {
               Marketplace
             </Link>
             <Link
-              href="/respondents"
+              href="/leaderboard"
               className={`text-gray-200 hover:text-white transition-colors${
-                pathname.startsWith("/respondents")
+                pathname.startsWith("/leaderboard")
                   ? " font-bold border-b-2 border-blue-400"
                   : ""
               }`}
@@ -219,9 +219,9 @@ export default function Navigation() {
                   Marketplace
                 </Link>
                 <Link
-                  href="/respondents"
+                  href="/leaderboard"
                   className={`block px-6 py-3 text-sm text-gray-200 hover:text-white hover:bg-blue-800/50 transition-colors${
-                    pathname.startsWith("/respondents")
+                    pathname.startsWith("/leaderboard")
                       ? " font-bold border-b-2 border-blue-400"
                       : ""
                   }`}
