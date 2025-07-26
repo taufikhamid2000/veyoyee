@@ -99,10 +99,8 @@ export default function ClaimRewardsClient() {
     return (
       <div className="container mx-auto py-12 px-4 md:px-6 max-w-xl">
         <div className="flex items-center justify-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-          <span className="ml-2 text-gray-600 dark:text-gray-400">
-            Loading rewards data...
-          </span>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-400"></div>
+          <span className="ml-2 text-blue-200">Loading rewards data...</span>
         </div>
       </div>
     );
@@ -111,8 +109,8 @@ export default function ClaimRewardsClient() {
   if (!rewardsData) {
     return (
       <div className="container mx-auto py-12 px-4 md:px-6 max-w-xl">
-        <div className="bg-red-100 dark:bg-red-900 rounded-lg p-4">
-          <p className="text-red-800 dark:text-red-200">
+        <div className="bg-red-900 rounded-lg p-4">
+          <p className="text-red-200">
             Failed to load rewards data. Please try refreshing the page.
           </p>
         </div>
@@ -122,17 +120,15 @@ export default function ClaimRewardsClient() {
 
   return (
     <div className="container mx-auto py-12 px-4 md:px-6 max-w-xl">
-      <h1 className="text-3xl font-bold mb-6 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-        Claim Rewards
-      </h1>
+      <h1 className="text-3xl font-bold mb-6 text-white">Claim Rewards</h1>
 
       {/* Success/Error Messages */}
       {message && (
         <div
           className={`mb-6 p-4 rounded-lg ${
             message.type === "success"
-              ? "bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200"
-              : "bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200"
+              ? "bg-green-900 text-green-200"
+              : "bg-red-900 text-red-200"
           }`}
         >
           {message.text}
@@ -141,9 +137,9 @@ export default function ClaimRewardsClient() {
 
       <div className="mb-8 flex flex-col gap-6">
         {/* SCP Claim */}
-        <div className="bg-blue-100 dark:bg-blue-900 rounded-lg px-6 py-5 flex flex-col gap-2">
+        <div className="bg-blue-950/80 backdrop-blur-md rounded-xl px-6 py-5 flex flex-col gap-2 border border-blue-900 shadow-lg">
           <div className="flex items-center gap-2">
-            <span className="font-semibold text-blue-900 dark:text-white">
+            <span className="font-semibold text-blue-100">
               Survey Creation Pass (SCP)
             </span>
             <InfoTooltip
@@ -160,14 +156,14 @@ export default function ClaimRewardsClient() {
             </InfoTooltip>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-lg font-bold text-blue-900 dark:text-white">
+            <span className="text-lg font-bold text-blue-100">
               {rewardsData.academiaAnswered}
             </span>
-            <span className="text-xs text-gray-500">
+            <span className="text-xs text-blue-200">
               quality responses available
             </span>
           </div>
-          <div className="flex items-center gap-2 text-sm text-blue-800 dark:text-blue-200">
+          <div className="flex items-center gap-2 text-sm text-blue-200">
             <span>SCPs owned: {rewardsData.scpOwned}</span>
           </div>
           <button
@@ -189,9 +185,9 @@ export default function ClaimRewardsClient() {
         </div>
 
         {/* Commerce Reward Claim */}
-        <div className="bg-green-100 dark:bg-green-950 rounded-lg px-6 py-5 flex flex-col gap-2">
+        <div className="bg-green-950/80 backdrop-blur-md rounded-xl px-6 py-5 flex flex-col gap-2 border border-green-900 shadow-lg">
           <div className="flex items-center gap-2">
-            <span className="font-semibold text-green-900 dark:text-white">
+            <span className="font-semibold text-green-100">
               Commerce Rewards
             </span>
             <InfoTooltip
@@ -207,14 +203,14 @@ export default function ClaimRewardsClient() {
             </InfoTooltip>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-lg font-bold text-green-900 dark:text-white">
+            <span className="text-lg font-bold text-green-100">
               RM {rewardsData.availableCommerceRewards.toFixed(2)}
             </span>
-            <span className="text-xs text-gray-900 dark:text-white">
+            <span className="text-xs text-green-200">
               ({rewardsData.commerceAnswered} answered)
             </span>
           </div>
-          <div className="flex items-center gap-2 text-sm text-green-800 dark:text-green-200">
+          <div className="flex items-center gap-2 text-sm text-green-200">
             <span>
               Total earned: RM {rewardsData.commerceRewardsEarned.toFixed(2)}
             </span>
