@@ -154,17 +154,17 @@ export default function MarketplacePage() {
     .reduce((sum, item, _, array) => sum + item.price / array.length, 0);
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <MarketplaceHeader
-        title="Survey Data Marketplace"
-        description="Browse, buy, or request access to existing survey datasets"
-        transferableCount={transferableCount}
-        totalCount={mockMarketplace.length}
-        totalSampleSize={totalSampleSize}
-        avgPrice={avgPrice}
-      />
+    <div className="relative min-h-screen bg-gradient-to-br from-blue-950 via-blue-900 to-indigo-950 py-8 px-2 sm:px-4 md:px-6">
+      <div className="max-w-7xl mx-auto rounded-3xl bg-blue-950/80 shadow-2xl backdrop-blur-lg p-6 md:p-10 mb-10 border border-blue-900">
+        <MarketplaceHeader
+          title="Survey Data Marketplace"
+          description="Browse, buy, or request access to existing survey datasets"
+          transferableCount={transferableCount}
+          totalCount={mockMarketplace.length}
+          totalSampleSize={totalSampleSize}
+          avgPrice={avgPrice}
+        />
 
-      <div className="max-w-7xl mx-auto px-4 py-8">
         <MarketplaceNotice />
 
         <MarketplaceControls
@@ -187,7 +187,9 @@ export default function MarketplacePage() {
           onSubmit={handleUploadSubmit}
         />
 
-        <MarketplaceGrid items={paged} />
+        <div className="text-blue-100">
+          <MarketplaceGrid items={paged} />
+        </div>
 
         <Pagination
           currentPage={page}

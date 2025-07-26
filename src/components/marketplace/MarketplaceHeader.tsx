@@ -18,16 +18,14 @@ export default function MarketplaceHeader({
   avgPrice,
 }: MarketplaceHeaderProps) {
   return (
-    <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+    <div>
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
+            <h1 className="text-2xl sm:text-3xl font-bold text-white">
               {title}
             </h1>
-            <p className="mt-2 text-gray-600 dark:text-gray-400">
-              {description}
-            </p>
+            <p className="mt-2 text-blue-200">{description}</p>
           </div>
           <div className="flex flex-col space-y-2 sm:flex-row sm:items-center sm:space-y-0 sm:space-x-3">
             <Link
@@ -51,7 +49,7 @@ export default function MarketplaceHeader({
             </Link>
             <Link
               href="/dashboard"
-              className="inline-flex items-center justify-center px-4 py-2 text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+              className="inline-flex items-center justify-center px-4 py-2 text-gray-300 bg-gray-800 border border-gray-600 rounded-lg hover:bg-gray-700 transition-colors"
             >
               <svg
                 className="w-4 h-4 mr-2"
@@ -73,12 +71,12 @@ export default function MarketplaceHeader({
 
         {/* Stats Grid */}
         <div className="mt-6 sm:mt-8 grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-          <div className="bg-gray-50 dark:bg-gray-900 rounded-xl p-4 sm:p-6">
+          <div className="bg-gray-900 rounded-xl p-4 sm:p-6">
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <div className="w-6 h-6 sm:w-8 sm:h-8 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
+                <div className="w-6 h-6 sm:w-8 sm:h-8 bg-blue-900/30 rounded-lg flex items-center justify-center">
                   <svg
-                    className="w-3 h-3 sm:w-4 sm:h-4 text-blue-600 dark:text-blue-400"
+                    className="w-3 h-3 sm:w-4 sm:h-4 text-blue-400"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -93,22 +91,22 @@ export default function MarketplaceHeader({
                 </div>
               </div>
               <div className="ml-3 sm:ml-4">
-                <p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400">
+                <p className="text-xs sm:text-sm font-medium text-gray-400">
                   Available Datasets
                 </p>
-                <p className="text-lg sm:text-2xl font-bold text-gray-900 dark:text-white">
+                <p className="text-lg sm:text-2xl font-bold text-white">
                   {transferableCount.toLocaleString()}
                 </p>
               </div>
             </div>
           </div>
 
-          <div className="bg-gray-50 dark:bg-gray-900 rounded-xl p-4 sm:p-6">
+          <div className="bg-gray-900 rounded-xl p-4 sm:p-6">
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <div className="w-6 h-6 sm:w-8 sm:h-8 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center">
+                <div className="w-6 h-6 sm:w-8 sm:h-8 bg-green-900/30 rounded-lg flex items-center justify-center">
                   <svg
-                    className="w-3 h-3 sm:w-4 sm:h-4 text-green-600 dark:text-green-400"
+                    className="w-3 h-3 sm:w-4 sm:h-4 text-green-400"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -123,22 +121,22 @@ export default function MarketplaceHeader({
                 </div>
               </div>
               <div className="ml-3 sm:ml-4">
-                <p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400">
+                <p className="text-xs sm:text-sm font-medium text-gray-400">
                   Total Sample Size
                 </p>
-                <p className="text-lg sm:text-2xl font-bold text-gray-900 dark:text-white">
+                <p className="text-lg sm:text-2xl font-bold text-white">
                   {totalSampleSize.toLocaleString()}
                 </p>
               </div>
             </div>
           </div>
 
-          <div className="bg-gray-50 dark:bg-gray-900 rounded-xl p-4 sm:p-6">
+          <div className="bg-gray-900 rounded-xl p-4 sm:p-6">
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <div className="w-6 h-6 sm:w-8 sm:h-8 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center">
+                <div className="w-6 h-6 sm:w-8 sm:h-8 bg-purple-900/30 rounded-lg flex items-center justify-center">
                   <svg
-                    className="w-3 h-3 sm:w-4 sm:h-4 text-purple-600 dark:text-purple-400"
+                    className="w-3 h-3 sm:w-4 sm:h-4 text-purple-400"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -153,22 +151,22 @@ export default function MarketplaceHeader({
                 </div>
               </div>
               <div className="ml-3 sm:ml-4">
-                <p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400">
+                <p className="text-xs sm:text-sm font-medium text-gray-400">
                   Average Price
                 </p>
-                <p className="text-lg sm:text-2xl font-bold text-gray-900 dark:text-white">
+                <p className="text-lg sm:text-2xl font-bold text-white">
                   ${avgPrice.toFixed(0)}
                 </p>
               </div>
             </div>
           </div>
 
-          <div className="bg-gray-50 dark:bg-gray-900 rounded-xl p-4 sm:p-6">
+          <div className="bg-gray-900 rounded-xl p-4 sm:p-6">
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <div className="w-6 h-6 sm:w-8 sm:h-8 bg-orange-100 dark:bg-orange-900/30 rounded-lg flex items-center justify-center">
+                <div className="w-6 h-6 sm:w-8 sm:h-8 bg-orange-900/30 rounded-lg flex items-center justify-center">
                   <svg
-                    className="w-3 h-3 sm:w-4 sm:h-4 text-orange-600 dark:text-orange-400"
+                    className="w-3 h-3 sm:w-4 sm:h-4 text-orange-400"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -183,10 +181,10 @@ export default function MarketplaceHeader({
                 </div>
               </div>
               <div className="ml-3 sm:ml-4">
-                <p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400">
+                <p className="text-xs sm:text-sm font-medium text-gray-400">
                   Total Listings
                 </p>
-                <p className="text-lg sm:text-2xl font-bold text-gray-900 dark:text-white">
+                <p className="text-lg sm:text-2xl font-bold text-white">
                   {totalCount.toLocaleString()}
                 </p>
               </div>

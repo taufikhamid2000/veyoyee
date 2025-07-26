@@ -1,17 +1,11 @@
-/* Fix for <p> color in light mode when using Tailwind and global color-scheme */
+/* Default <p> color for dark mode only */
 p:not([class*="text-"]) {
-  color: var(--foreground);
+  color: #f3f4f6;
 }
 
-/* If a Tailwind text color is present, do not override. If not, use foreground. */
+/* If a Tailwind text color is present, do not override. If not, use default. */
 p[class*="text-gray-600"],
 p[class*="text-gray-700"],
 p[class*="text-gray-900"] {
-  color: #111827 !important;
-}
-
-html.dark p[class*="text-gray-600"],
-html.dark p[class*="text-gray-700"],
-html.dark p[class*="text-gray-900"] {
   color: #f3f4f6 !important;
 }
