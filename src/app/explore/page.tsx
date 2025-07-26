@@ -79,25 +79,23 @@ export default async function ExploreSurveysPage() {
   }
 
   return (
-    <div className="min-w-0 w-screen max-w-none bg-inherit">
-      <div className="container mx-auto py-8 px-4 md:px-6">
-        <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-500 to-indigo-500 bg-clip-text text-transparent">
+    <div className="relative min-h-screen bg-gradient-to-br from-blue-950 via-blue-900 to-indigo-950 py-8 px-2 sm:px-4 md:px-6">
+      <div className="max-w-5xl mx-auto rounded-3xl bg-blue-950/80 shadow-2xl backdrop-blur-lg p-6 md:p-10 mb-10 border border-blue-900">
+        <h1 className="text-3xl md:text-4xl font-extrabold bg-gradient-to-r from-blue-300 to-indigo-300 bg-clip-text text-transparent mb-2">
           Explore Surveys
         </h1>
-        <p className="mb-8 text-gray-900 dark:text-gray-400 max-w-2xl">
+        <p className="mb-8 text-blue-100 max-w-2xl text-lg">
           Browse public surveys and participate to share your insights. Use the
           filters to find surveys that interest you.
         </p>
         {/* User survey stats */}
         <div className="mb-8 flex flex-col md:flex-row gap-4 md:gap-8">
-          <div className="bg-blue-900 dark:bg-blue-900/30 rounded-lg px-5 py-3 flex-1 flex items-center gap-3">
-            <span className="font-semibold text-blue-900 dark:text-white">
+          <div className="bg-blue-900/80 rounded-xl px-5 py-4 flex-1 flex items-center gap-3 shadow-lg border border-blue-800">
+            <span className="font-semibold text-blue-100">
               Academia Surveys Answered:
             </span>
-            <span className="text-lg font-bold text-blue-900 dark:text-white">
-              72
-            </span>
-            <span className="text-xs text-gray-500 flex items-center gap-1">
+            <span className="text-2xl font-bold text-blue-100">72</span>
+            <span className="text-xs text-blue-300 flex items-center gap-1">
               / 100 for SCP
               <InfoTooltip
                 tooltip={
@@ -112,13 +110,11 @@ export default async function ExploreSurveysPage() {
               </InfoTooltip>
             </span>
           </div>
-          <div className="bg-green-50 dark:bg-green-900/30 rounded-lg px-5 py-3 flex-1 flex items-center gap-3">
-            <span className="font-semibold text-green-900 dark:text-white">
+          <div className="bg-green-900/80 rounded-xl px-5 py-4 flex-1 flex items-center gap-3 shadow-lg border border-green-800">
+            <span className="font-semibold text-green-100">
               Commerce Surveys Answered:
             </span>
-            <span className="text-lg font-bold text-green-900 dark:text-white">
-              RM 8.20
-            </span>
+            <span className="text-2xl font-bold text-green-100">RM 8.20</span>
           </div>
         </div>
         <div className="w-full px-0 md:px-0">
