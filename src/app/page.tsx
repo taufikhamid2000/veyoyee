@@ -3,78 +3,13 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import React, { useEffect, useRef, useState } from "react";
-import AliBitlifeStory from "@/components/AliBitlifeStory";
+import AliBitlifeStory from "@/components/landing/AliBitlifeStory";
+import HowItWorksSection from "@/components/landing/HowItWorksSection";
+import PhaseRolloutSection from "@/components/landing/PhaseRolloutSection";
+import WhyVeyoyeeSection from "@/components/landing/WhyVeyoyeeSection";
+import KeyBenefitsSection from "@/components/landing/KeyBenefitsSection";
+import Testimonial from "@/components/landing/Testimonial";
 import Image from "next/image";
-
-// Comparison Table
-const ComparisonTable = () => (
-  <div className="overflow-x-auto mt-8 mb-0 pb-0">
-    <table className="min-w-full text-sm text-left text-gray-300 border border-gray-700 rounded-xl overflow-hidden">
-      <thead className="bg-blue-900 text-blue-200">
-        <tr>
-          <th className="px-6 py-3">Feature</th>
-          <th className="px-6 py-3">Veyoyee</th>
-          <th className="px-6 py-3">Typical Swap Site</th>
-        </tr>
-      </thead>
-      <tbody className="bg-gray-900">
-        <tr className="border-b border-gray-700">
-          <td className="px-6 py-4">Academic/Nonprofit Focus</td>
-          <td className="px-6 py-4">✅ Yes</td>
-          <td className="px-6 py-4">❌ No</td>
-        </tr>
-        <tr className="border-b border-gray-700">
-          <td className="px-6 py-4">Commercial Use</td>
-          <td className="px-6 py-4">✅ Supported</td>
-          <td className="px-6 py-4">✅/❌ Limited</td>
-        </tr>
-        <tr className="border-b border-gray-700">
-          <td className="px-6 py-4">AI/Bot Protection</td>
-          <td className="px-6 py-4">✅ Advanced</td>
-          <td className="px-6 py-4">❌ Weak/None</td>
-        </tr>
-        <tr className="border-b border-gray-700">
-          <td className="px-6 py-4">Quality Control</td>
-          <td className="px-6 py-4">✅ Reputation & Validation</td>
-          <td className="px-6 py-4">❌ Basic/None</td>
-        </tr>
-        <tr className="border-b border-gray-700">
-          <td className="px-6 py-4">Real Rewards</td>
-          <td className="px-6 py-4">✅ Transparent</td>
-          <td className="px-6 py-4">❌ Points/Fake Credits</td>
-        </tr>
-        <tr>
-          <td className="px-6 py-4">Data Privacy & Ethics</td>
-          <td className="px-6 py-4">✅ Strong</td>
-          <td className="px-6 py-4">❌ Weak</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-);
-
-// Testimonial Card
-const Testimonial = ({
-  name,
-  role,
-  text,
-  org,
-}: {
-  name: string;
-  role: string;
-  text: string;
-  org: string;
-}) => (
-  <div className="bg-gray-800 rounded-xl p-2 md:p-6 shadow-md border border-gray-700 flex flex-col items-start max-w-xs mx-auto w-full">
-    <p className="text-xs md:text-lg text-gray-200 italic mb-2 md:mb-4">
-      “{text}”
-    </p>
-    <div className="text-xs md:text-sm text-blue-300 font-semibold">{name}</div>
-    <div className="text-[10px] md:text-xs text-gray-400">
-      {role}, {org}
-    </div>
-  </div>
-);
 
 // FAQ Section
 const FAQ = () => (
@@ -129,54 +64,6 @@ const FAQ = () => (
           trust and fairness.
         </div>
       </div>
-    </div>
-  </div>
-);
-
-// Feature Item
-const FeatureItem = ({
-  icon,
-  title,
-  description,
-}: {
-  icon: React.ReactNode;
-  title: string;
-  description: string;
-}) => (
-  <div className="group flex flex-col items-center text-center p-2 md:p-6 bg-gray-800/50 rounded-xl shadow-lg border border-gray-700 transform transition-all duration-300 hover:scale-105 hover:shadow-xl backdrop-blur-sm max-w-xs mx-auto w-full">
-    <div className="bg-gradient-to-r from-blue-500 to-indigo-600 p-3 rounded-full flex-shrink-0 mb-6 shadow-md transform transition-all duration-300 group-hover:scale-110 group-hover:shadow-blue-500/50">
-      <div className="text-white w-8 h-8">{icon}</div>
-    </div>
-    <h3 className="text-base md:text-xl font-bold mb-2 md:mb-3 text-gray-100 group-hover:text-blue-400 transition-colors duration-300">
-      {title}
-    </h3>
-    <p className="text-xs md:text-base text-gray-300 font-medium">
-      {description}
-    </p>
-  </div>
-);
-
-// Step Card
-const StepCard = ({
-  number,
-  title,
-  description,
-}: {
-  number: number;
-  title: string;
-  description: string;
-}) => (
-  <div className="relative bg-gray-800 p-1 md:p-8 rounded-2xl shadow-lg border border-gray-700 z-10 max-w-xs mx-auto w-full">
-    <div className="absolute -top-3 md:-top-5 -left-3 md:-left-5 bg-gradient-to-r from-blue-600 to-indigo-700 w-7 h-7 md:w-14 md:h-14 rounded-full flex items-center justify-center text-xs md:text-xl font-bold shadow-md">
-      <span className="text-white">{number}</span>
-    </div>
-    <div className="mt-2 md:mt-5">
-      <h3 className="text-sm md:text-2xl font-bold mb-1 md:mb-4 text-white">
-        {title}
-      </h3>
-      <p className="text-xs md:text-base text-gray-300 font-medium">
-        {description}
-      </p>
     </div>
   </div>
 );
@@ -470,127 +357,22 @@ export default function Home() {
       {/* Problem Statement Section as Interactive Bitlife Story */}
       <AliBitlifeStory />
 
-      {/* How It Works Section (moved up) */}
-      <div
-        id="how"
-        className="w-full bg-gradient-to-b from-indigo-950 to-blue-900 py-[40px] md:py-[100px] px-4 md:px-6 relative"
-      >
-        <div className="max-w-6xl mx-auto">
-          <div className="flex flex-col items-center mb-6 md:mb-8">
-            <span className="inline-block px-3 md:px-4 py-0.5 rounded-full bg-blue-900 text-blue-300 font-medium text-xs md:text-sm mb-4 md:mb-6">
-              How It Works
-            </span>
-            <h2 className="text-2xl md:text-4xl font-extrabold text-white tracking-tight leading-snug text-center">
-              How Veyoyee Works
-            </h2>
-          </div>
-          <div className="relative">
-            <div className="hidden md:block absolute top-1/2 left-0 w-full h-0.5 bg-gradient-to-r from-blue-500 to-indigo-600 transform -translate-y-1/2 z-0"></div>
-            <div className="grid md:grid-cols-3 gap-4 md:gap-12 relative z-10">
-              <StepCard
-                number={1}
-                title="Create Your Survey"
-                description="Design professional surveys with our intuitive builder. Set real rewards to attract quality participants."
-              />
-              <StepCard
-                number={2}
-                title="Collect Real Responses"
-                description="Participants complete your survey and receive transparent, fair rewards. AI/bot protection ensures data quality."
-              />
-              <StepCard
-                number={3}
-                title="Analyze & Share Results"
-                description="Access high-quality data, advanced analytics, and export options. Participants cash out their earned rewards."
-              />
-            </div>
-          </div>
-        </div>
-      </div>
+      {/* How It Works Section (componentized) */}
+      <HowItWorksSection />
 
-      {/* Phase Rollout Section */}
-      <section className="w-full bg-gradient-to-b from-blue-900 to-indigo-950 py-16 md:py-24 px-4 md:px-6">
-        <div className="max-w-4xl mx-auto flex flex-col items-center text-center">
-          <span className="inline-block px-3 md:px-4 py-0.5 rounded-full bg-indigo-900 text-indigo-200 font-medium text-xs md:text-sm mb-4 md:mb-6">
-            Phase Rollout
-          </span>
-          <h2 className="text-2xl md:text-4xl font-extrabold text-white leading-snug mb-4">
-            University-First, Then the World
-          </h2>
-          <ol className="text-base md:text-lg text-gray-300 max-w-2xl mx-auto leading-relaxed list-decimal list-inside space-y-2">
-            <li>
-              <b>Pilot Launch:</b> Partner with select university departments to
-              validate the platform and gather feedback.
-            </li>
-            <li>
-              <b>Campus Expansion:</b> Roll out to more faculties and student
-              organizations, building a trusted academic community.
-            </li>
-            <li>
-              <b>Open Access:</b> Gradually open to nonprofits and commercial
-              research, maintaining high standards and academic roots.
-            </li>
-          </ol>
-        </div>
-      </section>
+      {/* Phase Rollout Section (componentized) */}
+      <PhaseRolloutSection />
 
-      {/* Why Veyoyee is Different */}
-      <div className="w-full bg-gradient-to-b from-indigo-950 to-blue-900 py-[40px] md:py-[100px] px-4 md:px-6">
-        <div className="max-w-5xl mx-auto">
-          <div className="flex flex-col items-center">
-            <span className="inline-block px-3 md:px-4 py-0.5 rounded-full bg-blue-900 text-blue-300 font-medium text-xs md:text-sm mb-4 md:mb-6">
-              Why Veyoyee
-            </span>
-            <h2 className="text-2xl md:text-4xl font-extrabold text-white leading-snug text-center">
-              Why Veyoyee is Different
-            </h2>
-          </div>
-          <p className="text-base md:text-lg text-gray-300 max-w-3xl mx-auto text-center leading-relaxed">
-            We’re not just another survey swap. Veyoyee is built for research
-            that matters—combining academic rigor, commercial flexibility, and
-            next-generation protections.
-          </p>
-          <ComparisonTable />
-        </div>
-      </div>
+      {/* Why Veyoyee is Different (componentized) */}
+      <WhyVeyoyeeSection />
 
-      {/* Features Section */}
-      <div
-        id="features"
-        className="w-full bg-gradient-to-b from-blue-900 to-blue-950 py-[40px] md:py-[100px] px-4 md:px-6"
-      >
-        <div className="max-w-6xl mx-auto">
-          <div className="flex flex-col items-center mb-6 md:mb-8">
-            <span className="inline-block px-3 md:px-4 py-0.5 rounded-full bg-blue-900 text-blue-300 font-medium text-xs md:text-sm mb-4 md:mb-6">
-              Key Benefits
-            </span>
-            <h2 className="text-2xl md:text-4xl font-extrabold text-white tracking-tight leading-snug text-center">
-              Why Researchers Choose Veyoyee
-            </h2>
-          </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
-            <FeatureItem
-              icon={<CheckIcon />}
-              title="Higher Quality Data"
-              description="Advanced validation, reputation, and AI/bot protection ensure real, thoughtful responses."
-            />
-            <FeatureItem
-              icon={<TimeIcon />}
-              title="Time-Saving"
-              description="Streamlined survey creation, automated reward distribution, and built-in analytics save valuable time."
-            />
-            <FeatureItem
-              icon={<ShieldIcon />}
-              title="Ethical & Secure"
-              description="Built with data protection, privacy, and ethical research standards at its core."
-            />
-            <FeatureItem
-              icon={<AcademicIcon />}
-              title="Academic & Commercial"
-              description="Designed for universities, nonprofits, and businesses—flexible for any research need."
-            />
-          </div>
-        </div>
-      </div>
+      {/* Features Section (componentized) */}
+      <KeyBenefitsSection
+        CheckIcon={CheckIcon}
+        TimeIcon={TimeIcon}
+        ShieldIcon={ShieldIcon}
+        AcademicIcon={AcademicIcon}
+      />
 
       {/* Testimonials Section */}
       <div
