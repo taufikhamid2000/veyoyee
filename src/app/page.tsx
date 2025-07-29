@@ -534,7 +534,7 @@ export default function Home() {
       </section>
 
       {/* Why Veyoyee is Different */}
-      <div className="w-full bg-gradient-to-b from-blue-950 to-indigo-950 py-[40px] md:py-[100px] px-4 md:px-6">
+      <div className="w-full bg-gradient-to-b from-indigo-950 to-blue-900 py-[40px] md:py-[100px] px-4 md:px-6">
         <div className="max-w-5xl mx-auto">
           <div className="flex flex-col items-center">
             <span className="inline-block px-3 md:px-4 py-0.5 rounded-full bg-blue-900 text-blue-300 font-medium text-xs md:text-sm mb-4 md:mb-6">

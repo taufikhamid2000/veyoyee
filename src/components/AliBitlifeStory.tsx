@@ -113,7 +113,7 @@ export default function AliBitlifeStory() {
   ) {
     const outcome = outcomes[step];
     return (
-      <section className="w-full bg-gradient-to-b from-blue-950 to-indigo-950 py-16 md:py-24 px-4 md:px-6">
+      <section className="w-full bg-gradient-to-b from-blue-900 to-indigo-950 py-16 md:py-24 px-4 md:px-6">
         <div className="max-w-4xl mx-auto flex flex-col items-center text-center">
           <span className="inline-block px-3 md:px-4 py-0.5 rounded-full bg-red-900 text-red-200 font-medium text-xs md:text-sm mb-4 md:mb-6">
             The Outcome
@@ -145,7 +145,7 @@ export default function AliBitlifeStory() {
   }
 
   return (
-    <section className="w-full bg-gradient-to-b from-blue-950 to-indigo-950 py-16 md:py-24 px-4 md:px-6">
+    <section className="w-full bg-gradient-to-b from-blue-900 to-indigo-950 py-16 md:py-24 px-4 md:px-6">
       <div className="max-w-4xl mx-auto flex flex-col items-center text-center">
         <span className="inline-block px-3 md:px-4 py-0.5 rounded-full bg-red-900 text-red-200 font-medium text-xs md:text-sm mb-4 md:mb-6">
           The Problem
@@ -158,7 +158,7 @@ export default function AliBitlifeStory() {
             ? aliSlideContents[step]
             : dilemmaText}
         </div>
-        <div className="flex flex-col md:flex-row items-center gap-4 mt-8">
+        <div className="flex flex-col items-center gap-4 mt-8">
           {typeof step === "number" && step < 1 && (
             <button
               className="px-6 py-3 rounded-xl bg-blue-800 text-white font-bold shadow hover:bg-blue-700 transition"
@@ -190,14 +190,18 @@ export default function AliBitlifeStory() {
                   Ali ignores the advice and doesn&apos;t answer enough surveys
                 </button>
               </div>
-              <button
-                className="mt-4 px-4 py-2 rounded bg-gray-700 text-white text-xs font-semibold hover:bg-gray-600 transition hidden md:block"
-                onClick={() => setRunawayEnabled((v) => !v)}
-              >
-                {runawayEnabled
-                  ? "Turn Off Runaway Button"
-                  : "Turn On Runaway Button"}
-              </button>
+
+              {/* Toggle runaway button below the row, always centered and with max width */}
+              <div className="flex justify-center w-full mt-6 md:mt-8">
+                <button
+                  className="px-6 py-2 rounded-xl bg-gray-700 text-white text-xs md:text-sm font-semibold hover:bg-gray-600 transition hidden md:inline-block shadow max-w-xs w-full"
+                  onClick={() => setRunawayEnabled((v) => !v)}
+                >
+                  {runawayEnabled
+                    ? "Turn Off Runaway Button"
+                    : "Turn On Runaway Button"}
+                </button>
+              </div>
             </>
           )}
         </div>
