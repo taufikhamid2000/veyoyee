@@ -33,8 +33,6 @@ export default function SignUpForm() {
     onSubmit: async (data) => {
       const supabase = createClient();
 
-      console.log("Attempting sign up with:", data.email);
-
       const { error: signUpError, data: signUpData } =
         await supabase.auth.signUp({
           email: data.email,
@@ -65,8 +63,6 @@ export default function SignUpForm() {
       }
 
       if (signUpData?.user) {
-        console.log("Sign-up successful for user:", signUpData.user.email);
-
         if (signUpData.user.email_confirmed_at) {
           // User is immediately confirmed
           toast.success(

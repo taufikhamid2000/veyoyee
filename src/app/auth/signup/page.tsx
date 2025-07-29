@@ -1,6 +1,5 @@
 import { Metadata } from "next";
 import Link from "next/link";
-// import { redirect } from "next/navigation";
 
 import {
   Card,
@@ -11,7 +10,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import SignUpForm from "./components/signup-form";
-// import { createServerClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
   title: "Sign Up - Template",
@@ -19,13 +17,6 @@ export const metadata: Metadata = {
 };
 
 export default async function SignUpPage() {
-  // Not checking session anymore since redirects are commented out
-  // const supabase = await createServerClient();
-  // const { data } = await supabase.auth.getSession();
-  // Commenting out to prevent redirection issues
-  // if (data?.session) {
-  //   redirect("/dashboard");
-  // }
   return (
     <div className="flex h-screen w-full items-center justify-center">
       <Card className="w-full max-w-md">

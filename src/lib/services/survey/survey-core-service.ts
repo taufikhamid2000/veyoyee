@@ -35,12 +35,6 @@ export class SurveyCoreService {
       // For now, we'll use multiple queries and handle any errors
 
       // 1. Create the survey record
-      console.log("Inserting survey with:", {
-        title: surveyData.title,
-        type: surveyData.type,
-        status: status,
-        schema: "veyoyee",
-      });
 
       const { data: survey, error: surveyError } = await supabase
         .schema("veyoyee") // Explicitly set schema for this operation

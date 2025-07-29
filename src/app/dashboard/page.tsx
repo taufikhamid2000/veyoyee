@@ -21,7 +21,6 @@ export default async function DashboardPage() {
 
   // Redirect to login if no user is found
   if (!data?.user || error) {
-    console.log("Dashboard auth check failed:", error?.message);
     redirect("/auth/signin");
   }
 

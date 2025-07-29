@@ -33,8 +33,6 @@ export default function EnhancedSurveyForm() {
       // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 2000));
 
-      console.log("Survey data:", data);
-
       // Simulate success
       toast.success(
         "Survey Created!",

@@ -30,8 +30,6 @@ export default function SignInForm({ onSuccess }: SignInFormProps) {
     onSubmit: async (data) => {
       const supabase = createClient();
 
-      console.log("Attempting sign in with:", data.email);
-
       const response = await supabase.auth.signInWithPassword({
         email: data.email,
         password: data.password,
@@ -57,7 +55,6 @@ export default function SignInForm({ onSuccess }: SignInFormProps) {
       }
 
       if (response.data?.user) {
-        console.log("Sign-in successful for user:", response.data.user.email);
         toast.success("Welcome back!", "You have been signed in successfully.");
         if (onSuccess) {
           onSuccess();

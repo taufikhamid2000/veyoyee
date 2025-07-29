@@ -739,13 +739,6 @@ export class SurveyResponseService {
         throw error;
       }
 
-      // Optionally log the reputation award
-      console.log(
-        `Awarded ${points} reputation to user ${userId}${
-          reason ? ` for: ${reason}` : ""
-        }`
-      );
-
       return { success: true };
     } catch (error) {
       console.error("Error awarding reputation:", error);
@@ -832,16 +825,12 @@ export class SurveyResponseService {
     const supabase = supabaseClient || getVeyoyeeClient();
 
     try {
-      console.log("Bulk rejecting responses:", responseIds);
-
-      const { data, error } = await supabase
+      const { error } = await supabase
         .schema("veyoyee")
         .from("individual_responses")
         .update({ status: "rejected" })
         .in("id", responseIds)
         .select();
-
-      console.log("Bulk reject result:", { data, error });
 
       if (error) {
         console.error("Database error:", error);
