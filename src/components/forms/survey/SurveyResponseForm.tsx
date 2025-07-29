@@ -77,9 +77,10 @@ export default function SurveyResponseForm({
       await SurveyResponseService.completeSurveyResponse(responseId);
 
       alert("Survey responses submitted successfully!");
-
-      // Optionally redirect or clear form
-      setAnswers({});
+      // Redirect to explore after successful submission
+      window.location.href = "/explore";
+      // Optionally clear form (not needed if redirecting)
+      // setAnswers({});
     } catch (error) {
       console.error("Error submitting survey:", error);
       alert("Failed to submit survey responses. Please try again.");
