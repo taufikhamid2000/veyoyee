@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import React, { useEffect, useRef, useState } from "react";
+import AliBitlifeStory from "@/components/AliBitlifeStory";
 import Image from "next/image";
 
 // Comparison Table
@@ -464,6 +465,72 @@ export default function Home() {
           </div>
         </div>
         <TrustedBy />
+      </section>
+
+      {/* Problem Statement Section as Interactive Bitlife Story */}
+      <AliBitlifeStory />
+
+      {/* How It Works Section (moved up) */}
+      <div
+        id="how"
+        className="w-full bg-gradient-to-b from-indigo-950 to-blue-900 py-[40px] md:py-[100px] px-4 md:px-6 relative"
+      >
+        <div className="max-w-6xl mx-auto">
+          <div className="flex flex-col items-center mb-6 md:mb-8">
+            <span className="inline-block px-3 md:px-4 py-0.5 rounded-full bg-blue-900 text-blue-300 font-medium text-xs md:text-sm mb-4 md:mb-6">
+              How It Works
+            </span>
+            <h2 className="text-2xl md:text-4xl font-extrabold text-white tracking-tight leading-snug text-center">
+              How Veyoyee Works
+            </h2>
+          </div>
+          <div className="relative">
+            <div className="hidden md:block absolute top-1/2 left-0 w-full h-0.5 bg-gradient-to-r from-blue-500 to-indigo-600 transform -translate-y-1/2 z-0"></div>
+            <div className="grid md:grid-cols-3 gap-4 md:gap-12 relative z-10">
+              <StepCard
+                number={1}
+                title="Create Your Survey"
+                description="Design professional surveys with our intuitive builder. Set real rewards to attract quality participants."
+              />
+              <StepCard
+                number={2}
+                title="Collect Real Responses"
+                description="Participants complete your survey and receive transparent, fair rewards. AI/bot protection ensures data quality."
+              />
+              <StepCard
+                number={3}
+                title="Analyze & Share Results"
+                description="Access high-quality data, advanced analytics, and export options. Participants cash out their earned rewards."
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Phase Rollout Section */}
+      <section className="w-full bg-gradient-to-b from-blue-900 to-indigo-950 py-16 md:py-24 px-4 md:px-6">
+        <div className="max-w-4xl mx-auto flex flex-col items-center text-center">
+          <span className="inline-block px-3 md:px-4 py-0.5 rounded-full bg-indigo-900 text-indigo-200 font-medium text-xs md:text-sm mb-4 md:mb-6">
+            Phase Rollout
+          </span>
+          <h2 className="text-2xl md:text-4xl font-extrabold text-white leading-snug mb-4">
+            University-First, Then the World
+          </h2>
+          <ol className="text-base md:text-lg text-gray-300 max-w-2xl mx-auto leading-relaxed list-decimal list-inside space-y-2">
+            <li>
+              <b>Pilot Launch:</b> Partner with select university departments to
+              validate the platform and gather feedback.
+            </li>
+            <li>
+              <b>Campus Expansion:</b> Roll out to more faculties and student
+              organizations, building a trusted academic community.
+            </li>
+            <li>
+              <b>Open Access:</b> Gradually open to nonprofits and commercial
+              research, maintaining high standards and academic roots.
+            </li>
+          </ol>
+        </div>
       </section>
 
       {/* Why Veyoyee is Different */}
