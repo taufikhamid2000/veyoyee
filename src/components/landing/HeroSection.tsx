@@ -119,10 +119,10 @@ const HeroSection: React.FC = () => (
             </svg>
           </a>
           <a
-            href="#how"
+            href="/pricing"
             className="bg-white/10 hover:bg-white/20 text-blue-200 px-8 py-4 rounded-xl font-semibold shadow transition text-lg md:text-xl flex items-center gap-2 border-2 border-blue-300/10"
           >
-            <span>See How It Works</span>
+            <span>Would you like to buy the project?</span>
             <svg
               className="w-5 h-5"
               fill="none"
