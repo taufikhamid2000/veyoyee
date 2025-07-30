@@ -119,13 +119,23 @@ export default function Navigation() {
             </Link>
             <Link
               href="/claim"
-              className={`text-gray-200 hover:text-white transition-colors$${
+              className={`text-gray-200 hover:text-white transition-colors${
                 pathname.startsWith("/claim")
                   ? " font-bold border-b-2 border-blue-400"
                   : ""
               }`}
             >
               Claim
+            </Link>
+            <Link
+              href="/admin"
+              className={`text-gray-200 hover:text-white transition-colors${
+                pathname.startsWith("/admin")
+                  ? " font-bold border-b-2 border-blue-400"
+                  : ""
+              }`}
+            >
+              Admin
             </Link>
             {user && <UserNavDropdown user={user} />}
           </div>
@@ -239,6 +249,17 @@ export default function Navigation() {
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Claim
+                </Link>
+                <Link
+                  href="/admin"
+                  className={`block px-6 py-3 text-sm text-gray-200 hover:text-white hover:bg-blue-800/50 transition-colors${
+                    pathname.startsWith("/admin")
+                      ? " font-bold border-b-2 border-blue-400"
+                      : ""
+                  }`}
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Admin
                 </Link>
                 <div className="px-6 py-3">
                   <UserNavDropdown user={user} />
