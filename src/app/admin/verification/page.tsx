@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import FilterSearchControls from "@/components/shared/FilterSearchControls";
 
 interface User {
   id: string;
@@ -31,6 +32,8 @@ export default function UserVerificationPage() {
   const [loading, setLoading] = useState(true);
   const [filterStatus, setFilterStatus] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
+  const [dateRange, setDateRange] = useState("7days");
+  const [location, setLocation] = useState("all");
 
   useEffect(() => {
     fetchUsers();
@@ -318,57 +321,47 @@ export default function UserVerificationPage() {
           <h3 className="text-2xl md:text-3xl font-bold mb-6 bg-gradient-to-r from-blue-300 to-indigo-300 bg-clip-text text-transparent">
             Filter & Search
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div>
-              <label className="block text-blue-200 text-sm font-medium mb-2">
-                Status
-              </label>
-              <select
-                value={filterStatus}
-                onChange={(e) => setFilterStatus(e.target.value)}
-                className="w-full p-3 bg-blue-900/50 border border-blue-800 rounded-lg text-blue-200"
-              >
-                <option value="all">All Status</option>
-                <option value="pending">Pending</option>
-                <option value="approved">Approved</option>
-                <option value="rejected">Rejected</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-blue-200 text-sm font-medium mb-2">
-                Date Range
-              </label>
-              <select className="w-full p-3 bg-blue-900/50 border border-blue-800 rounded-lg text-blue-200">
-                <option>Last 7 days</option>
-                <option>Last 30 days</option>
-                <option>Last 90 days</option>
-                <option>Custom range</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-blue-200 text-sm font-medium mb-2">
-                Location
-              </label>
-              <select className="w-full p-3 bg-blue-900/50 border border-blue-800 rounded-lg text-blue-200">
-                <option>All Locations</option>
-                <option>Kuala Lumpur</option>
-                <option>Penang</option>
-                <option>Johor Bahru</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-blue-200 text-sm font-medium mb-2">
-                Search
-              </label>
-              <input
-                type="text"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Search by name or email..."
-                className="w-full p-3 bg-blue-900/50 border border-blue-800 rounded-lg text-blue-200 placeholder-blue-400"
-              />
-            </div>
-          </div>
+          <FilterSearchControls
+            searchTerm={searchTerm}
+            onSearchChange={setSearchTerm}
+            searchPlaceholder="Search by name or email..."
+            filters={[
+              {
+                label: "Status",
+                value: filterStatus,
+                options: [
+                  { value: "all", label: "All Status" },
+                  { value: "pending", label: "Pending" },
+                  { value: "approved", label: "Approved" },
+                  { value: "rejected", label: "Rejected" },
+                ],
+                onChange: setFilterStatus,
+              },
+              {
+                label: "Date Range",
+                value: dateRange,
+                options: [
+                  { value: "7days", label: "Last 7 days" },
+                  { value: "30days", label: "Last 30 days" },
+                  { value: "90days", label: "Last 90 days" },
+                  { value: "custom", label: "Custom range" },
+                ],
+                onChange: setDateRange,
+              },
+              {
+                label: "Location",
+                value: location,
+                options: [
+                  { value: "all", label: "All Locations" },
+                  { value: "kuala-lumpur", label: "Kuala Lumpur" },
+                  { value: "penang", label: "Penang" },
+                  { value: "johor-bahru", label: "Johor Bahru" },
+                ],
+                onChange: setLocation,
+              },
+            ]}
+            variant="blue"
+          />
         </div>
 
         {/* Pending Verifications */}
