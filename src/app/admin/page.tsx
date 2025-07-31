@@ -139,9 +139,12 @@ export default function AdminPage() {
                 <p className="text-orange-300 text-sm mb-3">
                   Review and approve surveys before publication
                 </p>
-                <button className="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg transition-colors">
+                <a
+                  href="/admin/moderation"
+                  className="inline-block px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg transition-colors"
+                >
                   Review Surveys
-                </button>
+                </a>
               </div>
               <div className="bg-teal-900/50 p-4 rounded-2xl border border-teal-800">
                 <h4 className="font-semibold text-teal-200 mb-2">
