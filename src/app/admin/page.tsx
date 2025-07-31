@@ -83,14 +83,17 @@ export default function AdminPage() {
             <div className="space-y-4">
               <div className="bg-blue-900/50 p-4 rounded-2xl border border-blue-800">
                 <h4 className="font-semibold text-blue-200 mb-2">
-                  User Analytics
+                  Platform Analytics
                 </h4>
                 <p className="text-blue-300 text-sm mb-3">
-                  View detailed user statistics and behavior patterns
+                  View detailed platform statistics and behavior patterns
                 </p>
-                <button className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors">
+                <a
+                  href="/admin/analytics"
+                  className="inline-block px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+                >
                   View Analytics
-                </button>
+                </a>
               </div>
               <div className="bg-green-900/50 p-4 rounded-2xl border border-green-800">
                 <h4 className="font-semibold text-green-200 mb-2">
