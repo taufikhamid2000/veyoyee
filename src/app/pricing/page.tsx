@@ -62,7 +62,7 @@ export default function HandoverPricingPage() {
                     ✓ Quality-focused approach
                   </p>
                   <p className="text-green-200 text-sm">
-                    ✓ 565 hours total development time
+                    ✓ ~200 hours with AI assistance
                   </p>
                 </div>
               </div>
@@ -75,8 +75,15 @@ export default function HandoverPricingPage() {
                 <p className="text-3xl font-bold text-orange-300 mb-2">
                   RM40-60/hour
                 </p>
-                <p className="text-sm text-orange-300 mb-4">
-                  Based on RM5.1k-7.5k monthly salary
+                <p className="text-center text-yellow-300 mb-4">
+                  <a
+                    href="https://my.jobstreet.com/career-advice/role/full-stack-developer/salary"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline hover:text-yellow-200"
+                  >
+                    Based on RM5.1k-7.5k monthly salary
+                  </a>
                 </p>
                 <div className="space-y-2 text-left">
                   <p className="text-orange-200 text-sm">
@@ -100,8 +107,10 @@ export default function HandoverPricingPage() {
               </p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <p className="text-sm text-blue-300">Your Rate (565 hours)</p>
-                  <p className="text-2xl font-bold text-blue-300">RM11,000</p>
+                  <p className="text-sm text-blue-300">
+                    Your Rate (~200 hours)
+                  </p>
+                  <p className="text-2xl font-bold text-blue-300">RM4,000</p>
                 </div>
                 <div>
                   <p className="text-sm text-blue-300">
@@ -114,8 +123,8 @@ export default function HandoverPricingPage() {
               </div>
               <p className="text-sm text-blue-200 mt-4">
                 <span className="font-semibold text-green-300">Result:</span>{" "}
-                Similar total cost, but I provide more detailed work and
-                comprehensive implementation.
+                Significant cost savings of RM7,200-12,800 while maintaining
+                quality through AI-assisted development.
               </p>
             </div>
           </div>
@@ -134,7 +143,7 @@ export default function HandoverPricingPage() {
                     Next.js 13+ (App Router)
                   </h4>
                   <p className="text-2xl font-bold text-blue-300">
-                    20 hours × RM20 = RM400
+                    8 hours × RM20 = RM160
                   </p>
                 </div>
                 <div className="bg-blue-900/50 p-6 rounded-2xl border border-blue-800">
@@ -142,7 +151,7 @@ export default function HandoverPricingPage() {
                     TypeScript Throughout
                   </h4>
                   <p className="text-2xl font-bold text-blue-300">
-                    12.5 hours × RM20 = RM250
+                    5 hours × RM20 = RM100
                   </p>
                 </div>
                 <div className="bg-blue-900/50 p-6 rounded-2xl border border-blue-800">
@@ -150,7 +159,7 @@ export default function HandoverPricingPage() {
                     Tailwind CSS Setup
                   </h4>
                   <p className="text-2xl font-bold text-blue-300">
-                    10 hours × RM20 = RM200
+                    4 hours × RM20 = RM80
                   </p>
                 </div>
               </div>
@@ -160,7 +169,7 @@ export default function HandoverPricingPage() {
                     Supabase Integration
                   </h4>
                   <p className="text-2xl font-bold text-blue-300">
-                    15 hours × RM20 = RM300
+                    6 hours × RM20 = RM120
                   </p>
                 </div>
                 <div className="bg-blue-900/50 p-6 rounded-2xl border border-blue-800">
@@ -168,13 +177,13 @@ export default function HandoverPricingPage() {
                     Modular Structure
                   </h4>
                   <p className="text-2xl font-bold text-blue-300">
-                    17.5 hours × RM20 = RM350
+                    7 hours × RM20 = RM140
                   </p>
                 </div>
               </div>
               <div className="bg-green-900/50 p-6 rounded-2xl text-center border border-green-800">
                 <p className="text-xl font-bold text-green-300">
-                  Subtotal: 75 hours = RM1,500
+                  Subtotal: 30 hours = RM600
                 </p>
               </div>
             </div>
@@ -191,7 +200,7 @@ export default function HandoverPricingPage() {
                   Secure Registration
                 </h4>
                 <p className="text-xl font-bold text-purple-300">
-                  10 hours × RM20 = RM200
+                  4 hours × RM20 = RM80
                 </p>
               </div>
               <div className="bg-purple-900/50 p-6 rounded-2xl border border-purple-800">
@@ -199,7 +208,7 @@ export default function HandoverPricingPage() {
                   Secure Login
                 </h4>
                 <p className="text-xl font-bold text-purple-300">
-                  10 hours × RM20 = RM200
+                  4 hours × RM20 = RM80
                 </p>
               </div>
               <div className="bg-purple-900/50 p-6 rounded-2xl border border-purple-800">
@@ -207,7 +216,7 @@ export default function HandoverPricingPage() {
                   Protected Routes
                 </h4>
                 <p className="text-xl font-bold text-purple-300">
-                  10 hours × RM20 = RM200
+                  4 hours × RM20 = RM80
                 </p>
               </div>
               <div className="bg-purple-900/50 p-6 rounded-2xl border border-purple-800">
@@ -215,7 +224,7 @@ export default function HandoverPricingPage() {
                   Session Management
                 </h4>
                 <p className="text-xl font-bold text-purple-300">
-                  10 hours × RM20 = RM200
+                  4 hours × RM20 = RM80
                 </p>
               </div>
               <div className="bg-purple-900/50 p-6 rounded-2xl border border-purple-800">
@@ -223,7 +232,7 @@ export default function HandoverPricingPage() {
                   Custom Hooks
                 </h4>
                 <p className="text-xl font-bold text-purple-300">
-                  10 hours × RM20 = RM200
+                  4 hours × RM20 = RM80
                 </p>
               </div>
             </div>
@@ -245,7 +254,7 @@ export default function HandoverPricingPage() {
                   Survey Creation
                 </h4>
                 <p className="text-xl font-bold text-orange-300">
-                  60 hours × RM20 = RM1,200
+                  25 hours × RM20 = RM500
                 </p>
               </div>
               <div className="bg-orange-900/50 p-6 rounded-2xl border border-orange-800">
@@ -253,7 +262,7 @@ export default function HandoverPricingPage() {
                   Survey Editing
                 </h4>
                 <p className="text-xl font-bold text-orange-300">
-                  40 hours × RM20 = RM800
+                  15 hours × RM20 = RM300
                 </p>
               </div>
               <div className="bg-orange-900/50 p-6 rounded-2xl border border-orange-800">
@@ -261,7 +270,7 @@ export default function HandoverPricingPage() {
                   Multiple Question Types
                 </h4>
                 <p className="text-xl font-bold text-orange-300">
-                  35 hours × RM20 = RM700
+                  12 hours × RM20 = RM240
                 </p>
               </div>
               <div className="bg-orange-900/50 p-6 rounded-2xl border border-orange-800">
@@ -269,7 +278,7 @@ export default function HandoverPricingPage() {
                   Bulk Actions
                 </h4>
                 <p className="text-xl font-bold text-orange-300">
-                  45 hours × RM20 = RM900
+                  18 hours × RM20 = RM360
                 </p>
               </div>
               <div className="bg-orange-900/50 p-6 rounded-2xl border border-orange-800">
@@ -277,7 +286,7 @@ export default function HandoverPricingPage() {
                   Import/Export
                 </h4>
                 <p className="text-xl font-bold text-orange-300">
-                  30 hours × RM20 = RM600
+                  10 hours × RM20 = RM200
                 </p>
               </div>
               <div className="bg-orange-900/50 p-6 rounded-2xl border border-orange-800">
@@ -285,13 +294,13 @@ export default function HandoverPricingPage() {
                   Analytics Dashboard
                 </h4>
                 <p className="text-xl font-bold text-orange-300">
-                  60 hours × RM20 = RM1,200
+                  25 hours × RM20 = RM500
                 </p>
               </div>
             </div>
             <div className="bg-green-900/50 p-6 rounded-2xl text-center mt-6 border border-green-800">
               <p className="text-xl font-bold text-green-300">
-                Subtotal: 270 hours = RM5,400
+                Subtotal: 105 hours = RM2,100
               </p>
             </div>
           </div>
@@ -307,7 +316,7 @@ export default function HandoverPricingPage() {
                   Marketplace UI
                 </h4>
                 <p className="text-xl font-bold text-teal-300">
-                  15 hours × RM20 = RM300
+                  6 hours × RM20 = RM120
                 </p>
               </div>
               <div className="bg-teal-900/50 p-6 rounded-2xl border border-teal-800">
@@ -315,7 +324,7 @@ export default function HandoverPricingPage() {
                   Purchase Logic
                 </h4>
                 <p className="text-xl font-bold text-teal-300">
-                  15 hours × RM20 = RM300
+                  6 hours × RM20 = RM120
                 </p>
               </div>
               <div className="bg-teal-900/50 p-6 rounded-2xl border border-teal-800">
@@ -323,7 +332,7 @@ export default function HandoverPricingPage() {
                   Transfer Logic
                 </h4>
                 <p className="text-xl font-bold text-teal-300">
-                  10 hours × RM20 = RM200
+                  4 hours × RM20 = RM80
                 </p>
               </div>
               <div className="bg-teal-900/50 p-6 rounded-2xl border border-teal-800">
@@ -331,7 +340,7 @@ export default function HandoverPricingPage() {
                   Data Models
                 </h4>
                 <p className="text-xl font-bold text-teal-300">
-                  10 hours × RM20 = RM200
+                  4 hours × RM20 = RM80
                 </p>
               </div>
             </div>
@@ -353,7 +362,7 @@ export default function HandoverPricingPage() {
                   Leaderboard UI
                 </h4>
                 <p className="text-xl font-bold text-yellow-300">
-                  10 hours × RM20 = RM200
+                  4 hours × RM20 = RM80
                 </p>
               </div>
               <div className="bg-yellow-900/50 p-6 rounded-2xl border border-yellow-800">
@@ -525,9 +534,9 @@ export default function HandoverPricingPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
             <div>
               <p className="text-lg font-medium text-blue-200 mb-2">
-                Total Hours
+                Actual Hours
               </p>
-              <p className="text-4xl font-bold text-white">565 hours</p>
+              <p className="text-4xl font-bold text-white">~200 hours</p>
             </div>
             <div>
               <p className="text-lg font-medium text-blue-200 mb-2">
@@ -539,8 +548,14 @@ export default function HandoverPricingPage() {
               <p className="text-lg font-medium text-blue-200 mb-2">
                 Total Value
               </p>
-              <p className="text-4xl font-bold text-white">RM11,300</p>
+              <p className="text-4xl font-bold text-white">RM4,000</p>
             </div>
+          </div>
+          <div className="mt-6 p-4 bg-blue-800/50 rounded-2xl border border-blue-700">
+            <p className="text-center text-blue-200 font-medium">
+              Development time reduced through AI assistance (Copilot, Cursor,
+              ChatGPT) while maintaining quality and comprehensive features.
+            </p>
           </div>
         </div>
 
@@ -558,7 +573,7 @@ export default function HandoverPricingPage() {
                 Multi-use, resale rights, support/updates
               </p>
               <p className="text-2xl font-bold text-blue-300">
-                RM11,300 - RM15,000
+                RM4,000 - RM6,000
               </p>
             </div>
             <div className="bg-green-900/50 p-6 rounded-2xl text-center border border-green-800">
@@ -569,7 +584,7 @@ export default function HandoverPricingPage() {
                 Single use, no resale
               </p>
               <p className="text-2xl font-bold text-green-300">
-                RM8,000 - RM11,300
+                RM3,000 - RM4,000
               </p>
             </div>
             <div className="bg-orange-900/50 p-6 rounded-2xl text-center border border-orange-800">
@@ -580,7 +595,7 @@ export default function HandoverPricingPage() {
                 Single use, limited support
               </p>
               <p className="text-2xl font-bold text-orange-300">
-                RM6,000 - RM8,000
+                RM2,500 - RM3,000
               </p>
             </div>
           </div>
@@ -594,27 +609,21 @@ export default function HandoverPricingPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="text-center">
               <p className="text-sm text-blue-300 mb-1">Core Architecture</p>
-              <p className="text-lg font-semibold text-white">
-                75 hours (13.3%)
-              </p>
+              <p className="text-lg font-semibold text-white">30 hours (15%)</p>
             </div>
             <div className="text-center">
               <p className="text-sm text-blue-300 mb-1">Authentication</p>
-              <p className="text-lg font-semibold text-white">
-                50 hours (8.8%)
-              </p>
+              <p className="text-lg font-semibold text-white">20 hours (10%)</p>
             </div>
             <div className="text-center">
               <p className="text-sm text-blue-300 mb-1">Survey Platform</p>
               <p className="text-lg font-semibold text-white">
-                270 hours (47.8%)
+                105 hours (52.5%)
               </p>
             </div>
             <div className="text-center">
               <p className="text-sm text-blue-300 mb-1">Marketplace</p>
-              <p className="text-lg font-semibold text-white">
-                50 hours (8.8%)
-              </p>
+              <p className="text-lg font-semibold text-white">20 hours (10%)</p>
             </div>
             <div className="text-center">
               <p className="text-sm text-blue-300 mb-1">Leaderboard</p>
