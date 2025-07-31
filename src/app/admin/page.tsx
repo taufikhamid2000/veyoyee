@@ -167,9 +167,12 @@ export default function AdminPage() {
                 <p className="text-indigo-300 text-sm mb-3">
                   Configure platform settings and preferences
                 </p>
-                <button className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors">
+                <a
+                  href="/admin/settings"
+                  className="inline-block px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors"
+                >
                   System Settings
-                </button>
+                </a>
               </div>
             </div>
           </div>
