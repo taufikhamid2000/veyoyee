@@ -153,9 +153,12 @@ export default function AdminPage() {
                 <p className="text-teal-300 text-sm mb-3">
                   Manage marketplace listings and transactions
                 </p>
-                <button className="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg transition-colors">
+                <a
+                  href="/admin/marketplace"
+                  className="inline-block px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg transition-colors"
+                >
                   Manage Marketplace
-                </button>
+                </a>
               </div>
               <div className="bg-indigo-900/50 p-4 rounded-2xl border border-indigo-800">
                 <h4 className="font-semibold text-indigo-200 mb-2">
