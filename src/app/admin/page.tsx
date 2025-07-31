@@ -116,9 +116,12 @@ export default function AdminPage() {
                 <p className="text-purple-300 text-sm mb-3">
                   Assign and manage user roles and permissions
                 </p>
-                <button className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors">
+                <a
+                  href="/admin/roles"
+                  className="inline-block px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
+                >
                   Manage Roles
-                </button>
+                </a>
               </div>
             </div>
           </div>
