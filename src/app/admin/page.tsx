@@ -99,9 +99,12 @@ export default function AdminPage() {
                 <p className="text-green-300 text-sm mb-3">
                   Manage user verification status and approvals
                 </p>
-                <button className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors">
+                <a
+                  href="/admin/verification"
+                  className="inline-block px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors"
+                >
                   Manage Users
-                </button>
+                </a>
               </div>
               <div className="bg-purple-900/50 p-4 rounded-2xl border border-purple-800">
                 <h4 className="font-semibold text-purple-200 mb-2">
