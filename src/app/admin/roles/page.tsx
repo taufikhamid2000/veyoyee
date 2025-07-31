@@ -192,7 +192,9 @@ export default function RoleManagementPage() {
       // For now, just update local state
       setUsers((prev) =>
         prev.map((user) =>
-          user.id === userId ? { ...user, status: newStatus as any } : user
+          user.id === userId
+            ? { ...user, status: newStatus as "active" | "inactive" | "suspended" }
+            : user
         )
       );
     } catch (error) {

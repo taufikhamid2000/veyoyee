@@ -227,7 +227,6 @@ export default function MarketplaceManagementPage() {
 
   const handleBulkApprove = async () => {
     try {
-      const pendingItems = items.filter((i) => i.status === "pending");
       // Bulk update in database
       // const { error } = await supabase
       //   .from('marketplace_items')
