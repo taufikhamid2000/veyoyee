@@ -1,5 +1,6 @@
 import { QuestionEdit } from "../../../data/surveyor-data";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { getRatingConfig } from "../survey-builder/question-helpers";
 import { SurveyResponseService } from "../../../lib/services/survey/survey-response-service";
 import { useSupabaseAuth } from "../../../hooks/useSupabaseAuth";
@@ -16,7 +17,8 @@ export default function SurveyResponseForm({
   type Answers = Record<string, string>;
   const [answers, setAnswers] = useState<Answers>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { user } = useSupabaseAuth();
+  const { user, loading: authLoading } = useSupabaseAuth();
+  const router = useRouter();
 
   const handleAnswerChange = (qid: string, value: string) => {
     setAnswers((prev) => ({ ...prev, [qid]: value }));
@@ -25,14 +27,30 @@ export default function SurveyResponseForm({
   const handleSubmitAnswers = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
+    // Client-side gate for UX only — the real enforcement is server-side via
+    // Supabase RLS (individual_responses/response_answers INSERT policies
+    // require auth.uid()), so an anonymous request is rejected at the DB
+    // layer even if this check is bypassed.
     if (!user) {
-      alert("You must be logged in to submit responses");
+      router.push("/auth/signin");
       return;
     }
 
     setIsSubmitting(true);
 
     try {
+      // Prevent duplicate submissions to the same survey by the same user
+      // (anti point-farming / anti data-pollution safeguard).
+      const alreadyAnswered = await SurveyResponseService.hasUserAnsweredSurvey(
+        surveyId,
+        user.id
+      );
+      if (alreadyAnswered.success && alreadyAnswered.data) {
+        alert("You have already submitted a response to this survey.");
+        setIsSubmitting(false);
+        return;
+      }
+
       // 1. Create a survey response record
       const responseResult = await SurveyResponseService.createSurveyResponse(
         surveyId,
@@ -227,6 +245,12 @@ export default function SurveyResponseForm({
           ) : null}
         </div>
       ))}
+      {!authLoading && !user && (
+        <p className="mt-4 text-sm text-gray-700 dark:text-gray-300">
+          Sign in to answer and earn points — you&apos;ll be asked to sign in
+          when you submit.
+        </p>
+      )}
       <button
         type="submit"
         disabled={isSubmitting}
@@ -236,7 +260,11 @@ export default function SurveyResponseForm({
             : "bg-green-600 text-white hover:bg-green-700"
         }`}
       >
-        {isSubmitting ? "Submitting..." : "Submit Answers"}
+        {isSubmitting
+          ? "Submitting..."
+          : !authLoading && !user
+          ? "Sign in to submit"
+          : "Submit Answers"}
       </button>
     </form>
   );
