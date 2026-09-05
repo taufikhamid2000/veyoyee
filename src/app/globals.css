@@ -4,16 +4,47 @@
 :root {
   --background: #f3f4f6; /* Light gray background for light mode */
   --foreground: #111827; /* Dark gray text for light mode */
+  --muted: #e5e7eb;
+  --muted-foreground: #4b5563;
+  --border: rgba(17, 24, 39, 0.1);
+  --input: rgba(17, 24, 39, 0.15);
+  /* Veyoyee's own hue: violet, distinct from the portfolio's finance blue —
+     reads as academic/marketplace rather than money. */
+  --primary: #7c3aed;
+  --primary-foreground: #ffffff;
+  --secondary: #a78bfa;
+  --accent: #7c3aed;
+  --accent-foreground: #ffffff;
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+  --ring: #7c3aed;
 }
 
 html.dark {
   --background: #111827; /* Dark background for dark mode */
   --foreground: #f3f4f6; /* Light text for dark mode */
+  --muted: #1f2937;
+  --muted-foreground: #9ca3af;
+  --border: rgba(255, 255, 255, 0.1);
+  --input: rgba(255, 255, 255, 0.15);
+  --ring: #a78bfa;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-ring: var(--ring);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
@@ -22,6 +53,33 @@ html.dark {
   :root:not(.light) {
     --background: #111827; /* Dark background for dark mode */
     --foreground: #f3f4f6; /* Light text for dark mode */
+    --muted: #1f2937;
+    --muted-foreground: #9ca3af;
+    --border: rgba(255, 255, 255, 0.1);
+    --input: rgba(255, 255, 255, 0.15);
+    --ring: #a78bfa;
+  }
+}
+
+/* Page/element enter animation — matches the portfolio's shared motion
+   language (subtle translateY+fade, not a slide-in). */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.animate-page-in {
+  animation: fade-in-up 350ms ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-page-in {
+    animation-duration: 0.01ms !important;
   }
 }
 

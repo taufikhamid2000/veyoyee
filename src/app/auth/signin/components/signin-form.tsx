@@ -68,7 +68,11 @@ export default function SignInForm({ onSuccess }: SignInFormProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       {submitError && (
-        <div className="p-3 text-sm text-white bg-red-500 rounded-md flex items-center gap-2">
+        <div
+          id="signin-form-error"
+          role="alert"
+          className="p-3 text-sm text-white bg-red-500 rounded-md flex items-center gap-2"
+        >
           <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
             <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
           </svg>
@@ -90,6 +94,8 @@ export default function SignInForm({ onSuccess }: SignInFormProps) {
         placeholder="your@email.com"
         error={getFieldError("email")}
         disabled={isSubmitting}
+        aria-invalid={!!submitError || undefined}
+        aria-describedby={submitError ? "signin-form-error" : undefined}
         required
       />
 
@@ -111,13 +117,16 @@ export default function SignInForm({ onSuccess }: SignInFormProps) {
           placeholder="••••••••"
           error={getFieldError("password")}
           disabled={isSubmitting}
+          aria-invalid={!!submitError || undefined}
+          aria-describedby={submitError ? "signin-form-error" : undefined}
           required
         />
       </div>
 
       <Button
         type="submit"
-        className="w-full"
+        variant="primary"
+        className="w-full rounded-full"
         loading={isSubmitting}
         loadingText="Signing in..."
       >
