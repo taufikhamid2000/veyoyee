@@ -3,6 +3,7 @@ import Link from "next/link";
 
 import { AuthBrandingPanel } from "@/components/auth-branding-panel";
 import { LogoMark } from "@/components/ui/logo-mark";
+import { DemoButton } from "@/components/demo-button";
 import SignInForm from "./components/signin-form";
 
 export const metadata: Metadata = {
@@ -26,6 +27,14 @@ export default async function SignInPage() {
           <p className="mb-6 text-sm text-foreground/60">Sign in to your account</p>
 
           <SignInForm />
+
+          <div className="my-4 flex items-center gap-3">
+            <div className="h-px flex-1 bg-border" />
+            <span className="text-xs text-foreground/40">or</span>
+            <div className="h-px flex-1 bg-border" />
+          </div>
+
+          <DemoButton />
 
           <p className="mt-6 text-center text-sm text-foreground/60">
             Don&apos;t have an account?{" "}
