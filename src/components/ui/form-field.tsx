@@ -1,4 +1,4 @@
-import { forwardRef } from "react";
+import { forwardRef, useId } from "react";
 import { cn } from "@/lib/utils";
 
 interface FormFieldProps extends React.InputHTMLAttributes<HTMLInputElement> {
@@ -8,16 +8,22 @@ interface FormFieldProps extends React.InputHTMLAttributes<HTMLInputElement> {
 }
 
 export const FormField = forwardRef<HTMLInputElement, FormFieldProps>(
-  ({ className, label, error, helperText, ...props }, ref) => {
+  ({ className, label, error, helperText, id, ...props }, ref) => {
+    const generatedId = useId();
+    const inputId = id ?? generatedId;
     return (
       <div className="space-y-2">
         {label && (
-          <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+          <label
+            htmlFor={inputId}
+            className="text-sm font-medium text-gray-700 dark:text-gray-300"
+          >
             {label}
             {props.required && <span className="text-red-500 ml-1">*</span>}
           </label>
         )}
         <input
+          id={inputId}
           className={cn(
             "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background",
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",

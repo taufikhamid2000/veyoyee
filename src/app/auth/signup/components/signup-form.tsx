@@ -83,7 +83,7 @@ export default function SignUpForm() {
   });
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} noValidate className="space-y-4">
       {submitError && (
         <div
           id="signup-form-error"

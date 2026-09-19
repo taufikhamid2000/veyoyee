@@ -59,6 +59,7 @@ export default function SignInForm({ onSuccess }: SignInFormProps) {
         if (onSuccess) {
           onSuccess();
         } else {
+          router.refresh();
           router.push("/dashboard");
         }
       }
@@ -66,7 +67,7 @@ export default function SignInForm({ onSuccess }: SignInFormProps) {
   });
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} noValidate className="space-y-4">
       {submitError && (
         <div
           id="signin-form-error"
@@ -100,11 +101,7 @@ export default function SignInForm({ onSuccess }: SignInFormProps) {
       />
 
       <div className="space-y-2">
-        <div className="flex items-center justify-between">
-          <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-            Password
-            <span className="text-red-500 ml-1">*</span>
-          </label>
+        <div className="flex justify-end">
           <a
             href="/auth/forgot-password"
             className="text-xs text-blue-600 hover:underline dark:text-blue-400"
@@ -114,6 +111,7 @@ export default function SignInForm({ onSuccess }: SignInFormProps) {
         </div>
         <PasswordField
           {...register("password")}
+          label="Password"
           placeholder="••••••••"
           error={getFieldError("password")}
           disabled={isSubmitting}

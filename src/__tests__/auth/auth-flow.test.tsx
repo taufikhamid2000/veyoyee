@@ -2,16 +2,18 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import "@testing-library/jest-dom";
 
-// Mock the supabase client
-jest.mock("@/lib/supabase/client", () => ({
-  supabase: {
-    auth: {
-      getSession: jest.fn(),
-      signUp: jest.fn(),
-      signInWithPassword: jest.fn(),
-      signOut: jest.fn(),
-    },
+// Mock the supabase client factory
+const mockSupabase = {
+  auth: {
+    getSession: jest.fn(),
+    signUp: jest.fn(),
+    signInWithPassword: jest.fn(),
+    signOut: jest.fn(),
   },
+};
+
+jest.mock("@/lib/supabase/client", () => ({
+  createClient: () => mockSupabase,
 }));
 
 // Mock next/navigation
@@ -26,7 +28,8 @@ jest.mock("next/navigation", () => ({
 // Import components after mocks
 import SignUpForm from "@/app/auth/signup/components/signup-form";
 import SignInForm from "@/app/auth/signin/components/signin-form";
-import { supabase } from "@/lib/supabase/client";
+
+const supabase = mockSupabase;
 
 describe("Authentication Flow", () => {
   beforeEach(() => {
@@ -39,7 +42,7 @@ describe("Authentication Flow", () => {
       firstName: "Test",
       lastName: "User",
       email: "test.user@example.com",
-      password: "password123",
+      password: "Password123",
     };
 
     // Step 2: Mock successful signup
@@ -52,8 +55,13 @@ describe("Authentication Flow", () => {
     await user.type(screen.getByLabelText(/First Name/i), testUser.firstName);
     await user.type(screen.getByLabelText(/Last Name/i), testUser.lastName);
     await user.type(screen.getByLabelText(/Email/i), testUser.email);
-    await user.type(screen.getByLabelText(/Password/i), testUser.password);
-    await user.click(screen.getByRole("button", { name: /Sign up/i }));
+    await user.type(screen.getByLabelText(/^Password/i), testUser.password);
+    await user.type(
+      screen.getByLabelText(/Confirm Password/i),
+      testUser.password
+    );
+    await user.click(screen.getByRole("checkbox"));
+    await user.click(screen.getByRole("button", { name: /Create account/i }));
 
     // Verify signup was called with correct data
     await waitFor(() => {

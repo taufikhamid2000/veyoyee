@@ -2,8 +2,6 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import "@testing-library/jest-dom";
 import SignInForm from "@/app/auth/signin/components/signin-form";
-import { supabase } from "@/lib/supabase/client";
-
 // Mock the next/navigation hooks
 const pushMock = jest.fn();
 const refreshMock = jest.fn();
@@ -15,14 +13,18 @@ jest.mock("next/navigation", () => ({
   }),
 }));
 
-// Mock the supabase client
-jest.mock("@/lib/supabase/client", () => ({
-  supabase: {
-    auth: {
-      signInWithPassword: jest.fn(),
-    },
+// Mock the supabase client factory
+const mockSupabase = {
+  auth: {
+    signInWithPassword: jest.fn(),
   },
+};
+
+jest.mock("@/lib/supabase/client", () => ({
+  createClient: () => mockSupabase,
 }));
+
+const supabase = mockSupabase;
 
 describe("SignIn Form", () => {
   beforeEach(() => {
@@ -56,7 +58,7 @@ describe("SignIn Form", () => {
         screen.getByText(/please enter a valid email/i)
       ).toBeInTheDocument();
       expect(
-        screen.getByText(/password must be at least 6 characters/i)
+        screen.getByText(/password is required/i)
       ).toBeInTheDocument();
     });
   });
@@ -64,6 +66,7 @@ describe("SignIn Form", () => {
     // Mock the successful sign in response
     (supabase.auth.signInWithPassword as jest.Mock).mockResolvedValueOnce({
       error: null,
+      data: { user: { id: "user-1", email: "john.doe@example.com" } },
     });
 
     render(<SignInForm />);
@@ -108,7 +111,9 @@ describe("SignIn Form", () => {
 
     // Check if error message is displayed
     await waitFor(() => {
-      expect(screen.getByText("Invalid login credentials")).toBeInTheDocument();
+      expect(
+        screen.getByText("Invalid email or password. Please try again.")
+      ).toBeInTheDocument();
     });
   });
 });
